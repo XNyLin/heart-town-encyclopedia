@@ -3,362 +3,828 @@
 import { useEffect, useMemo, useState } from "react";
 
 const SHEET_CSV_URL =
-"https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
+  "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
 function parseCSVLine(line) {
-const result = [];
-let current = "";
-let inQuotes = false;
+  const result = [];
+  let current = "";
+  let inQuotes = false;
 
-for (let i = 0; i < line.length; i++) {
-const char = line[i];
-const next = line[i + 1];
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const nextChar = line[i + 1];
 
-if (char === '"') {
-if (inQuotes && next === '"') {
-current += '"';
-i++;
-} else {
-inQuotes = !inQuotes;
-}
-} else if (char === "," && !inQuotes) {
-result.push(current);
-current = "";
-} else {
-current += char;
-}
-}
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
 
-result.push(current);
-return result;
+  result.push(current);
+  return result;
 }
 
 function parseCSV(text) {
-const lines = text.split(/\r?\n/).filter(l => l.trim() !== "");
-if (!lines.length) return [];
+  const lines = text
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "");
 
-const headers = parseCSVLine(lines[0]);
+  if (lines.length === 0) return [];
 
-return lines.slice(1).map(line => {
-const values = parseCSVLine(line);
-const row = {};
-headers.forEach((h,i)=>{
-row[h.trim()] = (values[i] || "").trim();
-});
-return row;
-});
+  const headers = parseCSVLine(lines[0]);
+
+  return lines
+    .map((line, lineIndex) => {
+      if (lineIndex === 0) return null;
+
+      const values = parseCSVLine(line);
+      const row = {};
+
+      headers.forEach((header, index) => {
+        row[header.trim()] = (values[index] || "").trim();
+      });
+
+      return row;
+    })
+    .filter(Boolean);
 }
 
-function normalizeText(v){
-return String(v || "").replace(/\s+/g,"");
+function normalizeText(value) {
+  return String(value || "").replace(/\s+/g, "").trim();
 }
 
-function getField(row,keys){
-for(const k of keys){
-if(row[k]) return row[k];
-}
-return "";
-}
-
-function matchesWeather(v,filter){
-if(filter==="全部") return true;
-return normalizeText(v).includes(normalizeText(filter));
+function getField(row, keys) {
+  for (const key of keys) {
+    if (row[key] !== undefined && row[key] !== null && row[key] !== "") {
+      return row[key];
+    }
+  }
+  return "";
 }
 
-function matchesArea(v,filter){
-if(filter==="全部") return true;
-return normalizeText(v).includes(filter);
+function matchesWeather(cellValue, selectedWeather) {
+  if (selectedWeather === "全部") return true;
+
+  const cell = normalizeText(cellValue);
+  const target = normalizeText(selectedWeather);
+
+  return cell.includes(target);
 }
 
-function matchesPeriod(v,p){
-if(p==="全部") return true;
-const digits = normalizeText(v).replace(/[^\d]/g,"");
-return digits.includes(String(p));
+function matchesPeriod(cellValue, currentPeriod) {
+  if (currentPeriod === "全部") return true;
+
+  const cell = normalizeText(cellValue);
+  const digitsOnly = cell.replace(/[^\d]/g, "");
+
+  return digitsOnly.includes(String(currentPeriod));
 }
 
-function getPeriodName(p){
-return {1:"清晨",2:"上午",3:"下午",4:"晚上"}[p];
+function matchesArea(cellValue, selectedArea) {
+  if (selectedArea === "全部") return true;
+
+  const cell = normalizeText(cellValue);
+  return cell.includes(selectedArea);
 }
 
-function formatPeriodDisplay(v){
-const digits = normalizeText(v).replace(/[^\d]/g,"");
-const set = [...new Set(digits.split(""))];
-
-if(set.includes("1")&&set.includes("2")&&set.includes("3")&&set.includes("4")){
-return "全天";
+function getPeriodName(period) {
+  const map = {
+    "1": "清晨",
+    "2": "上午",
+    "3": "下午",
+    "4": "晚上",
+  };
+  return map[String(period)] || "";
 }
 
-return set.map(x=>getPeriodName(x)).join("、");
+function getCurrentTimeInfo(date) {
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+
+  let period = "1";
+
+  if (hour >= 6 && hour < 12) {
+    period = "2";
+  } else if (hour >= 12 && hour < 18) {
+    period = "3";
+  } else if (hour >= 18) {
+    period = "4";
+  }
+
+  return {
+    period,
+    periodName: getPeriodName(period),
+    timeText: `${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0"
+    )}`,
+  };
 }
 
-function formatWeatherDisplay(v){
-const text = normalizeText(v);
+function getUniqueSortedLevels(rows, type) {
+  const values = rows
+    .filter((row) => getField(row, ["類型"]) === type)
+    .map((row) => Number(getField(row, ["Level", "等級"])))
+    .filter((value) => !Number.isNaN(value));
 
-const all = ["彩虹","晴天","雨天","雪天"];
-if(all.every(w=>text.includes(w))) return "全天氣";
+  return [...new Set(values)].sort((a, b) => a - b);
+}
 
-const map={
-彩虹:"🌈",
-晴天:"☀️",
-雨天:"☔️",
-雪天:"⛄️"
+function formatPeriodDisplay(cellValue) {
+  const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
+  const uniquePeriods = [...new Set(digitsOnly.split("").filter(Boolean))];
+
+  if (
+    uniquePeriods.includes("1") &&
+    uniquePeriods.includes("2") &&
+    uniquePeriods.includes("3") &&
+    uniquePeriods.includes("4")
+  ) {
+    return "全天";
+  }
+
+  return uniquePeriods.map((period) => getPeriodName(period)).join("、");
+}
+
+function formatWeatherDisplay(cellValue) {
+  const text = normalizeText(cellValue);
+
+  const allWeather = ["彩虹", "晴天", "雨天", "雪天"];
+  const hasAll = allWeather.every((w) => text.includes(w));
+
+  if (hasAll) return "全天氣";
+
+  const weatherMap = {
+    彩虹: "🌈",
+    晴天: "☀️",
+    雨天: "☔️",
+    雪天: "⛄️",
+  };
+
+  const result = [];
+
+  for (const key of Object.keys(weatherMap)) {
+    if (text.includes(key)) {
+      result.push(weatherMap[key]);
+    }
+  }
+
+  return result.length > 0 ? result.join(" ") : cellValue;
+}
+
+function formatFishShadowDisplay(value) {
+  const text = String(value || "");
+
+  if (text.includes("金魚影")) {
+    return <span style={{ color: "#d97706", fontWeight: 700 }}>{text}</span>;
+  }
+
+  if (text.includes("藍魚影")) {
+    return <span style={{ color: "#2563eb", fontWeight: 700 }}>{text}</span>;
+  }
+
+  return text;
+}
+
+function sortRowsByLevel(rows, order) {
+  if (order === "none") return rows;
+
+  const cloned = [...rows];
+
+  cloned.sort((a, b) => {
+    const aLevel = Number(getField(a, ["Level", "等級"])) || 0;
+    const bLevel = Number(getField(b, ["Level", "等級"])) || 0;
+
+    if (order === "asc") return aLevel - bLevel;
+    return bLevel - aLevel;
+  });
+
+  return cloned;
+}
+
+function ToggleSwitch({ checked, onChange }) {
+  return (
+    <label
+      style={{
+        position: "relative",
+        display: "inline-block",
+        width: "44px",
+        height: "24px",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{
+          opacity: 0,
+          width: 0,
+          height: 0,
+        }}
+      />
+
+      <span
+        style={{
+          position: "absolute",
+          cursor: "pointer",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: checked ? "#34C759" : "#ccc",
+          transition: "0.2s",
+          borderRadius: "24px",
+        }}
+      />
+
+      <span
+        style={{
+          position: "absolute",
+          height: "20px",
+          width: "20px",
+          left: checked ? "22px" : "2px",
+          top: "2px",
+          backgroundColor: "white",
+          borderRadius: "50%",
+          transition: "0.2s",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+        }}
+      />
+    </label>
+  );
+}
+
+function InfoPill({ label, value }) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "10px 14px",
+        borderRadius: "999px",
+        background: "#f3f4f6",
+        border: "1px solid #e5e7eb",
+        fontSize: "14px",
+        color: "#333",
+      }}
+    >
+      <span style={{ fontWeight: 700 }}>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+export default function Home() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [keyword, setKeyword] = useState("");
+  const [weatherFilter, setWeatherFilter] = useState("全部");
+  const [areaFilter, setAreaFilter] = useState("全部");
+
+  const [fishLevel, setFishLevel] = useState("全部");
+  const [bugLevel, setBugLevel] = useState("全部");
+  const [birdLevel, setBirdLevel] = useState("全部");
+
+  const [tab, setTab] = useState("全部");
+  const [levelSort, setLevelSort] = useState("none");
+
+  const [now, setNow] = useState(new Date());
+  const [autoPeriod, setAutoPeriod] = useState(true);
+  const [manualPeriod, setManualPeriod] = useState("全部");
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+
+        if (!res.ok) {
+          throw new Error("無法讀取 Google Sheet 資料");
+        }
+
+        const csvText = await res.text();
+        const parsedRows = parseCSV(csvText).filter(
+          (row) => getField(row, ["名稱"]) !== ""
+        );
+        setRows(parsedRows);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
+
+  const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
+  const effectivePeriodName =
+    effectivePeriod === "全部" ? "全部" : getPeriodName(effectivePeriod);
+
+  const fishLevels = useMemo(() => getUniqueSortedLevels(rows, "魚"), [rows]);
+  const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
+  const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
+
+  const fishCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "魚").length,
+    [rows]
+  );
+  const bugCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "蟲").length,
+    [rows]
+  );
+  const birdCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "鳥").length,
+    [rows]
+  );
+
+  const filteredRows = useMemo(() => {
+    const baseFiltered = rows.filter((row) => {
+      const rowType = getField(row, ["類型"]);
+      const rowName = getField(row, ["名稱"]);
+      const rowLevel = Number(getField(row, ["Level", "等級"]));
+      const rowWeather = getField(row, ["天氣"]);
+      const rowPeriod = getField(row, ["時段", "時間"]);
+      const rowArea = getField(row, ["地區"]);
+      const rowPlace = getField(row, ["地點"]);
+      const rowNote = getField(row, ["Note", "備註"]);
+
+      const matchKeyword = keyword.trim()
+        ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
+        : true;
+
+      const matchTab = tab === "全部" ? true : rowType === tab;
+      const matchWeather = matchesWeather(rowWeather, weatherFilter);
+      const matchArea = matchesArea(rowArea, areaFilter);
+      const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
+
+      let matchLevel = true;
+
+      if (tab !== "全部") {
+        if (rowType === "魚" && fishLevel !== "全部") {
+          matchLevel = rowLevel <= Number(fishLevel);
+        } else if (rowType === "蟲" && bugLevel !== "全部") {
+          matchLevel = rowLevel <= Number(bugLevel);
+        } else if (rowType === "鳥" && birdLevel !== "全部") {
+          matchLevel = rowLevel <= Number(birdLevel);
+        }
+      }
+
+      return (
+        rowName !== "" &&
+        matchKeyword &&
+        matchTab &&
+        matchWeather &&
+        matchArea &&
+        matchPeriod &&
+        matchLevel &&
+        rowPlace !== "" &&
+        rowNote !== undefined
+      );
+    });
+
+    return sortRowsByLevel(baseFiltered, levelSort);
+  }, [
+    rows,
+    keyword,
+    weatherFilter,
+    areaFilter,
+    fishLevel,
+    bugLevel,
+    birdLevel,
+    effectivePeriod,
+    tab,
+    levelSort,
+  ]);
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        background: "#f7f7f7",
+        padding: "40px 20px",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1280px",
+          margin: "0 auto",
+        }}
+      >
+        <header style={{ marginBottom: "28px" }}>
+          <h1
+            style={{
+              fontSize: "44px",
+              lineHeight: 1.1,
+              fontWeight: 800,
+              margin: "0 0 12px 0",
+              color: "#111",
+            }}
+          >
+            心動小鎮｜生物圖鑑
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: "18px",
+              color: "#666",
+            }}
+          >
+            {loading
+              ? "資料載入中..."
+              : `目前魚圖鑑 ${fishCount} 筆、蟲圖鑑 ${bugCount} 筆、鳥圖鑑 ${birdCount} 筆，共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
+          </p>
+        </header>
+
+        <section
+          style={{
+            background: "#fff",
+            borderRadius: "18px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+            padding: "18px",
+            marginBottom: "20px",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
+              gap: "16px",
+            }}
+          >
+            <div style={{ gridColumn: "span 12" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "12px",
+                  alignItems: "center",
+                  marginBottom: "4px",
+                }}
+              >
+                <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
+                <InfoPill
+                  label="目前時段"
+                  value={
+                    autoPeriod
+                      ? `${currentTimeInfo.periodName}（自動）`
+                      : `${effectivePeriodName}（手動）`
+                  }
+                />
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "span 12" }}>
+              <label style={labelStyle}>圖鑑分頁</label>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {["全部", "魚", "蟲", "鳥"].map((type) => {
+                  const active = tab === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setTab(type)}
+                      style={{
+                        ...chipStyle,
+                        background: active ? "#111" : "#f1f1f1",
+                        color: active ? "#fff" : "#333",
+                        border: active
+                          ? "1px solid #111"
+                          : "1px solid #e5e5e5",
+                      }}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "span 12" }}>
+              <label style={labelStyle}>搜尋名稱</label>
+              <input
+                type="text"
+                placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>天氣</label>
+              <select
+                value={weatherFilter}
+                onChange={(e) => setWeatherFilter(e.target.value)}
+                style={selectStyle}
+              >
+                {["全部", "晴天", "雨天", "雪天", "彩虹"].map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>地區</label>
+              <select
+                value={areaFilter}
+                onChange={(e) => setAreaFilter(e.target.value)}
+                style={selectStyle}
+              >
+                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
+                  (item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                  gap: "12px",
+                }}
+              >
+                <label style={{ ...labelStyle, marginBottom: 0 }}>時段</label>
+
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "13px",
+                    color: "#444",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <ToggleSwitch
+                    checked={autoPeriod}
+                    onChange={setAutoPeriod}
+                  />
+                  自動判斷
+                </div>
+              </div>
+
+              <select
+                value={manualPeriod}
+                onChange={(e) => setManualPeriod(e.target.value)}
+                style={{
+                  ...selectStyle,
+                  opacity: autoPeriod ? 0.5 : 1,
+                  cursor: autoPeriod ? "not-allowed" : "pointer",
+                }}
+                disabled={autoPeriod}
+              >
+                <option value="全部">全部</option>
+                <option value="1">清晨</option>
+                <option value="2">上午</option>
+                <option value="3">下午</option>
+                <option value="4">晚上</option>
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 1.666" }}>
+              <label style={labelStyle}>魚愛好等級</label>
+              <select
+                value={fishLevel}
+                onChange={(e) => setFishLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {fishLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>蟲愛好等級</label>
+              <select
+                value={bugLevel}
+                onChange={(e) => setBugLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {bugLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>鳥愛好等級</label>
+              <select
+                value={birdLevel}
+                onChange={(e) => setBirdLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {birdLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section
+          style={{
+            background: "#fff",
+            borderRadius: "18px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+            padding: "14px",
+            overflowX: "auto",
+          }}
+        >
+          {loading ? (
+            <div style={{ padding: "24px", color: "#666" }}>資料載入中...</div>
+          ) : (
+            <table
+              style={{
+                width: "100%",
+                minWidth: "1040px",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th style={thStyle}>類型</th>
+                  <th style={thStyle}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span>Level</span>
+                      <select
+                        value={levelSort}
+                        onChange={(e) => setLevelSort(e.target.value)}
+                        style={miniSelectStyle}
+                      >
+                        <option value="none">預設</option>
+                        <option value="asc">低→高</option>
+                        <option value="desc">高→低</option>
+                      </select>
+                    </div>
+                  </th>
+                  <th style={thStyle}>名稱</th>
+                  <th style={thStyle}>天氣</th>
+                  <th style={thStyle}>時段</th>
+                  <th style={thStyle}>地點</th>
+                  <th style={thStyle}>Note</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredRows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      style={{
+                        padding: "24px 14px",
+                        textAlign: "center",
+                        color: "#777",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      沒有符合條件的資料
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRows.map((row, index) => (
+                    <tr key={`${getField(row, ["名稱"])}-${index}`}>
+                      <td style={tdStyle}>{getField(row, ["類型"])}</td>
+                      <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
+                      <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
+                      <td style={tdStyle}>
+                        {formatWeatherDisplay(getField(row, ["天氣"]))}
+                      </td>
+                      <td style={tdStyle}>
+                        {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
+                      </td>
+                      <td style={tdStyle}>{getField(row, ["地點"])}</td>
+                      <td style={tdStyle}>
+                        {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+const labelStyle = {
+  display: "block",
+  fontSize: "14px",
+  fontWeight: 700,
+  color: "#444",
+  marginBottom: "8px",
 };
 
-return Object.keys(map)
-.filter(k=>text.includes(k))
-.map(k=>map[k])
-.join(" ");
-}
+const inputStyle = {
+  width: "100%",
+  height: "44px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  padding: "0 14px",
+  fontSize: "15px",
+  outline: "none",
+  background: "#fff",
+};
 
-function formatFishShadowDisplay(v){
-const text = String(v||"");
+const selectStyle = {
+  width: "100%",
+  height: "44px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  padding: "0 14px",
+  fontSize: "15px",
+  outline: "none",
+  background: "#fff",
+};
 
-if(text.includes("金魚影")){
-return <span style={{color:"#d97706",fontWeight:700}}>{text}</span>;
-}
+const miniSelectStyle = {
+  height: "30px",
+  borderRadius: "8px",
+  border: "1px solid #ddd",
+  padding: "0 8px",
+  fontSize: "12px",
+  background: "#fff",
+};
 
-if(text.includes("藍魚影")){
-return <span style={{color:"#2563eb",fontWeight:700}}>{text}</span>;
-}
+const chipStyle = {
+  height: "40px",
+  padding: "0 14px",
+  borderRadius: "999px",
+  fontSize: "14px",
+  fontWeight: 700,
+  cursor: "pointer",
+};
 
-return text;
-}
+const thStyle = {
+  textAlign: "left",
+  padding: "16px 14px",
+  borderBottom: "1px solid #e8e8e8",
+  fontSize: "14px",
+  fontWeight: 700,
+  color: "#444",
+  whiteSpace: "nowrap",
+  background: "#fff",
+  verticalAlign: "middle",
+};
 
-function formatPlaceDisplay(v){
-const text = String(v||"");
+const tdStyle = {
+  padding: "16px 14px",
+  borderBottom: "1px solid #f0f0f0",
+  fontSize: "15px",
+  color: "#222",
+  verticalAlign: "top",
+};
 
-let color="#333";
-
-if(text.includes("⬆")) color="#8B5A2B";
-else if(text.includes("⬅")) color="#9AD87A";
-else if(text.includes("⮕")) color="#1F7A3A";
-else if(text.includes("⬇")) color="#2563EB";
-else if(text.includes("🏘️")||text.includes("⊡")) color="#EAB308";
-else if(text.includes("河")) color="#38BDF8";
-
-return <span style={{color,fontWeight:600}}>{text}</span>;
-}
-
-function sortRows(rows,order){
-if(order==="none") return rows;
-
-return [...rows].sort((a,b)=>{
-const la=Number(getField(a,["Level","等級"]))||0;
-const lb=Number(getField(b,["Level","等級"]))||0;
-return order==="asc"?la-lb:lb-la;
-});
-}
-
-function Toggle({checked,onChange}){
-return(
-<label style={{position:"relative",width:44,height:24,display:"inline-block"}}>
-<input
-type="checkbox"
-checked={checked}
-onChange={e=>onChange(e.target.checked)}
-style={{opacity:0,width:0,height:0}}
-/>
-
-<span style={{
-position:"absolute",
-inset:0,
-background:checked?"#34C759":"#ccc",
-borderRadius:24
-}}/>
-
-<span style={{
-position:"absolute",
-top:2,
-left:checked?22:2,
-width:20,
-height:20,
-background:"#fff",
-borderRadius:"50%",
-boxShadow:"0 1px 3px rgba(0,0,0,.3)"
-}}/>
-</label>
-);
-}
-
-export default function Page(){
-
-const [rows,setRows]=useState([]);
-const [loading,setLoading]=useState(true);
-
-const [tab,setTab]=useState("全部");
-const [keyword,setKeyword]=useState("");
-
-const [weather,setWeather]=useState("全部");
-const [area,setArea]=useState("全部");
-
-const [fishLevel,setFishLevel]=useState("全部");
-const [bugLevel,setBugLevel]=useState("全部");
-const [birdLevel,setBirdLevel]=useState("全部");
-
-const [sort,setSort]=useState("none");
-
-const [autoPeriod,setAutoPeriod]=useState(true);
-const [manualPeriod,setManualPeriod]=useState("全部");
-
-const [now,setNow]=useState(new Date());
-
-useEffect(()=>{
-fetch(SHEET_CSV_URL)
-.then(r=>r.text())
-.then(t=>{
-setRows(parseCSV(t).filter(r=>getField(r,["名稱"])));
-setLoading(false);
-});
-},[]);
-
-useEffect(()=>{
-const t=setInterval(()=>setNow(new Date()),60000);
-return()=>clearInterval(t);
-},[]);
-
-const hour=now.getHours();
-let period="1";
-if(hour>=6&&hour<12)period="2";
-else if(hour>=12&&hour<18)period="3";
-else if(hour>=18)period="4";
-
-const effectivePeriod=autoPeriod?period:manualPeriod;
-
-const filtered=useMemo(()=>{
-let data=rows.filter(r=>{
-const type=getField(r,["類型"]);
-const name=getField(r,["名稱"]);
-const level=Number(getField(r,["Level","等級"]));
-const weatherV=getField(r,["天氣"]);
-const periodV=getField(r,["時段","時間"]);
-const areaV=getField(r,["地區"]);
-
-const matchTab=tab==="全部"||type===tab;
-const matchName=keyword?name.includes(keyword):true;
-const matchWeather=matchesWeather(weatherV,weather);
-const matchArea=matchesArea(areaV,area);
-const matchPeriod=matchesPeriod(periodV,effectivePeriod);
-
-let matchLevel=true;
-
-if(tab!=="全部"){
-if(type==="魚"&&fishLevel!=="全部")matchLevel=level<=fishLevel;
-if(type==="蟲"&&bugLevel!=="全部")matchLevel=level<=bugLevel;
-if(type==="鳥"&&birdLevel!=="全部")matchLevel=level<=birdLevel;
-}
-
-return matchTab&&matchName&&matchWeather&&matchArea&&matchPeriod&&matchLevel;
-});
-
-return sortRows(data,sort);
-
-},[rows,tab,keyword,weather,area,fishLevel,bugLevel,birdLevel,effectivePeriod,sort]);
-
-return(
-
-<main style={{padding:40,fontFamily:"system-ui"}}>
-
-<h1>心動小鎮｜生物圖鑑</h1>
-
-<div style={{display:"flex",gap:8,marginBottom:20}}>
-{["全部","魚","蟲","鳥"].map(t=>(
-<button key={t}
-onClick={()=>setTab(t)}
-style={{
-padding:"6px 12px",
-background:tab===t?"#111":"#eee",
-color:tab===t?"#fff":"#333",
-borderRadius:8
-}}>
-{t}
-</button>
-))}
-</div>
-
-<div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap"}}>
-
-<input
-placeholder="搜尋名稱"
-value={keyword}
-onChange={e=>setKeyword(e.target.value)}
-/>
-
-<select value={weather} onChange={e=>setWeather(e.target.value)}>
-<option>全部</option>
-<option>晴天</option>
-<option>雨天</option>
-<option>雪天</option>
-<option>彩虹</option>
-</select>
-
-<select value={area} onChange={e=>setArea(e.target.value)}>
-<option>全部</option>
-<option>中心城區</option>
-<option>北部</option>
-<option>東部</option>
-<option>西部</option>
-<option>南部</option>
-</select>
-
-<select disabled={autoPeriod}
-value={manualPeriod}
-onChange={e=>setManualPeriod(e.target.value)}>
-<option value="全部">全部</option>
-<option value="1">清晨</option>
-<option value="2">上午</option>
-<option value="3">下午</option>
-<option value="4">晚上</option>
-</select>
-
-<Toggle checked={autoPeriod} onChange={setAutoPeriod}/>
-
-</div>
-
-<table border="1" cellPadding="8">
-<thead>
-<tr>
-<th>類型</th>
-<th>
-Level
-<select value={sort} onChange={e=>setSort(e.target.value)}>
-<option value="none">預設</option>
-<option value="asc">低→高</option>
-<option value="desc">高→低</option>
-</select>
-</th>
-<th>名稱</th>
-<th>天氣</th>
-<th>時段</th>
-<th>地點</th>
-<th>Note</th>
-</tr>
-</thead>
-
-<tbody>
-
-{loading?(
-<tr><td colSpan="7">資料載入中...</td></tr>
-):
-
-filtered.map((r,i)=>(
-<tr key={i}>
-<td>{getField(r,["類型"])}</td>
-<td>{getField(r,["Level","等級"])}</td>
-<td><b>{getField(r,["名稱"])}</b></td>
-<td>{formatWeatherDisplay(getField(r,["天氣"]))}</td>
-<td>{formatPeriodDisplay(getField(r,["時段","時間"]))}</td>
-<td>{formatPlaceDisplay(getField(r,["地點"]))}</td>
-<td>{formatFishShadowDisplay(getField(r,["Note","備註"]))}</td>
-</tr>
-))
-
-}
-
-</tbody>
-</table>
-
-</main>
-
-);
-
-}
+const tdStyleStrong = {
+  ...tdStyle,
+  fontWeight: 700,
+};

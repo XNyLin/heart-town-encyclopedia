@@ -1090,25 +1090,8 @@ export default function Home() {
                 >
                   <thead>
                     <tr>
-<td
-  style={{
-    ...tdStyle,
-    width: "40px",
-    textAlign: "center",
-    padding: "8px 2px",
-    fontSize: "18px",
-  }}
->
-
-</td>
-<td
-  style={{
-    ...tdStyle,
-    width: "55px",
-    textAlign: "center",
-    padding: "8px 4px",
-  }}
->
+<th style={{ ...thStyle, width: "44px", textAlign: "center" }}>類型</th>
+<th style={{ ...thStyle, width: "70px", textAlign: "center" }}>
                         <div
   style={{
     display: "flex",

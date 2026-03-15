@@ -542,8 +542,8 @@ function DogGallery({ setTab }) {
           lineHeight: 1.8,
         }}
       >
-        很吵、很黏、還超級容易餓，<br />
-        還會一直搞破壞，<br />
+        很吵、很黏、超級容易餓，<br />
+        一直搞破壞還要幫牠撿屎，<br />
         確定嗎？
       </div>
 

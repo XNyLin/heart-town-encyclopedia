@@ -162,6 +162,79 @@ function sortRowsByLevel(rows, order) {
   return cloned;
 }
 
+function ToggleSwitch({ checked, onChange }) {
+  return (
+    <label
+      style={{
+        position: "relative",
+        display: "inline-block",
+        width: "44px",
+        height: "24px",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{
+          opacity: 0,
+          width: 0,
+          height: 0,
+        }}
+      />
+
+      <span
+        style={{
+          position: "absolute",
+          cursor: "pointer",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: checked ? "#34C759" : "#ccc",
+          transition: "0.2s",
+          borderRadius: "24px",
+        }}
+      />
+
+      <span
+        style={{
+          position: "absolute",
+          height: "20px",
+          width: "20px",
+          left: checked ? "22px" : "2px",
+          top: "2px",
+          backgroundColor: "white",
+          borderRadius: "50%",
+          transition: "0.2s",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+        }}
+      />
+    </label>
+  );
+}
+
+function InfoPill({ label, value }) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "10px 14px",
+        borderRadius: "999px",
+        background: "#f3f4f6",
+        border: "1px solid #e5e7eb",
+        fontSize: "14px",
+        color: "#333",
+      }}
+    >
+      <span style={{ fontWeight: 700 }}>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,7 +247,7 @@ export default function Home() {
   const [bugLevel, setBugLevel] = useState("全部");
   const [birdLevel, setBirdLevel] = useState("全部");
 
-  const [tab, setTab] = useState("魚");
+  const [tab, setTab] = useState("全部");
   const [levelSort, setLevelSort] = useState("none");
 
   const [now, setNow] = useState(new Date());
@@ -251,19 +324,21 @@ export default function Home() {
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
-      const matchTab = rowType === tab;
+      const matchTab = tab === "全部" ? true : rowType === tab;
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
 
       let matchLevel = true;
 
-      if (rowType === "魚" && fishLevel !== "全部") {
-        matchLevel = rowLevel <= Number(fishLevel);
-      } else if (rowType === "蟲" && bugLevel !== "全部") {
-        matchLevel = rowLevel <= Number(bugLevel);
-      } else if (rowType === "鳥" && birdLevel !== "全部") {
-        matchLevel = rowLevel <= Number(birdLevel);
+      if (tab !== "全部") {
+        if (rowType === "魚" && fishLevel !== "全部") {
+          matchLevel = rowLevel <= Number(fishLevel);
+        } else if (rowType === "蟲" && bugLevel !== "全部") {
+          matchLevel = rowLevel <= Number(bugLevel);
+        } else if (rowType === "鳥" && birdLevel !== "全部") {
+          matchLevel = rowLevel <= Number(birdLevel);
+        }
       }
 
       return (
@@ -376,7 +451,7 @@ export default function Home() {
             <div style={{ gridColumn: "span 12" }}>
               <label style={labelStyle}>圖鑑分頁</label>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {["魚", "蟲", "鳥"].map((type) => {
+                {["全部", "魚", "蟲", "鳥"].map((type) => {
                   const active = tab === type;
                   return (
                     <button
@@ -402,7 +477,7 @@ export default function Home() {
               <label style={labelStyle}>搜尋名稱</label>
               <input
                 type="text"
-                placeholder={`輸入${tab}名稱`}
+                placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 style={inputStyle}
@@ -453,7 +528,7 @@ export default function Home() {
               >
                 <label style={{ ...labelStyle, marginBottom: 0 }}>時段</label>
 
-                <label
+                <div
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -463,13 +538,12 @@ export default function Home() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  <input
-                    type="checkbox"
+                  <ToggleSwitch
                     checked={autoPeriod}
-                    onChange={(e) => setAutoPeriod(e.target.checked)}
+                    onChange={setAutoPeriod}
                   />
                   自動判斷
-                </label>
+                </div>
               </div>
 
               <select
@@ -555,7 +629,7 @@ export default function Home() {
             <table
               style={{
                 width: "100%",
-                minWidth: "1120px",
+                minWidth: "1040px",
                 borderCollapse: "collapse",
               }}
             >
@@ -574,14 +648,7 @@ export default function Home() {
                       <select
                         value={levelSort}
                         onChange={(e) => setLevelSort(e.target.value)}
-                        style={{
-                          height: "30px",
-                          borderRadius: "8px",
-                          border: "1px solid #ddd",
-                          padding: "0 8px",
-                          fontSize: "12px",
-                          background: "#fff",
-                        }}
+                        style={miniSelectStyle}
                       >
                         <option value="none">預設</option>
                         <option value="asc">低→高</option>
@@ -593,7 +660,6 @@ export default function Home() {
                   <th style={thStyle}>天氣</th>
                   <th style={thStyle}>時段</th>
                   <th style={thStyle}>地點</th>
-                  <th style={thStyle}>地區</th>
                   <th style={thStyle}>Note</th>
                 </tr>
               </thead>
@@ -602,7 +668,7 @@ export default function Home() {
                 {filteredRows.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={7}
                       style={{
                         padding: "24px 14px",
                         textAlign: "center",
@@ -624,7 +690,6 @@ export default function Home() {
                         {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                       </td>
                       <td style={tdStyle}>{getField(row, ["地點"])}</td>
-                      <td style={tdStyle}>{getField(row, ["地區"])}</td>
                       <td style={tdStyle}>{getField(row, ["Note", "備註"])}</td>
                     </tr>
                   ))
@@ -635,27 +700,6 @@ export default function Home() {
         </section>
       </div>
     </main>
-  );
-}
-
-function InfoPill({ label, value }) {
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "10px 14px",
-        borderRadius: "999px",
-        background: "#f3f4f6",
-        border: "1px solid #e5e7eb",
-        fontSize: "14px",
-        color: "#333",
-      }}
-    >
-      <span style={{ fontWeight: 700 }}>{label}</span>
-      <span>{value}</span>
-    </div>
   );
 }
 
@@ -686,6 +730,15 @@ const selectStyle = {
   padding: "0 14px",
   fontSize: "15px",
   outline: "none",
+  background: "#fff",
+};
+
+const miniSelectStyle = {
+  height: "30px",
+  borderRadius: "8px",
+  border: "1px solid #ddd",
+  padding: "0 8px",
+  fontSize: "12px",
   background: "#fff",
 };
 

@@ -190,7 +190,7 @@ export default function ControlPanel({
                 height: "36px",
               }}
             >
-              愛好等級 {showAdvanced ? "▲" : "▼"}
+              愛好等級 {showAdvanced ? "+" : "-"}
             </button>
 
             {showAdvanced && (

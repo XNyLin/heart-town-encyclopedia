@@ -355,21 +355,21 @@ function InfoPill({ label, value }) {
 function CatGallery() {
 
   const catSections = [
-    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
+    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓.png" },
     { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
     { id: "白貓", name: "白貓", img: "/白貓.png" },
     { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
-    { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
-    { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
+    { id: "金漸層貓", name: "金漸層貓", img: "/金漸層.png" },
+    { id: "銀漸層貓", name: "銀漸層貓", img: "/銀漸層.png" },
     { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
     { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
     { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
     { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
     { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
     { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
-    { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
-    { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
-    { id: "橘虎斑", name: "橘色魚骨斑貓", img: "/橘虎斑.png" }
+    { id: "銀虎斑貓", name: "銀虎斑貓", img: "/銀虎斑.png" },
+    { id: "棕虎斑貓", name: "棕虎斑貓", img: "/棕色虎斑.png" },
+    { id: "橘虎斑貓", name: "橘虎斑貓", img: "/橘虎斑.png" }
   ];
 
   return (

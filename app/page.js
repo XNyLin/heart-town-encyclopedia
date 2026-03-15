@@ -888,13 +888,14 @@ export default function Home() {
 
 <footer
   style={{
-    marginTop: "40px",
+    marginTop: "48px",
     textAlign: "center",
-    fontSize: "14px",
-    color: "#888",
+    fontSize: "13px",
+    color: "#999",
+    letterSpacing: "0.04em",
   }}
 >
-  Powered By{" "}
+  Powered by{" "}
   <a
     href="https://XNy.tw"
     target="_blank"

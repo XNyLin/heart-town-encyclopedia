@@ -5,6 +5,34 @@ import { useEffect, useMemo, useState } from "react";
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
+const TOP_TABS = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
+
+const TAB_LABELS = {
+  全部: "全部",
+  魚: "🐟 魚",
+  蟲: "🐞 蟲",
+  鳥: "🕊 鳥",
+  貓: "🐱 貓",
+  狗: "🐶 狗",
+};
+
+const CAT_SECTIONS = [
+  { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
+  { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
+  { id: "白貓", name: "白貓", img: "/白貓.png" },
+  { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
+  { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
+  { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
+  { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
+  { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
+  { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
+  { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
+  { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
+  { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
+  { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
+  { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
+];
+
 function parseCSVLine(line) {
   const result = [];
   let current = "";
@@ -73,27 +101,18 @@ function getField(row, keys) {
 
 function matchesWeather(cellValue, selectedWeather) {
   if (selectedWeather === "全部") return true;
-
-  const cell = normalizeText(cellValue);
-  const target = normalizeText(selectedWeather);
-
-  return cell.includes(target);
+  return normalizeText(cellValue).includes(normalizeText(selectedWeather));
 }
 
 function matchesPeriod(cellValue, currentPeriod) {
   if (currentPeriod === "全部") return true;
-
-  const cell = normalizeText(cellValue);
-  const digitsOnly = cell.replace(/[^\d]/g, "");
-
+  const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
   return digitsOnly.includes(String(currentPeriod));
 }
 
 function matchesArea(cellValue, selectedArea) {
   if (selectedArea === "全部") return true;
-
-  const cell = normalizeText(cellValue);
-  return cell.includes(selectedArea);
+  return normalizeText(cellValue).includes(selectedArea);
 }
 
 function getPeriodName(period) {
@@ -111,14 +130,9 @@ function getCurrentTimeInfo(date) {
   const minute = date.getMinutes();
 
   let period = "1";
-
-  if (hour >= 6 && hour < 12) {
-    period = "2";
-  } else if (hour >= 12 && hour < 18) {
-    period = "3";
-  } else if (hour >= 18) {
-    period = "4";
-  }
+  if (hour >= 6 && hour < 12) period = "2";
+  else if (hour >= 12 && hour < 18) period = "3";
+  else if (hour >= 18) period = "4";
 
   return {
     period,
@@ -157,7 +171,6 @@ function formatPeriodDisplay(cellValue) {
 
 function formatWeatherDisplay(cellValue) {
   const text = normalizeText(cellValue);
-
   const allWeather = ["彩虹", "晴天", "雨天", "雪天"];
   const hasAll = allWeather.every((w) => text.includes(w));
 
@@ -171,11 +184,8 @@ function formatWeatherDisplay(cellValue) {
   };
 
   const result = [];
-
   for (const key of Object.keys(weatherMap)) {
-    if (text.includes(key)) {
-      result.push(weatherMap[key]);
-    }
+    if (text.includes(key)) result.push(weatherMap[key]);
   }
 
   return result.length > 0 ? result.join(" ") : cellValue;
@@ -197,7 +207,6 @@ function formatFishShadowDisplay(value) {
 
 function formatPlaceDisplay(value) {
   const text = String(value || "");
-
   let color = "#222";
 
   const isEvent = text.includes("事件") || text.includes("⭐️");
@@ -243,13 +252,10 @@ function sortRowsByLevel(rows, order) {
   if (order === "none") return rows;
 
   const cloned = [...rows];
-
   cloned.sort((a, b) => {
     const aLevel = Number(getField(a, ["Level", "等級"])) || 0;
     const bLevel = Number(getField(b, ["Level", "等級"])) || 0;
-
-    if (order === "asc") return aLevel - bLevel;
-    return bLevel - aLevel;
+    return order === "asc" ? aLevel - bLevel : bLevel - aLevel;
   });
 
   return cloned;
@@ -273,7 +279,7 @@ function ToggleSwitch({ checked, onChange }) {
       style={{
         position: "relative",
         display: "inline-block",
-        width: "44px",
+        width: "42px",
         height: "24px",
       }}
     >
@@ -281,38 +287,29 @@ function ToggleSwitch({ checked, onChange }) {
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        style={{
-          opacity: 0,
-          width: 0,
-          height: 0,
-        }}
+        style={{ opacity: 0, width: 0, height: 0 }}
       />
-
       <span
         style={{
           position: "absolute",
+          inset: 0,
           cursor: "pointer",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
           backgroundColor: checked ? "#34C759" : "#ccc",
           transition: "0.2s",
-          borderRadius: "24px",
+          borderRadius: "999px",
         }}
       />
-
       <span
         style={{
           position: "absolute",
-          height: "20px",
           width: "20px",
-          left: checked ? "22px" : "2px",
+          height: "20px",
           top: "2px",
-          backgroundColor: "white",
+          left: checked ? "20px" : "2px",
+          backgroundColor: "#fff",
           borderRadius: "50%",
           transition: "0.2s",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.22)",
         }}
       />
     </label>
@@ -325,13 +322,14 @@ function InfoPill({ label, value }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "8px",
-        padding: "10px 14px",
+        gap: "6px",
+        padding: "8px 12px",
         borderRadius: "999px",
         background: "#f3f4f6",
         border: "1px solid #e5e7eb",
-        fontSize: "14px",
+        fontSize: "13px",
         color: "#333",
+        lineHeight: 1,
       }}
     >
       <span style={{ fontWeight: 700 }}>{label}</span>
@@ -353,13 +351,12 @@ function SourceBlock({ tab }) {
   return (
     <div
       style={{
-        marginTop: "24px",
-        paddingTop: "16px",
+        marginTop: "18px",
+        paddingTop: "12px",
         borderTop: "1px solid #eee",
-        fontSize: "14px",
+        fontSize: "13px",
         color: "#777",
         textAlign: "center",
-        lineHeight: "28px",
       }}
     >
       資料來源：
@@ -381,46 +378,23 @@ function SourceBlock({ tab }) {
 }
 
 function CatGallery() {
-  const catSections = [
-    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
-    { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
-    { id: "白貓", name: "白貓", img: "/白貓.png" },
-    { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
-    { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
-    { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
-    { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
-    { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
-    { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
-    { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
-    { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
-    { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
-    { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
-    { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
-  ];
-
   const [catFilter, setCatFilter] = useState("全部");
 
   const visibleCats =
     catFilter === "全部"
-      ? catSections
-      : catSections.filter((cat) => cat.name === catFilter);
+      ? CAT_SECTIONS
+      : CAT_SECTIONS.filter((cat) => cat.name === catFilter);
 
-  const catTabs = ["全部", ...catSections.map((cat) => cat.name)];
+  const catTabs = ["全部", ...CAT_SECTIONS.map((cat) => cat.name)];
 
   return (
-    <section
-      style={{
-        background: "#fff",
-        borderRadius: "18px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-        padding: "24px",
-      }}
-    >
+    <section style={panelStyle}>
       <h2
         style={{
-          fontSize: "26px",
+          fontSize: "22px",
           fontWeight: 800,
-          marginBottom: "18px",
+          margin: "0 0 14px 0",
+          color: "#111",
         }}
       >
         貓咪圖鑑
@@ -430,8 +404,8 @@ function CatGallery() {
         style={{
           display: "flex",
           flexWrap: "wrap",
-          gap: "10px",
-          marginBottom: "26px",
+          gap: "8px",
+          marginBottom: "18px",
         }}
       >
         {catTabs.map((name) => {
@@ -441,14 +415,10 @@ function CatGallery() {
               key={name}
               onClick={() => setCatFilter(name)}
               style={{
-                padding: "8px 14px",
-                borderRadius: "999px",
+                ...miniChipStyle,
                 background: active ? "#111" : "#f3f4f6",
                 border: active ? "1px solid #111" : "1px solid #e5e7eb",
-                fontSize: "14px",
                 color: active ? "#fff" : "#333",
-                fontWeight: 600,
-                cursor: "pointer",
               }}
             >
               {name}
@@ -457,28 +427,27 @@ function CatGallery() {
         })}
       </div>
 
-<div
-  style={{
-    display: catFilter === "全部" ? "grid" : "block",
-    gridTemplateColumns:
-      catFilter === "全部"
-        ? "repeat(auto-fill, minmax(440px, 1fr))"
-        : "none",
-    gap: "24px",
-  }}
->
+      <div
+        style={{
+          display: catFilter === "全部" ? "grid" : "block",
+          gridTemplateColumns:
+            catFilter === "全部"
+              ? "repeat(auto-fill, minmax(420px, 1fr))"
+              : "none",
+          gap: "16px",
+        }}
+      >
         {visibleCats.map((cat) => (
-          <div key={cat.id} id={cat.id}>
+          <div key={cat.id}>
             <img
-  src={cat.img}
-  alt={cat.name}
-  style={{
-    width: "100%",
-    maxWidth: catFilter === "全部" ? "100%" : "100%",
-    borderRadius: "16px",
-    display: "block",
-  }}
-/>
+              src={cat.img}
+              alt={cat.name}
+              style={{
+                width: "100%",
+                display: "block",
+                borderRadius: "14px",
+              }}
+            />
           </div>
         ))}
       </div>
@@ -491,28 +460,18 @@ function CatGallery() {
 function DogGallery({ setTab }) {
   const [showResult, setShowResult] = useState(false);
 
-  function handleChooseCat() {
-    setTab("貓");
-  }
-
-  function handleChooseDog() {
-    setShowResult(true);
-  }
-
   if (showResult) {
     return (
       <section
         style={{
-          background: "#fff",
-          borderRadius: "18px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-          padding: "40px",
+          ...panelStyle,
           textAlign: "center",
+          padding: "36px 24px",
         }}
       >
         <div
           style={{
-            fontSize: "28px",
+            fontSize: "26px",
             fontWeight: 800,
             color: "#111",
           }}
@@ -526,18 +485,16 @@ function DogGallery({ setTab }) {
   return (
     <section
       style={{
-        background: "#fff",
-        borderRadius: "18px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-        padding: "40px",
+        ...panelStyle,
         textAlign: "center",
+        padding: "36px 24px",
       }}
     >
       <div
         style={{
-          fontSize: "22px",
+          fontSize: "20px",
           fontWeight: 700,
-          marginBottom: "30px",
+          marginBottom: "24px",
           color: "#333",
           lineHeight: 1.8,
         }}
@@ -551,34 +508,28 @@ function DogGallery({ setTab }) {
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "16px",
+          gap: "12px",
         }}
       >
         <button
-          onClick={handleChooseCat}
+          onClick={() => setTab("貓")}
           style={{
-            padding: "10px 22px",
-            borderRadius: "10px",
-            border: "1px solid #111",
+            ...actionButtonStyle,
             background: "#111",
             color: "#fff",
-            fontWeight: 600,
-            cursor: "pointer",
+            border: "1px solid #111",
           }}
         >
           我選貓
         </button>
 
         <button
-          onClick={handleChooseDog}
+          onClick={() => setShowResult(true)}
           style={{
-            padding: "10px 22px",
-            borderRadius: "10px",
-            border: "1px solid #ddd",
+            ...actionButtonStyle,
             background: "#fff",
             color: "#333",
-            fontWeight: 600,
-            cursor: "pointer",
+            border: "1px solid #ddd",
           }}
         >
           我選狗
@@ -612,10 +563,7 @@ export default function Home() {
     async function loadData() {
       try {
         const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
-
-        if (!res.ok) {
-          throw new Error("無法讀取 Google Sheet 資料");
-        }
+        if (!res.ok) throw new Error("無法讀取 Google Sheet 資料");
 
         const csvText = await res.text();
         const parsedRows = parseCSV(csvText).filter(
@@ -633,10 +581,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date());
-    }, 60 * 1000);
-
+    const timer = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -691,7 +636,6 @@ export default function Home() {
       const matchPlace = placeFilter ? rowPlace === placeFilter : true;
 
       let matchLevel = true;
-
       if (rowType === "魚" && fishLevel !== "全部") {
         matchLevel = rowLevel <= Number(fishLevel);
       } else if (rowType === "蟲" && bugLevel !== "全部") {
@@ -729,40 +673,31 @@ export default function Home() {
     levelSort,
   ]);
 
-  const topTabs = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
-  const TAB_LABELS = {
-  全部: "全部",
-  魚: "🐟 魚",
-  蟲: "🐞 蟲",
-  鳥: "🕊 鳥",
-  貓: "🐱 貓",
-  狗: "🐶 狗",
-};
-
   return (
     <main
       style={{
         minHeight: "100vh",
         background: "#f7f7f7",
-        padding: "40px 20px",
+        padding: "28px 16px",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
       }}
     >
       <div
         style={{
-          maxWidth: "1280px",
+          maxWidth: "1180px",
           margin: "0 auto",
         }}
       >
-        <header style={{ marginBottom: "28px" }}>
+        <header style={{ marginBottom: "20px" }}>
           <h1
             style={{
-              fontSize: "44px",
+              fontSize: "36px",
               lineHeight: 1.1,
               fontWeight: 800,
-              margin: "0 0 12px 0",
+              margin: "0 0 10px 0",
               color: "#111",
+              letterSpacing: "-0.02em",
             }}
           >
             心動小鎮｜生物圖鑑
@@ -771,8 +706,9 @@ export default function Home() {
           <p
             style={{
               margin: 0,
-              fontSize: "18px",
+              fontSize: "15px",
               color: "#666",
+              lineHeight: 1.6,
             }}
           >
             {loading
@@ -781,18 +717,18 @@ export default function Home() {
           </p>
         </header>
 
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "16px" }}>
           <div
             style={{
               display: "flex",
-              gap: "8px",
               flexWrap: "wrap",
               alignItems: "center",
+              gap: "8px",
             }}
           >
-            {topTabs.map((type, index) => {
+            {TOP_TABS.map((type, index) => {
               const active = tab === type;
-              const showDivider = topTabs[index] === "鳥";
+              const showDivider = TOP_TABS[index] === "鳥";
 
               return (
                 <div
@@ -814,7 +750,7 @@ export default function Home() {
                         : "1px solid #e5e5e5",
                     }}
                   >
-{TAB_LABELS[type]}
+                    {TAB_LABELS[type]}
                   </button>
 
                   {showDivider && (
@@ -823,7 +759,6 @@ export default function Home() {
                         color: "#bbb",
                         fontSize: "18px",
                         fontWeight: 600,
-                        padding: "0 2px",
                       }}
                     >
                       ｜
@@ -835,26 +770,24 @@ export default function Home() {
           </div>
         </div>
 
-{tab === "貓" ? (
-  <CatGallery />
-) : tab === "狗" ? (
-  <DogGallery setTab={setTab} />
-) : (
+        {tab === "貓" ? (
+          <CatGallery />
+        ) : tab === "狗" ? (
+          <DogGallery setTab={setTab} />
+        ) : (
           <>
             <section
               style={{
-                background: "#fff",
-                borderRadius: "18px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-                padding: "18px",
-                marginBottom: "20px",
+                ...panelStyle,
+                marginBottom: "16px",
+                padding: "16px",
               }}
             >
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-                  gap: "16px",
+                  gap: "12px",
                 }}
               >
                 <div style={{ gridColumn: "span 12" }}>
@@ -862,9 +795,8 @@ export default function Home() {
                     style={{
                       display: "flex",
                       flexWrap: "wrap",
-                      gap: "12px",
+                      gap: "8px",
                       alignItems: "center",
-                      marginBottom: "4px",
                     }}
                   >
                     <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
@@ -881,15 +813,7 @@ export default function Home() {
                         <InfoPill label="📍現在查看的位置" value={placeFilter} />
                         <button
                           onClick={() => setPlaceFilter("")}
-                          style={{
-                            height: "40px",
-                            padding: "0 14px",
-                            borderRadius: "999px",
-                            border: "1px solid #ddd",
-                            background: "#fff",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                          }}
+                          style={miniChipStyle}
                         >
                           返回全部位置
                         </button>
@@ -914,15 +838,14 @@ export default function Home() {
                     gridColumn: "span 12",
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr",
-                    gap: "16px",
+                    gap: "12px",
                   }}
                 >
                   <div
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                      gap: "16px",
-                      alignItems: "start",
+                      gap: "12px",
                     }}
                   >
                     <div>
@@ -963,20 +886,19 @@ export default function Home() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "space-between",
-                          marginBottom: "8px",
-                          gap: "12px",
+                          gap: "8px",
+                          marginBottom: "6px",
                         }}
                       >
                         <label style={{ ...labelStyle, marginBottom: 0 }}>
                           時段
                         </label>
-
                         <div
                           style={{
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: "8px",
-                            fontSize: "13px",
+                            gap: "6px",
+                            fontSize: "12px",
                             color: "#444",
                             whiteSpace: "nowrap",
                           }}
@@ -1012,8 +934,7 @@ export default function Home() {
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                      gap: "16px",
-                      alignItems: "start",
+                      gap: "12px",
                     }}
                   >
                     <div>
@@ -1070,47 +991,51 @@ export default function Home() {
 
             <section
               style={{
-                background: "#fff",
-                borderRadius: "18px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-                padding: "14px",
+                ...panelStyle,
+                padding: "10px 14px",
                 overflowX: "auto",
               }}
             >
               {loading ? (
-                <div style={{ padding: "24px", color: "#666" }}>
-                  資料載入中...
-                </div>
+                <div style={{ padding: "20px", color: "#666" }}>資料載入中...</div>
               ) : (
-<table
-  style={{
-    width: "100%",
-    borderCollapse: "collapse",
-    tableLayout: "auto",
-  }}
->
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    tableLayout: "auto",
+                  }}
+                >
                   <thead>
                     <tr>
-<th style={{ ...thStyle, width: "36px", textAlign: "center" }}>類型</th>
-<th style={{ ...thStyle, width: "60px", textAlign: "center" }}>
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: "4px",
-    }}
-  >
-    <span>等級</span>
-    <button
-      onClick={() => setLevelSort(getNextLevelSort(levelSort))}
-      style={sortIconButtonStyle}
-    >
-      {getLevelSortIcon(levelSort)}
-    </button>
-  </div>
-</th>
-
+                      <th style={{ ...thStyle, width: "30px", textAlign: "center" }}>
+                        類型
+                      </th>
+                      <th style={{ ...thStyle, width: "54px", textAlign: "center" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          <span>等級</span>
+                          <button
+                            onClick={() => setLevelSort(getNextLevelSort(levelSort))}
+                            style={sortIconButtonStyle}
+                            title={
+                              levelSort === "none"
+                                ? "目前：未排序"
+                                : levelSort === "asc"
+                                ? "目前：低到高"
+                                : "目前：高到低"
+                            }
+                          >
+                            {getLevelSortIcon(levelSort)}
+                          </button>
+                        </div>
+                      </th>
                       <th style={thStyle}>名稱</th>
                       <th style={thStyle}>天氣</th>
                       <th style={thStyle}>時段</th>
@@ -1125,7 +1050,7 @@ export default function Home() {
                         <td
                           colSpan={7}
                           style={{
-                            padding: "24px 14px",
+                            padding: "22px 12px",
                             textAlign: "center",
                             color: "#777",
                             borderBottom: "1px solid #f0f0f0",
@@ -1141,43 +1066,46 @@ export default function Home() {
 
                         return (
                           <tr key={`${getField(row, ["名稱"])}-${index}`}>
-<td
-  style={{
-    ...tdStyle,
-    width: "36px",
-    textAlign: "center",
-    padding: "6px 2px",
-    fontSize: "18px",
-  }}
->  {{
-    魚: "🐟",
-    蟲: "🐞",
-    鳥: "🕊",
-  }[getField(row, ["類型"])] || ""}
-</td>
+                            <td
+                              style={{
+                                ...tdStyle,
+                                width: "30px",
+                                textAlign: "center",
+                                padding: "6px 2px",
+                                fontSize: "16px",
+                              }}
+                            >
+                              {{
+                                魚: "🐟",
+                                蟲: "🐞",
+                                鳥: "🕊",
+                              }[getField(row, ["類型"])] || ""}
+                            </td>
 
-<td
-  style={{
-    ...tdStyle,
-    width: "60px",
-    textAlign: "center",
-    padding: "6px 4px",
-    fontWeight: 500,
-  }}
->
-    {getField(row, ["Level", "等級"])}
-</td>
+                            <td
+                              style={{
+                                ...tdStyle,
+                                width: "54px",
+                                textAlign: "center",
+                                padding: "6px 4px",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {getField(row, ["Level", "等級"])}
+                            </td>
+
                             <td style={tdStyleStrong}>
                               {getField(row, ["名稱"])}
                             </td>
+
                             <td style={tdStyle}>
                               {formatWeatherDisplay(getField(row, ["天氣"]))}
                             </td>
+
                             <td style={tdStyle}>
-                              {formatPeriodDisplay(
-                                getField(row, ["時段", "時間"])
-                              )}
+                              {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                             </td>
+
                             <td style={tdStyle}>
                               <button
                                 onClick={() => setPlaceFilter(place)}
@@ -1188,17 +1116,19 @@ export default function Home() {
                                   border: isActivePlace
                                     ? "1px solid #c7d2fe"
                                     : "1px solid transparent",
-                                  borderRadius: "8px",
-                                  padding: "4px 8px",
+                                  borderRadius: "7px",
+                                  padding: "2px 4px",
                                   cursor: "pointer",
-                                  fontSize: "15px",
+                                  fontSize: "14px",
                                   textAlign: "left",
+                                  lineHeight: 1.4,
                                 }}
                                 title="點擊查看該地點所有生物"
                               >
                                 {formatPlaceDisplay(place)}
                               </button>
                             </td>
+
                             <td style={tdStyle}>
                               {formatFishShadowDisplay(
                                 getField(row, ["Note", "備註"])
@@ -1219,9 +1149,9 @@ export default function Home() {
 
         <footer
           style={{
-            marginTop: "40px",
+            marginTop: "28px",
             textAlign: "center",
-            fontSize: "14px",
+            fontSize: "13px",
             color: "#888",
           }}
         >
@@ -1244,21 +1174,27 @@ export default function Home() {
   );
 }
 
+const panelStyle = {
+  background: "#fff",
+  borderRadius: "16px",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
+};
+
 const labelStyle = {
   display: "block",
-  fontSize: "14px",
+  fontSize: "13px",
   fontWeight: 700,
   color: "#444",
-  marginBottom: "8px",
+  marginBottom: "6px",
 };
 
 const inputStyle = {
   width: "100%",
-  height: "44px",
-  borderRadius: "12px",
+  height: "40px",
+  borderRadius: "10px",
   border: "1px solid #ddd",
-  padding: "0 14px",
-  fontSize: "15px",
+  padding: "0 12px",
+  fontSize: "14px",
   outline: "none",
   background: "#fff",
   boxSizing: "border-box",
@@ -1266,41 +1202,62 @@ const inputStyle = {
 
 const selectStyle = {
   width: "100%",
-  height: "44px",
-  borderRadius: "12px",
+  height: "40px",
+  borderRadius: "10px",
   border: "1px solid #ddd",
-  padding: "0 14px",
-  fontSize: "15px",
+  padding: "0 12px",
+  fontSize: "14px",
   outline: "none",
   background: "#fff",
   boxSizing: "border-box",
 };
 
 const sortIconButtonStyle = {
-  width: "30px",
-  height: "30px",
-  borderRadius: "8px",
+  width: "24px",
+  height: "24px",
+  borderRadius: "7px",
   border: "1px solid #ddd",
   background: "#fff",
   cursor: "pointer",
-  fontSize: "14px",
+  fontSize: "12px",
   lineHeight: 1,
+  padding: 0,
+  flexShrink: 0,
 };
 
 const chipStyle = {
-  height: "40px",
-  padding: "0 14px",
+  height: "36px",
+  padding: "0 12px",
   borderRadius: "999px",
-  fontSize: "14px",
+  fontSize: "13px",
   fontWeight: 700,
+  cursor: "pointer",
+};
+
+const miniChipStyle = {
+  height: "34px",
+  padding: "0 12px",
+  borderRadius: "999px",
+  fontSize: "13px",
+  fontWeight: 600,
+  cursor: "pointer",
+  background: "#fff",
+  border: "1px solid #ddd",
+  color: "#333",
+};
+
+const actionButtonStyle = {
+  padding: "10px 20px",
+  borderRadius: "10px",
+  fontWeight: 600,
   cursor: "pointer",
 };
 
 const thStyle = {
   textAlign: "left",
-  padding: "16px 14px",
+  padding: "10px 8px",
   borderBottom: "1px solid #e8e8e8",
-  fontSize: "14px",
+  fontSize: "13px",
   fontWeight: 700,
   color: "#444",
   whiteSpace: "nowrap",
@@ -1309,9 +1266,12 @@ const thStyle = {
 };
 
 const tdStyle = {
-  padding: "8px 8px",
+  padding: "8px 6px",
   borderBottom: "1px solid #eee",
   fontSize: "14px",
+  color: "#222",
+  verticalAlign: "middle",
+  lineHeight: 1.45,
 };
 
 const tdStyleStrong = {

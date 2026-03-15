@@ -1091,16 +1091,17 @@ export default function Home() {
                 >
                   <thead>
                     <tr>
-<th style={{ ...thStyle, width: "70px" }}>類型</th>
-<th style={{ ...thStyle, width: "90px" }}>
+<th style={{ ...thStyle, width: "44px", textAlign: "center" }}>類型</th>
+<th style={{ ...thStyle, width: "70px", textAlign: "center" }}>
                         <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "8px",
-                          }}
-                        >
-                          <span>Level</span>
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "4px",
+  }}
+>
+                          <span>等級</span>
                           <button
                             onClick={() =>
                               setLevelSort(getNextLevelSort(levelSort))

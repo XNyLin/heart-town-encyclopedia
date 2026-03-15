@@ -56,6 +56,7 @@ export default function Home() {
   const [now, setNow] = useState(new Date());
   const [autoPeriod, setAutoPeriod] = useState(true);
   const [manualPeriod, setManualPeriod] = useState("全部");
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -81,6 +82,16 @@ export default function Home() {
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
@@ -191,7 +202,7 @@ export default function Home() {
         <header style={{ marginBottom: "20px" }}>
           <h1
             style={{
-              fontSize: "36px",
+              fontSize: isMobile ? "32px" : "36px",
               lineHeight: 1.1,
               fontWeight: 800,
               margin: "0 0 10px 0",
@@ -205,7 +216,7 @@ export default function Home() {
           <p
             style={{
               margin: 0,
-              fontSize: "15px",
+              fontSize: isMobile ? "14px" : "15px",
               color: "#666",
               lineHeight: 1.6,
             }}
@@ -227,7 +238,7 @@ export default function Home() {
           >
             {TOP_TABS.map((type, index) => {
               const active = tab === type;
-              const showDivider = TOP_TABS[index] === "鳥";
+              const showDivider = !isMobile && TOP_TABS[index] === "鳥";
 
               return (
                 <div
@@ -236,6 +247,9 @@ export default function Home() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
+                    ...(isMobile && type === "貓"
+                      ? { flexBasis: "100%" }
+                      : {}),
                   }}
                 >
                   <button

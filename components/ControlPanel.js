@@ -53,8 +53,8 @@ export default function ControlPanel({
 
   const filterItemStyle = {
     display: "flex",
-    alignItems: isMobile ? "stretch" : "center",
-    flexDirection: isMobile ? "column" : "row",
+    alignItems: "center",
+    flexDirection: "row",
     gap: "8px",
     minWidth: 0,
   };
@@ -65,7 +65,7 @@ export default function ControlPanel({
     color: "#555",
     whiteSpace: "nowrap",
     flexShrink: 0,
-    width: isMobile ? "100%" : "auto",
+    width: "auto",
   };
 
   const compactSelectStyle = {

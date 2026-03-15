@@ -457,24 +457,28 @@ function CatGallery() {
         })}
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(440px, 1fr))",
-          gap: "24px",
-        }}
-      >
+<div
+  style={{
+    display: catFilter === "全部" ? "grid" : "block",
+    gridTemplateColumns:
+      catFilter === "全部"
+        ? "repeat(auto-fill, minmax(440px, 1fr))"
+        : "none",
+    gap: "24px",
+  }}
+>
         {visibleCats.map((cat) => (
           <div key={cat.id} id={cat.id}>
             <img
-              src={cat.img}
-              alt={cat.name}
-              style={{
-                width: "100%",
-                borderRadius: "16px",
-                display: "block",
-              }}
-            />
+  src={cat.img}
+  alt={cat.name}
+  style={{
+    width: "100%",
+    maxWidth: catFilter === "全部" ? "100%" : "100%",
+    borderRadius: "16px",
+    display: "block",
+  }}
+/>
           </div>
         ))}
       </div>

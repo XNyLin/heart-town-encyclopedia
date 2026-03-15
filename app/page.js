@@ -400,17 +400,15 @@ export default function Home() {
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
 
-      let matchLevel = true;
+     let matchLevel = true;
 
-      if (tab !== "全部") {
-        if (rowType === "魚" && fishLevel !== "全部") {
-          matchLevel = rowLevel <= Number(fishLevel);
-        } else if (rowType === "蟲" && bugLevel !== "全部") {
-          matchLevel = rowLevel <= Number(bugLevel);
-        } else if (rowType === "鳥" && birdLevel !== "全部") {
-          matchLevel = rowLevel <= Number(birdLevel);
-        }
-      }
+if (rowType === "魚" && fishLevel !== "全部") {
+  matchLevel = rowLevel <= Number(fishLevel);
+} else if (rowType === "蟲" && bugLevel !== "全部") {
+  matchLevel = rowLevel <= Number(bugLevel);
+} else if (rowType === "鳥" && birdLevel !== "全部") {
+  matchLevel = rowLevel <= Number(birdLevel);
+}
 
       return (
         rowName !== "" &&

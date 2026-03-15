@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
@@ -50,17 +54,48 @@ function parseCSV(text) {
   });
 }
 
-export default async function Home() {
-  const res = await fetch(SHEET_CSV_URL, {
-    cache: "no-store",
-  });
+export default function Home() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [keyword, setKeyword] = useState("");
+  const [typeFilter, setTypeFilter] = useState("全部");
 
-  if (!res.ok) {
-    throw new Error("無法讀取 Google Sheet 資料");
-  }
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(SHEET_CSV_URL, {
+          cache: "no-store",
+        });
 
-  const csvText = await res.text();
-  const rows = parseCSV(csvText).filter((row) => row["名稱"]);
+        if (!res.ok) {
+          throw new Error("無法讀取 Google Sheet 資料");
+        }
+
+        const csvText = await res.text();
+        const parsedRows = parseCSV(csvText).filter((row) => row["名稱"]);
+        setRows(parsedRows);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((row) => {
+      const matchType =
+        typeFilter === "全部" ? true : row["類型"] === typeFilter;
+
+      const matchKeyword = keyword.trim()
+        ? row["名稱"]?.toLowerCase().includes(keyword.trim().toLowerCase())
+        : true;
+
+      return matchType && matchKeyword;
+    });
+  }, [rows, typeFilter, keyword]);
 
   return (
     <main
@@ -98,9 +133,66 @@ export default async function Home() {
               color: "#666",
             }}
           >
-            目前共 {rows.length} 筆圖鑑資料
+            {loading
+              ? "資料載入中..."
+              : `目前共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
           </p>
         </header>
+
+        <section
+          style={{
+            background: "#fff",
+            borderRadius: "18px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+            padding: "18px",
+            marginBottom: "20px",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(220px, 1fr) auto",
+              gap: "16px",
+              alignItems: "end",
+            }}
+          >
+            <div>
+              <label style={labelStyle}>搜尋名稱</label>
+              <input
+                type="text"
+                placeholder="輸入魚、蟲、鳥名稱"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>類型</label>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {["全部", "魚", "蟲", "鳥"].map((type) => {
+                  const active = typeFilter === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setTypeFilter(type)}
+                      style={{
+                        ...chipStyle,
+                        background: active ? "#111" : "#f1f1f1",
+                        color: active ? "#fff" : "#333",
+                        border: active
+                          ? "1px solid #111"
+                          : "1px solid #e5e5e5",
+                      }}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section
           style={{
@@ -111,44 +203,92 @@ export default async function Home() {
             overflowX: "auto",
           }}
         >
-          <table
-            style={{
-              width: "100%",
-              minWidth: "980px",
-              borderCollapse: "collapse",
-            }}
-          >
-            <thead>
-              <tr>
-                {["類型", "Level", "名稱", "天氣", "時段", "地點", "Note"].map(
-                  (title) => (
-                    <th key={title} style={thStyle}>
-                      {title}
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={`${row["名稱"]}-${index}`}>
-                  <td style={tdStyle}>{row["類型"]}</td>
-                  <td style={tdStyle}>{row["Level"]}</td>
-                  <td style={tdStyleStrong}>{row["名稱"]}</td>
-                  <td style={tdStyle}>{row["天氣"]}</td>
-                  <td style={tdStyle}>{row["時段"]}</td>
-                  <td style={tdStyle}>{row["地點"]}</td>
-                  <td style={tdStyle}>{row["Note"]}</td>
+          {loading ? (
+            <div style={{ padding: "24px", color: "#666" }}>資料載入中...</div>
+          ) : (
+            <table
+              style={{
+                width: "100%",
+                minWidth: "980px",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr>
+                  {["類型", "Level", "名稱", "天氣", "時段", "地點", "Note"].map(
+                    (title) => (
+                      <th key={title} style={thStyle}>
+                        {title}
+                      </th>
+                    )
+                  )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {filteredRows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      style={{
+                        padding: "24px 14px",
+                        textAlign: "center",
+                        color: "#777",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                    >
+                      沒有符合條件的資料
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRows.map((row, index) => (
+                    <tr key={`${row["名稱"]}-${index}`}>
+                      <td style={tdStyle}>{row["類型"]}</td>
+                      <td style={tdStyle}>{row["Level"]}</td>
+                      <td style={tdStyleStrong}>{row["名稱"]}</td>
+                      <td style={tdStyle}>{row["天氣"]}</td>
+                      <td style={tdStyle}>{row["時段"]}</td>
+                      <td style={tdStyle}>{row["地點"]}</td>
+                      <td style={tdStyle}>{row["Note"]}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </section>
       </div>
     </main>
   );
 }
+
+const labelStyle = {
+  display: "block",
+  fontSize: "14px",
+  fontWeight: 700,
+  color: "#444",
+  marginBottom: "8px",
+};
+
+const inputStyle = {
+  width: "100%",
+  height: "44px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  padding: "0 14px",
+  fontSize: "15px",
+  outline: "none",
+  background: "#fff",
+};
+
+const chipStyle = {
+  height: "40px",
+  padding: "0 14px",
+  borderRadius: "999px",
+  fontSize: "14px",
+  fontWeight: 700,
+  cursor: "pointer",
+};
 
 const thStyle = {
   textAlign: "left",

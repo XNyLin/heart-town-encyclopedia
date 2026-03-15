@@ -1110,24 +1110,7 @@ export default function Home() {
     </button>
   </div>
 </th>
-                          <span>等級</span>
-                          <button
-                            onClick={() =>
-                              setLevelSort(getNextLevelSort(levelSort))
-                            }
-                            style={sortIconButtonStyle}
-                            title={
-                              levelSort === "none"
-                                ? "目前：未排序"
-                                : levelSort === "asc"
-                                ? "目前：低到高"
-                                : "目前：高到低"
-                            }
-                          >
-                            {getLevelSortIcon(levelSort)}
-                          </button>
-                        </div>
-                      </th>
+
                       <th style={thStyle}>名稱</th>
                       <th style={thStyle}>天氣</th>
                       <th style={thStyle}>時段</th>

@@ -195,6 +195,28 @@ function formatFishShadowDisplay(value) {
   return text;
 }
 
+function formatPlaceDisplay(value) {
+  const text = String(value || "");
+
+  let color = "#222";
+
+  if (text.includes("⬆")) {
+    color = "#8B5A2B"; // 北部：褐色
+  } else if (text.includes("⬅")) {
+    color = "#9AD87A"; // 西部：淺綠色
+  } else if (text.includes("⮕")) {
+    color = "#1F7A3A"; // 東部：深綠色
+  } else if (text.includes("⬇")) {
+    color = "#2563EB"; // 南部：藍色
+  } else if (text.includes("🏘️") || text.includes("⊡")) {
+    color = "#EAB308"; // 中心城區：暖黃色
+  } else if (text.includes("河")) {
+    color = "#38BDF8"; // 河流：水藍色
+  }
+
+  return <span style={{ color, fontWeight: 600 }}>{text}</span>;
+}
+
 function sortRowsByLevel(rows, order) {
   if (order === "none") return rows;
 
@@ -740,7 +762,9 @@ export default function Home() {
                       <td style={tdStyle}>
                         {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                       </td>
-                      <td style={tdStyle}>{getField(row, ["地點"])}</td>
+                      <td style={tdStyle}>
+                        {formatPlaceDisplay(getField(row, ["地點"]))}
+                      </td>
                       <td style={tdStyle}>
                         {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
                       </td>

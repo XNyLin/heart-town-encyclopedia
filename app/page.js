@@ -200,18 +200,52 @@ function formatPlaceDisplay(value) {
 
   let color = "#222";
 
-  if (text.includes("⬆")) {
-    color = "#8B5A2B"; // 北部：褐色
-  } else if (text.includes("⬅")) {
-    color = "#9AD87A"; // 西部：淺綠色
-  } else if (text.includes("⮕")) {
-    color = "#1F7A3A"; // 東部：深綠色
-  } else if (text.includes("⬇")) {
-    color = "#2563EB"; // 南部：藍色
-  } else if (text.includes("🏘️") || text.includes("⊡")) {
-    color = "#EAB308"; // 中心城區：暖黃色
-  } else if (text.includes("河")) {
-    color = "#38BDF8"; // 河流：水藍色
+  const isEvent = text.includes("事件") || text.includes("⭐️");
+  const isRiver = text.includes("河");
+  const isLake = text.includes("湖");
+  const isSea = text.includes("海");
+
+  const isNorth = text.includes("⬆");
+  const isWest = text.includes("⬅");
+  const isEast = text.includes("⮕");
+  const isSouth = text.includes("⬇");
+  const isCenter = text.includes("⊡") || text.includes("中心城區");
+
+  // 1 事件
+  if (isEvent) {
+    color = "#dc2626";
+  }
+
+  // 2 河流（固定水藍）
+  else if (isRiver) {
+    color = "#38bdf8";
+  }
+
+  // 3 湖泊（綠色基底 + 地區微調）
+  else if (isLake) {
+    if (isNorth) color = "#15803d";
+    else if (isEast) color = "#166534";
+    else if (isWest) color = "#22c55e";
+    else if (isSouth) color = "#4ade80";
+    else color = "#16a34a";
+  }
+
+  // 4 海洋（深藍基底 + 地區微調）
+  else if (isSea) {
+    if (isNorth) color = "#1e3a8a";
+    else if (isEast) color = "#1e40af";
+    else if (isWest) color = "#2563eb";
+    else if (isSouth) color = "#3b82f6";
+    else color = "#1d4ed8";
+  }
+
+  // 5 其他地點（依地區）
+  else {
+    if (isNorth) color = "#8b5a2b";
+    else if (isWest) color = "#9ad87a";
+    else if (isEast) color = "#1f7a3a";
+    else if (isSouth) color = "#2563eb";
+    else if (isCenter) color = "#eab308";
   }
 
   return <span style={{ color, fontWeight: 600 }}>{text}</span>;

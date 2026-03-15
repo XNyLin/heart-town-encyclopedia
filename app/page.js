@@ -209,38 +209,25 @@ function formatPlaceDisplay(value) {
   const isWest = text.includes("⬅");
   const isEast = text.includes("⮕");
   const isSouth = text.includes("⬇");
-  const isCenter = text.includes("⊡") || text.includes("中心城區");
+  const isCenter = text.includes("⊡") || text.includes("中心城區") || text.includes("🏘️");
 
-  // 1 事件
   if (isEvent) {
     color = "#dc2626";
-  }
-
-  // 2 河流（固定水藍）
-  else if (isRiver) {
+  } else if (isRiver) {
     color = "#38bdf8";
-  }
-
-  // 3 湖泊（綠色基底 + 地區微調）
-  else if (isLake) {
+  } else if (isLake) {
     if (isNorth) color = "#15803d";
     else if (isEast) color = "#166534";
     else if (isWest) color = "#22c55e";
     else if (isSouth) color = "#4ade80";
     else color = "#16a34a";
-  }
-
-  // 4 海洋（深藍基底 + 地區微調）
-  else if (isSea) {
+  } else if (isSea) {
     if (isNorth) color = "#1e3a8a";
     else if (isEast) color = "#1e40af";
     else if (isWest) color = "#2563eb";
     else if (isSouth) color = "#3b82f6";
     else color = "#1d4ed8";
-  }
-
-  // 5 其他地點（依地區）
-  else {
+  } else {
     if (isNorth) color = "#8b5a2b";
     else if (isWest) color = "#9ad87a";
     else if (isEast) color = "#1f7a3a";
@@ -359,6 +346,7 @@ export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [weatherFilter, setWeatherFilter] = useState("全部");
   const [areaFilter, setAreaFilter] = useState("全部");
+  const [placeFilter, setPlaceFilter] = useState("");
 
   const [fishLevel, setFishLevel] = useState("全部");
   const [bugLevel, setBugLevel] = useState("全部");
@@ -445,6 +433,7 @@ export default function Home() {
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
+      const matchPlace = placeFilter ? rowPlace === placeFilter : true;
 
       let matchLevel = true;
 
@@ -463,6 +452,7 @@ export default function Home() {
         matchWeather &&
         matchArea &&
         matchPeriod &&
+        matchPlace &&
         matchLevel &&
         rowPlace !== "" &&
         rowNote !== undefined
@@ -475,6 +465,7 @@ export default function Home() {
     keyword,
     weatherFilter,
     areaFilter,
+    placeFilter,
     fishLevel,
     bugLevel,
     birdLevel,
@@ -560,6 +551,25 @@ export default function Home() {
                       : `${effectivePeriodName}（手動）`
                   }
                 />
+                {placeFilter && (
+                  <>
+                    <InfoPill label="📍現在查看的位置" value={placeFilter} />
+                    <button
+                      onClick={() => setPlaceFilter("")}
+                      style={{
+                        height: "40px",
+                        padding: "0 14px",
+                        borderRadius: "999px",
+                        border: "1px solid #ddd",
+                        background: "#fff",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                      }}
+                    >
+                      返回全部位置
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -828,27 +838,48 @@ export default function Home() {
                     </td>
                   </tr>
                 ) : (
-                  filteredRows.map((row, index) => (
-                    <tr key={`${getField(row, ["名稱"])}-${index}`}>
-                      <td style={tdStyle}>{getField(row, ["類型"])}</td>
-                      <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
-                      <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
-                      <td style={tdStyle}>
-                        {formatWeatherDisplay(getField(row, ["天氣"]))}
-                      </td>
-                      <td style={tdStyle}>
-                        {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
-                      </td>
-                      <td style={tdStyle}>
-                        {formatPlaceDisplay(getField(row, ["地點"]))}
-                      </td>
-                      <td style={tdStyle}>
-                        {formatFishShadowDisplay(
-                          getField(row, ["Note", "備註"])
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                  filteredRows.map((row, index) => {
+                    const place = getField(row, ["地點"]);
+                    const isActivePlace = placeFilter === place;
+
+                    return (
+                      <tr key={`${getField(row, ["名稱"])}-${index}`}>
+                        <td style={tdStyle}>{getField(row, ["類型"])}</td>
+                        <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
+                        <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
+                        <td style={tdStyle}>
+                          {formatWeatherDisplay(getField(row, ["天氣"]))}
+                        </td>
+                        <td style={tdStyle}>
+                          {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
+                        </td>
+                        <td style={tdStyle}>
+                          <button
+                            onClick={() => setPlaceFilter(place)}
+                            style={{
+                              background: isActivePlace ? "#eef2ff" : "transparent",
+                              border: isActivePlace
+                                ? "1px solid #c7d2fe"
+                                : "1px solid transparent",
+                              borderRadius: "8px",
+                              padding: "4px 8px",
+                              cursor: "pointer",
+                              fontSize: "15px",
+                              textAlign: "left",
+                            }}
+                            title="點擊查看該地點所有生物"
+                          >
+                            {formatPlaceDisplay(place)}
+                          </button>
+                        </td>
+                        <td style={tdStyle}>
+                          {formatFishShadowDisplay(
+                            getField(row, ["Note", "備註"])
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

@@ -14,6 +14,12 @@ import {
   matchesArea,
   getPeriodName,
   getCurrentTimeInfo,
+  getUniqueSortedLevels,
+  formatPeriodDisplay,
+  formatWeatherDisplay,
+  sortRowsByLevel,
+  getNextLevelSort,
+  getLevelSortIcon,
 } from "@/lib/bio-utils";
 import {
   panelStyle,
@@ -60,54 +66,6 @@ const CAT_SECTIONS = [
   { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
 ];
 
-
-
-function getUniqueSortedLevels(rows, type) {
-  const values = rows
-    .filter((row) => getField(row, ["類型"]) === type)
-    .map((row) => Number(getField(row, ["Level", "等級"])))
-    .filter((value) => !Number.isNaN(value));
-
-  return [...new Set(values)].sort((a, b) => a - b);
-}
-
-function formatPeriodDisplay(cellValue) {
-  const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
-  const uniquePeriods = [...new Set(digitsOnly.split("").filter(Boolean))];
-
-  if (
-    uniquePeriods.includes("1") &&
-    uniquePeriods.includes("2") &&
-    uniquePeriods.includes("3") &&
-    uniquePeriods.includes("4")
-  ) {
-    return "全天";
-  }
-
-  return uniquePeriods.map((period) => getPeriodName(period)).join("、");
-}
-
-function formatWeatherDisplay(cellValue) {
-  const text = normalizeText(cellValue);
-  const allWeather = ["彩虹", "晴天", "雨天", "雪天"];
-  const hasAll = allWeather.every((w) => text.includes(w));
-
-  if (hasAll) return "全天氣";
-
-  const weatherMap = {
-    彩虹: "🌈",
-    晴天: "☀️",
-    雨天: "☔️",
-    雪天: "⛄️",
-  };
-
-  const result = [];
-  for (const key of Object.keys(weatherMap)) {
-    if (text.includes(key)) result.push(weatherMap[key]);
-  }
-
-  return result.length > 0 ? result.join(" ") : cellValue;
-}
 
 function formatFishShadowDisplay(value) {
   const text = String(value || "");
@@ -164,31 +122,6 @@ function formatPlaceDisplay(value) {
   }
 
   return <span style={{ color, fontWeight: 600 }}>{text}</span>;
-}
-
-function sortRowsByLevel(rows, order) {
-  if (order === "none") return rows;
-
-  const cloned = [...rows];
-  cloned.sort((a, b) => {
-    const aLevel = Number(getField(a, ["Level", "等級"])) || 0;
-    const bLevel = Number(getField(b, ["Level", "等級"])) || 0;
-    return order === "asc" ? aLevel - bLevel : bLevel - aLevel;
-  });
-
-  return cloned;
-}
-
-function getNextLevelSort(current) {
-  if (current === "none") return "asc";
-  if (current === "asc") return "desc";
-  return "none";
-}
-
-function getLevelSortIcon(current) {
-  if (current === "asc") return "↑";
-  if (current === "desc") return "↓";
-  return "↕";
 }
 
 

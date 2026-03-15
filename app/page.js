@@ -6,7 +6,7 @@ import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
 import ControlPanel from "@/components/ControlPanel";
 import BioTable from "@/components/BioTable";
-import SourceBlock from "@/components/ui/SourceBlock";
+import SourceBlock from "@/components/SourceBlock";
 
 import {
   parseCSV,

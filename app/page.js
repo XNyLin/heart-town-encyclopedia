@@ -835,37 +835,65 @@ export default function Home() {
           gap: "12px",
         }}
       >
-        <div>
-          <label style={labelStyle}>天氣</label>
-          <select
-            value={weatherFilter}
-            onChange={(e) => setWeatherFilter(e.target.value)}
-            style={selectStyle}
-          >
-            <option value="全部">全部</option>
-            <option value="晴天">晴天 ☀️</option>
-            <option value="雨天">雨天 ☔️</option>
-            <option value="雪天">雪天 ⛄️</option>
-            <option value="彩虹">彩虹 🌈</option>
-          </select>
-        </div>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}
+>
+  <span
+    style={{
+      fontSize: "13px",
+      fontWeight: 600,
+      color: "#555",
+      whiteSpace: "nowrap",
+    }}
+  >
+    天氣
+  </span>
+  <select
+    value={weatherFilter}
+    onChange={(e) => setWeatherFilter(e.target.value)}
+    style={selectStyle}
+  >
+    <option value="全部">全部</option>
+    <option value="晴天">晴天 ☀️</option>
+    <option value="雨天">雨天 ☔️</option>
+    <option value="雪天">雪天 ⛄️</option>
+    <option value="彩虹">彩虹 🌈</option>
+  </select>
+</div>
 
-        <div>
-          <label style={labelStyle}>地區</label>
-          <select
-            value={areaFilter}
-            onChange={(e) => setAreaFilter(e.target.value)}
-            style={selectStyle}
-          >
-            {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
-              (item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              )
-            )}
-          </select>
-        </div>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}
+>
+  <span
+    style={{
+      fontSize: "13px",
+      fontWeight: 600,
+      color: "#555",
+      whiteSpace: "nowrap",
+    }}
+  >
+    地區
+  </span>
+  <select
+    value={areaFilter}
+    onChange={(e) => setAreaFilter(e.target.value)}
+    style={selectStyle}
+  >
+    {["全部", "中心城區", "北部", "東部", "西部", "南部"].map((item) => (
+      <option key={item} value={item}>
+        {item}
+      </option>
+    ))}
+  </select>
+</div>
 
         <div>
           <div

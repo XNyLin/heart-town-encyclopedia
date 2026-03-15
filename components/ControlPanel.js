@@ -205,7 +205,6 @@ export default function ControlPanel({
       flexWrap: "wrap",
     }}
   >
-    ...
   </div>
 )}
           </div>

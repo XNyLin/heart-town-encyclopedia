@@ -1148,8 +1148,12 @@ export default function Home() {
 
                         return (
                           <tr key={`${getField(row, ["名稱"])}-${index}`}>
-<td style={{ ...tdStyle, width: "70px" }}>
-  {getField(row, ["類型"])}
+<td style={tdStyle}>
+  {{
+    魚: "🐟",
+    蟲: "🐞",
+    鳥: "🕊",
+  }[getField(row, ["類型"])] || ""}
 </td>
 
 <td style={{ ...tdStyle, width: "90px" }}>

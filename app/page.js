@@ -1,6 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import CatGallery from "@/components/CatGallery";
+import {
+  panelStyle,
+  labelStyle,
+  inputStyle,
+  selectStyle,
+  sortIconButtonStyle,
+  chipStyle,
+  miniChipStyle,
+  actionButtonStyle,
+  thStyle,
+  tdStyle,
+  tdStyleStrong,
+} from "@/styles/bioStyles";
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
@@ -379,85 +393,6 @@ function SourceBlock({ tab }) {
   );
 }
 
-function CatGallery() {
-  const [catFilter, setCatFilter] = useState("全部");
-
-  const visibleCats =
-    catFilter === "全部"
-      ? CAT_SECTIONS
-      : CAT_SECTIONS.filter((cat) => cat.name === catFilter);
-
-  const catTabs = ["全部", ...CAT_SECTIONS.map((cat) => cat.name)];
-
-  return (
-    <section style={panelStyle}>
-      <h2
-        style={{
-          fontSize: "22px",
-          fontWeight: 800,
-          margin: "0 0 14px 0",
-          color: "#111",
-        }}
-      >
-        貓咪圖鑑
-      </h2>
-
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "8px",
-          marginBottom: "18px",
-        }}
-      >
-        {catTabs.map((name) => {
-          const active = catFilter === name;
-          return (
-            <button
-              key={name}
-              onClick={() => setCatFilter(name)}
-              style={{
-                ...miniChipStyle,
-                background: active ? "#111" : "#f3f4f6",
-                border: active ? "1px solid #111" : "1px solid #e5e7eb",
-                color: active ? "#fff" : "#333",
-              }}
-            >
-              {name}
-            </button>
-          );
-        })}
-      </div>
-
-      <div
-        style={{
-          display: catFilter === "全部" ? "grid" : "block",
-          gridTemplateColumns:
-            catFilter === "全部"
-              ? "repeat(auto-fill, minmax(420px, 1fr))"
-              : "none",
-          gap: "16px",
-        }}
-      >
-        {visibleCats.map((cat) => (
-          <div key={cat.id}>
-            <img
-              src={cat.img}
-              alt={cat.name}
-              style={{
-                width: "100%",
-                display: "block",
-                borderRadius: "14px",
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      <SourceBlock tab="貓" />
-    </section>
-  );
-}
 
 function DogGallery({ setTab }) {
   const [showResult, setShowResult] = useState(false);

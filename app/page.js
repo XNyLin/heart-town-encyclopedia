@@ -247,9 +247,6 @@ export default function Home() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    ...(isMobile && type === "貓"
-                      ? { flexBasis: "100%" }
-                      : {}),
                   }}
                 >
                   <button

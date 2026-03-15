@@ -95,22 +95,22 @@ export default function BioTable({
 
   const mobileThStyle = {
     ...thStyle,
-    padding: isMobile ? "8px 6px" : thStyle.padding,
+    padding: isMobile ? "6px 4px" : thStyle.padding,
     fontSize: isMobile ? "12px" : thStyle.fontSize,
   };
 
   const mobileTdStyle = {
     ...tdStyle,
-    padding: isMobile ? "6px 4px" : tdStyle.padding,
-    fontSize: isMobile ? "12px" : tdStyle.fontSize,
-    lineHeight: isMobile ? 1.35 : tdStyle.lineHeight,
+    padding: isMobile ? "4px 3px" : tdStyle.padding,
+    fontSize: isMobile ? "11px" : tdStyle.fontSize,
+    lineHeight: isMobile ? 1.3 : tdStyle.lineHeight,
   };
 
   const mobileTdStyleStrong = {
     ...tdStyleStrong,
-    padding: isMobile ? "6px 4px" : tdStyleStrong.padding,
-    fontSize: isMobile ? "12px" : tdStyleStrong.fontSize,
-    lineHeight: isMobile ? 1.35 : tdStyleStrong.lineHeight,
+    padding: isMobile ? "4px 3px" : tdStyleStrong.padding,
+    fontSize: isMobile ? "11px" : tdStyleStrong.fontSize,
+    lineHeight: isMobile ? 1.3 : tdStyleStrong.lineHeight,
   };
 
   return (
@@ -127,7 +127,7 @@ export default function BioTable({
         <table
           style={{
             width: "100%",
-            minWidth: isMobile ? "760px" : "unset",
+            minWidth: isMobile ? "640px" : "unset",
             borderCollapse: "collapse",
             tableLayout: "auto",
           }}
@@ -137,7 +137,7 @@ export default function BioTable({
               <th
                 style={{
                   ...mobileThStyle,
-                  width: isMobile ? "26px" : "30px",
+                  width: isMobile ? "22px" : "30px",
                   textAlign: "center",
                 }}
               >
@@ -147,7 +147,7 @@ export default function BioTable({
               <th
                 style={{
                   ...mobileThStyle,
-                  width: isMobile ? "48px" : "54px",
+                  width: isMobile ? "40px" : "54px",
                   textAlign: "center",
                 }}
               >
@@ -215,9 +215,9 @@ export default function BioTable({
                     <td
                       style={{
                         ...mobileTdStyle,
-                        width: isMobile ? "26px" : "30px",
+                        width: isMobile ? "22px" : "30px",
                         textAlign: "center",
-                        padding: isMobile ? "6px 2px" : "6px 2px",
+                        padding: "4px 2px",
                         fontSize: isMobile ? "14px" : "16px",
                       }}
                     >
@@ -231,9 +231,9 @@ export default function BioTable({
                     <td
                       style={{
                         ...mobileTdStyle,
-                        width: isMobile ? "48px" : "54px",
+                        width: isMobile ? "40px" : "54px",
                         textAlign: "center",
-                        padding: isMobile ? "6px 2px" : "6px 4px",
+                        padding: isMobile ? "4px 2px" : "6px 4px",
                         fontWeight: 500,
                       }}
                     >
@@ -263,9 +263,9 @@ export default function BioTable({
                           borderRadius: "7px",
                           padding: isMobile ? "2px 3px" : "2px 4px",
                           cursor: "pointer",
-                          fontSize: isMobile ? "12px" : "14px",
+                          fontSize: isMobile ? "11px" : "14px",
                           textAlign: "left",
-                          lineHeight: isMobile ? 1.3 : 1.4,
+                          lineHeight: isMobile ? 1.25 : 1.4,
                         }}
                         title="點擊查看該地點所有生物"
                       >

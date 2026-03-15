@@ -42,18 +42,20 @@ function parseCSV(text) {
 
   const headers = parseCSVLine(lines[0]);
 
-  return lines.map((line, lineIndex) => {
-    if (lineIndex === 0) return null;
+  return lines
+    .map((line, lineIndex) => {
+      if (lineIndex === 0) return null;
 
-    const values = parseCSVLine(line);
-    const row = {};
+      const values = parseCSVLine(line);
+      const row = {};
 
-    headers.forEach((header, index) => {
-      row[header.trim()] = (values[index] || "").trim();
-    });
+      headers.forEach((header, index) => {
+        row[header.trim()] = (values[index] || "").trim();
+      });
 
-    return row;
-  }).filter(Boolean);
+      return row;
+    })
+    .filter(Boolean);
 }
 
 function normalizeText(value) {
@@ -119,8 +121,6 @@ function getCurrentTimeInfo(date) {
   }
 
   return {
-    hour,
-    minute,
     period,
     periodName: getPeriodName(period),
     timeText: `${String(hour).padStart(2, "0")}:${String(minute).padStart(
@@ -146,18 +146,36 @@ function formatPeriodDisplay(cellValue) {
   return uniquePeriods.map((period) => getPeriodName(period)).join("、");
 }
 
+function sortRowsByLevel(rows, order) {
+  if (order === "none") return rows;
+
+  const cloned = [...rows];
+
+  cloned.sort((a, b) => {
+    const aLevel = Number(getField(a, ["Level", "等級"])) || 0;
+    const bLevel = Number(getField(b, ["Level", "等級"])) || 0;
+
+    if (order === "asc") return aLevel - bLevel;
+    return bLevel - aLevel;
+  });
+
+  return cloned;
+}
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [keyword, setKeyword] = useState("");
-  const [typeFilter, setTypeFilter] = useState("全部");
   const [weatherFilter, setWeatherFilter] = useState("全部");
   const [areaFilter, setAreaFilter] = useState("全部");
 
   const [fishLevel, setFishLevel] = useState("全部");
   const [bugLevel, setBugLevel] = useState("全部");
   const [birdLevel, setBirdLevel] = useState("全部");
+
+  const [tab, setTab] = useState("魚");
+  const [levelSort, setLevelSort] = useState("none");
 
   const [now, setNow] = useState(new Date());
   const [autoPeriod, setAutoPeriod] = useState(true);
@@ -219,7 +237,7 @@ export default function Home() {
   );
 
   const filteredRows = useMemo(() => {
-    return rows.filter((row) => {
+    const baseFiltered = rows.filter((row) => {
       const rowType = getField(row, ["類型"]);
       const rowName = getField(row, ["名稱"]);
       const rowLevel = Number(getField(row, ["Level", "等級"]));
@@ -233,7 +251,7 @@ export default function Home() {
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
-      const matchType = typeFilter === "全部" ? true : rowType === typeFilter;
+      const matchTab = rowType === tab;
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
@@ -251,7 +269,7 @@ export default function Home() {
       return (
         rowName !== "" &&
         matchKeyword &&
-        matchType &&
+        matchTab &&
         matchWeather &&
         matchArea &&
         matchPeriod &&
@@ -260,16 +278,19 @@ export default function Home() {
         rowNote !== undefined
       );
     });
+
+    return sortRowsByLevel(baseFiltered, levelSort);
   }, [
     rows,
     keyword,
-    typeFilter,
     weatherFilter,
     areaFilter,
     fishLevel,
     bugLevel,
     birdLevel,
     effectivePeriod,
+    tab,
+    levelSort,
   ]);
 
   return (
@@ -353,25 +374,14 @@ export default function Home() {
             </div>
 
             <div style={{ gridColumn: "span 12" }}>
-              <label style={labelStyle}>搜尋名稱</label>
-              <input
-                type="text"
-                placeholder="輸入魚、蟲、鳥名稱"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={{ gridColumn: "span 12" }}>
-              <label style={labelStyle}>類型</label>
+              <label style={labelStyle}>圖鑑分頁</label>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {["全部", "魚", "蟲", "鳥"].map((type) => {
-                  const active = typeFilter === type;
+                {["魚", "蟲", "鳥"].map((type) => {
+                  const active = tab === type;
                   return (
                     <button
                       key={type}
-                      onClick={() => setTypeFilter(type)}
+                      onClick={() => setTab(type)}
                       style={{
                         ...chipStyle,
                         background: active ? "#111" : "#f1f1f1",
@@ -386,6 +396,17 @@ export default function Home() {
                   );
                 })}
               </div>
+            </div>
+
+            <div style={{ gridColumn: "span 12" }}>
+              <label style={labelStyle}>搜尋名稱</label>
+              <input
+                type="text"
+                placeholder={`輸入${tab}名稱`}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                style={inputStyle}
+              />
             </div>
 
             <div style={{ gridColumn: "span 2" }}>
@@ -534,19 +555,46 @@ export default function Home() {
             <table
               style={{
                 width: "100%",
-                minWidth: "1080px",
+                minWidth: "1120px",
                 borderCollapse: "collapse",
               }}
             >
               <thead>
                 <tr>
-                  {["類型", "Level", "名稱", "天氣", "時段", "地點", "地區", "Note"].map(
-                    (title) => (
-                      <th key={title} style={thStyle}>
-                        {title}
-                      </th>
-                    )
-                  )}
+                  <th style={thStyle}>類型</th>
+                  <th style={thStyle}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span>Level</span>
+                      <select
+                        value={levelSort}
+                        onChange={(e) => setLevelSort(e.target.value)}
+                        style={{
+                          height: "30px",
+                          borderRadius: "8px",
+                          border: "1px solid #ddd",
+                          padding: "0 8px",
+                          fontSize: "12px",
+                          background: "#fff",
+                        }}
+                      >
+                        <option value="none">預設</option>
+                        <option value="asc">低→高</option>
+                        <option value="desc">高→低</option>
+                      </select>
+                    </div>
+                  </th>
+                  <th style={thStyle}>名稱</th>
+                  <th style={thStyle}>天氣</th>
+                  <th style={thStyle}>時段</th>
+                  <th style={thStyle}>地點</th>
+                  <th style={thStyle}>地區</th>
+                  <th style={thStyle}>Note</th>
                 </tr>
               </thead>
 
@@ -659,6 +707,7 @@ const thStyle = {
   color: "#444",
   whiteSpace: "nowrap",
   background: "#fff",
+  verticalAlign: "middle",
 };
 
 const tdStyle = {

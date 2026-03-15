@@ -5,6 +5,18 @@ import { useEffect, useMemo, useState } from "react";
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
+const catImages = [
+  "/cat01.png",
+  "/cat02.png",
+  "/cat03.png",
+  "/cat04.png",
+  "/cat05.png",
+  "/cat06.png",
+  "/cat07.png",
+  "/cat08.png",
+  "/cat09.png",
+];
+
 function parseCSVLine(line) {
   const result = [];
   let current = "";
@@ -209,7 +221,8 @@ function formatPlaceDisplay(value) {
   const isWest = text.includes("⬅");
   const isEast = text.includes("⮕");
   const isSouth = text.includes("⬇");
-  const isCenter = text.includes("⊡") || text.includes("中心城區") || text.includes("🏘️");
+  const isCenter =
+    text.includes("⊡") || text.includes("中心城區") || text.includes("🏘️");
 
   if (isEvent) {
     color = "#dc2626";
@@ -339,6 +352,76 @@ function InfoPill({ label, value }) {
   );
 }
 
+function CatGallery() {
+  return (
+    <section
+      style={{
+        background: "#fff",
+        borderRadius: "18px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+        padding: "20px",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "24px",
+          fontWeight: 800,
+          margin: "0 0 20px 0",
+          color: "#111",
+        }}
+      >
+        貓咪圖鑑
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: "16px",
+        }}
+      >
+        {catImages.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt={`貓咪圖鑑 ${i + 1}`}
+            style={{
+              width: "100%",
+              borderRadius: "14px",
+              display: "block",
+              background: "#fff",
+            }}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DogGallery() {
+  return (
+    <section
+      style={{
+        background: "#fff",
+        borderRadius: "18px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+        padding: "24px",
+        textAlign: "center",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "28px",
+          fontWeight: 800,
+          color: "#111",
+        }}
+      >
+        我是貓派
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -429,7 +512,13 @@ export default function Home() {
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
-      const matchTab = tab === "全部" ? true : rowType === tab;
+      const matchTab =
+        tab === "全部"
+          ? true
+          : tab === "貓" || tab === "狗"
+          ? false
+          : rowType === tab;
+
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
@@ -516,402 +605,419 @@ export default function Home() {
           </p>
         </header>
 
-        <section
-          style={{
-            background: "#fff",
-            borderRadius: "18px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-            padding: "18px",
-            marginBottom: "20px",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-              gap: "16px",
-            }}
-          >
-            <div style={{ gridColumn: "span 12" }}>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "12px",
-                  alignItems: "center",
-                  marginBottom: "4px",
-                }}
-              >
-                <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
-                <InfoPill
-                  label="目前時段"
-                  value={
-                    autoPeriod
-                      ? `${currentTimeInfo.periodName}（自動）`
-                      : `${effectivePeriodName}（手動）`
-                  }
-                />
-                {placeFilter && (
-                  <>
-                    <InfoPill label="📍現在查看的位置" value={placeFilter} />
-                    <button
-                      onClick={() => setPlaceFilter("")}
-                      style={{
-                        height: "40px",
-                        padding: "0 14px",
-                        borderRadius: "999px",
-                        border: "1px solid #ddd",
-                        background: "#fff",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                      }}
-                    >
-                      返回全部位置
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {["全部", "魚", "蟲", "鳥", "貓", "狗"].map((type) => {
+              const active = tab === type;
+              return (
+                <button
+                  key={type}
+                  onClick={() => setTab(type)}
+                  style={{
+                    ...chipStyle,
+                    background: active ? "#111" : "#f1f1f1",
+                    color: active ? "#fff" : "#333",
+                    border: active
+                      ? "1px solid #111"
+                      : "1px solid #e5e5e5",
+                  }}
+                >
+                  {type}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-            <div style={{ gridColumn: "span 12" }}>
-              <label style={labelStyle}>圖鑑分頁</label>
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                {["全部", "魚", "蟲", "鳥"].map((type) => {
-                  const active = tab === type;
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => setTab(type)}
-                      style={{
-                        ...chipStyle,
-                        background: active ? "#111" : "#f1f1f1",
-                        color: active ? "#fff" : "#333",
-                        border: active
-                          ? "1px solid #111"
-                          : "1px solid #e5e5e5",
-                      }}
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div style={{ gridColumn: "span 12" }}>
-              <label style={labelStyle}>搜尋名稱</label>
-              <input
-                type="text"
-                placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-
-            <div
+        {tab === "貓" ? (
+          <CatGallery />
+        ) : tab === "狗" ? (
+          <DogGallery />
+        ) : (
+          <>
+            <section
               style={{
-                gridColumn: "span 12",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "16px",
+                background: "#fff",
+                borderRadius: "18px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+                padding: "18px",
+                marginBottom: "20px",
               }}
             >
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
                   gap: "16px",
-                  alignItems: "start",
                 }}
               >
-                <div>
-                  <label style={labelStyle}>天氣</label>
-<select
-  value={weatherFilter}
-  onChange={(e) => setWeatherFilter(e.target.value)}
-  style={selectStyle}
->
-  <option value="全部">全部</option>
-  <option value="晴天">晴天 ☀️</option>
-  <option value="雨天">雨天 ☔️</option>
-  <option value="雪天">雪天 ⛄️</option>
-  <option value="彩虹">彩虹 🌈</option>
-</select>
-                </div>
-
-                <div>
-                  <label style={labelStyle}>地區</label>
-                  <select
-                    value={areaFilter}
-                    onChange={(e) => setAreaFilter(e.target.value)}
-                    style={selectStyle}
-                  >
-                    {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
-                      (item) => (
-                        <option key={item} value={item}>
-                          {item}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-
-                <div>
+                <div style={{ gridColumn: "span 12" }}>
                   <div
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: "8px",
+                      flexWrap: "wrap",
                       gap: "12px",
+                      alignItems: "center",
+                      marginBottom: "4px",
                     }}
                   >
-                    <label style={{ ...labelStyle, marginBottom: 0 }}>
-                      時段
-                    </label>
+                    <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
+                    <InfoPill
+                      label="目前時段"
+                      value={
+                        autoPeriod
+                          ? `${currentTimeInfo.periodName}（自動）`
+                          : `${effectivePeriodName}（手動）`
+                      }
+                    />
+                    {placeFilter && (
+                      <>
+                        <InfoPill label="📍現在查看的位置" value={placeFilter} />
+                        <button
+                          onClick={() => setPlaceFilter("")}
+                          style={{
+                            height: "40px",
+                            padding: "0 14px",
+                            borderRadius: "999px",
+                            border: "1px solid #ddd",
+                            background: "#fff",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                          }}
+                        >
+                          返回全部位置
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
 
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        fontSize: "13px",
-                        color: "#444",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <ToggleSwitch
-                        checked={autoPeriod}
-                        onChange={setAutoPeriod}
-                      />
-                      自動判斷
+                <div style={{ gridColumn: "span 12" }}>
+                  <label style={labelStyle}>搜尋名稱</label>
+                  <input
+                    type="text"
+                    placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    gridColumn: "span 12",
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "16px",
+                      alignItems: "start",
+                    }}
+                  >
+                    <div>
+                      <label style={labelStyle}>天氣</label>
+                      <select
+                        value={weatherFilter}
+                        onChange={(e) => setWeatherFilter(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="全部">全部</option>
+                        <option value="晴天">晴天 ☀️</option>
+                        <option value="雨天">雨天 ☔️</option>
+                        <option value="雪天">雪天 ⛄️</option>
+                        <option value="彩虹">彩虹 🌈</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>地區</label>
+                      <select
+                        value={areaFilter}
+                        onChange={(e) => setAreaFilter(e.target.value)}
+                        style={selectStyle}
+                      >
+                        {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
+                          (item) => (
+                            <option key={item} value={item}>
+                              {item}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+
+                    <div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: "8px",
+                          gap: "12px",
+                        }}
+                      >
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>
+                          時段
+                        </label>
+
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            fontSize: "13px",
+                            color: "#444",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <ToggleSwitch
+                            checked={autoPeriod}
+                            onChange={setAutoPeriod}
+                          />
+                          自動判斷
+                        </div>
+                      </div>
+
+                      <select
+                        value={manualPeriod}
+                        onChange={(e) => setManualPeriod(e.target.value)}
+                        style={{
+                          ...selectStyle,
+                          opacity: autoPeriod ? 0.5 : 1,
+                          cursor: autoPeriod ? "not-allowed" : "pointer",
+                        }}
+                        disabled={autoPeriod}
+                      >
+                        <option value="全部">全部</option>
+                        <option value="1">清晨</option>
+                        <option value="2">上午</option>
+                        <option value="3">下午</option>
+                        <option value="4">晚上</option>
+                      </select>
                     </div>
                   </div>
 
-                  <select
-                    value={manualPeriod}
-                    onChange={(e) => setManualPeriod(e.target.value)}
+                  <div
                     style={{
-                      ...selectStyle,
-                      opacity: autoPeriod ? 0.5 : 1,
-                      cursor: autoPeriod ? "not-allowed" : "pointer",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                      gap: "16px",
+                      alignItems: "start",
                     }}
-                    disabled={autoPeriod}
                   >
-                    <option value="全部">全部</option>
-                    <option value="1">清晨</option>
-                    <option value="2">上午</option>
-                    <option value="3">下午</option>
-                    <option value="4">晚上</option>
-                  </select>
+                    <div>
+                      <label style={labelStyle}>魚愛好等級</label>
+                      <select
+                        value={fishLevel}
+                        onChange={(e) => setFishLevel(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="全部">全部</option>
+                        {fishLevels.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>蟲愛好等級</label>
+                      <select
+                        value={bugLevel}
+                        onChange={(e) => setBugLevel(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="全部">全部</option>
+                        {bugLevels.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>鳥愛好等級</label>
+                      <select
+                        value={birdLevel}
+                        onChange={(e) => setBirdLevel(e.target.value)}
+                        style={selectStyle}
+                      >
+                        <option value="全部">全部</option>
+                        {birdLevels.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </section>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                  gap: "16px",
-                  alignItems: "start",
-                }}
-              >
-                <div>
-                  <label style={labelStyle}>魚愛好等級</label>
-                  <select
-                    value={fishLevel}
-                    onChange={(e) => setFishLevel(e.target.value)}
-                    style={selectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {fishLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={labelStyle}>蟲愛好等級</label>
-                  <select
-                    value={bugLevel}
-                    onChange={(e) => setBugLevel(e.target.value)}
-                    style={selectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {bugLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={labelStyle}>鳥愛好等級</label>
-                  <select
-                    value={birdLevel}
-                    onChange={(e) => setBirdLevel(e.target.value)}
-                    style={selectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {birdLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          style={{
-            background: "#fff",
-            borderRadius: "18px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-            padding: "14px",
-            overflowX: "auto",
-          }}
-        >
-          {loading ? (
-            <div style={{ padding: "24px", color: "#666" }}>資料載入中...</div>
-          ) : (
-            <table
+            <section
               style={{
-                width: "100%",
-                minWidth: "1040px",
-                borderCollapse: "collapse",
+                background: "#fff",
+                borderRadius: "18px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+                padding: "14px",
+                overflowX: "auto",
               }}
             >
-              <thead>
-                <tr>
-                  <th style={thStyle}>類型</th>
-                  <th style={thStyle}>
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <span>Level</span>
-                      <button
-                        onClick={() => setLevelSort(getNextLevelSort(levelSort))}
-                        style={sortIconButtonStyle}
-                        title={
-                          levelSort === "none"
-                            ? "目前：未排序"
-                            : levelSort === "asc"
-                            ? "目前：低到高"
-                            : "目前：高到低"
-                        }
-                      >
-                        {getLevelSortIcon(levelSort)}
-                      </button>
-                    </div>
-                  </th>
-                  <th style={thStyle}>名稱</th>
-                  <th style={thStyle}>天氣</th>
-                  <th style={thStyle}>時段</th>
-                  <th style={thStyle}>地點</th>
-                  <th style={thStyle}>Note</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredRows.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      style={{
-                        padding: "24px 14px",
-                        textAlign: "center",
-                        color: "#777",
-                        borderBottom: "1px solid #f0f0f0",
-                      }}
-                    >
-                      沒有符合條件的資料
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRows.map((row, index) => {
-                    const place = getField(row, ["地點"]);
-                    const isActivePlace = placeFilter === place;
-
-                    return (
-                      <tr key={`${getField(row, ["名稱"])}-${index}`}>
-                        <td style={tdStyle}>{getField(row, ["類型"])}</td>
-                        <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
-                        <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
-                        <td style={tdStyle}>
-                          {formatWeatherDisplay(getField(row, ["天氣"]))}
-                        </td>
-                        <td style={tdStyle}>
-                          {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
-                        </td>
-                        <td style={tdStyle}>
+              {loading ? (
+                <div style={{ padding: "24px", color: "#666" }}>
+                  資料載入中...
+                </div>
+              ) : (
+                <table
+                  style={{
+                    width: "100%",
+                    minWidth: "1040px",
+                    borderCollapse: "collapse",
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      <th style={thStyle}>類型</th>
+                      <th style={thStyle}>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          <span>Level</span>
                           <button
-                            onClick={() => setPlaceFilter(place)}
-                            style={{
-                              background: isActivePlace ? "#eef2ff" : "transparent",
-                              border: isActivePlace
-                                ? "1px solid #c7d2fe"
-                                : "1px solid transparent",
-                              borderRadius: "8px",
-                              padding: "4px 8px",
-                              cursor: "pointer",
-                              fontSize: "15px",
-                              textAlign: "left",
-                            }}
-                            title="點擊查看該地點所有生物"
+                            onClick={() =>
+                              setLevelSort(getNextLevelSort(levelSort))
+                            }
+                            style={sortIconButtonStyle}
+                            title={
+                              levelSort === "none"
+                                ? "目前：未排序"
+                                : levelSort === "asc"
+                                ? "目前：低到高"
+                                : "目前：高到低"
+                            }
                           >
-                            {formatPlaceDisplay(place)}
+                            {getLevelSortIcon(levelSort)}
                           </button>
-                        </td>
-                        <td style={tdStyle}>
-                          {formatFishShadowDisplay(
-                            getField(row, ["Note", "備註"])
-                          )}
+                        </div>
+                      </th>
+                      <th style={thStyle}>名稱</th>
+                      <th style={thStyle}>天氣</th>
+                      <th style={thStyle}>時段</th>
+                      <th style={thStyle}>地點</th>
+                      <th style={thStyle}>Note</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {filteredRows.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          style={{
+                            padding: "24px 14px",
+                            textAlign: "center",
+                            color: "#777",
+                            borderBottom: "1px solid #f0f0f0",
+                          }}
+                        >
+                          沒有符合條件的資料
                         </td>
                       </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          )}
-</section>
+                    ) : (
+                      filteredRows.map((row, index) => {
+                        const place = getField(row, ["地點"]);
+                        const isActivePlace = placeFilter === place;
 
-<footer
-  style={{
-    marginTop: "48px",
-    textAlign: "center",
-    fontSize: "13px",
-    color: "#999",
-    letterSpacing: "0.04em",
-  }}
->
-  Powered by{" "}
-  <a
-    href="https://XNy.tw"
-    target="_blank"
-    rel="noopener noreferrer"
-    style={{
-      color: "#111",
-      fontWeight: 700,
-      textDecoration: "none",
-    }}
-  >
-    X.Ny
-  </a>
-</footer>
+                        return (
+                          <tr key={`${getField(row, ["名稱"])}-${index}`}>
+                            <td style={tdStyle}>{getField(row, ["類型"])}</td>
+                            <td style={tdStyle}>
+                              {getField(row, ["Level", "等級"])}
+                            </td>
+                            <td style={tdStyleStrong}>
+                              {getField(row, ["名稱"])}
+                            </td>
+                            <td style={tdStyle}>
+                              {formatWeatherDisplay(getField(row, ["天氣"]))}
+                            </td>
+                            <td style={tdStyle}>
+                              {formatPeriodDisplay(
+                                getField(row, ["時段", "時間"])
+                              )}
+                            </td>
+                            <td style={tdStyle}>
+                              <button
+                                onClick={() => setPlaceFilter(place)}
+                                style={{
+                                  background: isActivePlace
+                                    ? "#eef2ff"
+                                    : "transparent",
+                                  border: isActivePlace
+                                    ? "1px solid #c7d2fe"
+                                    : "1px solid transparent",
+                                  borderRadius: "8px",
+                                  padding: "4px 8px",
+                                  cursor: "pointer",
+                                  fontSize: "15px",
+                                  textAlign: "left",
+                                }}
+                                title="點擊查看該地點所有生物"
+                              >
+                                {formatPlaceDisplay(place)}
+                              </button>
+                            </td>
+                            <td style={tdStyle}>
+                              {formatFishShadowDisplay(
+                                getField(row, ["Note", "備註"])
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </section>
+          </>
+        )}
 
-</div>
-</main>
+        <footer
+          style={{
+            marginTop: "40px",
+            textAlign: "center",
+            fontSize: "14px",
+            color: "#888",
+          }}
+        >
+          Powered By{" "}
+          <a
+            href="https://XNy.tw"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#111",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
+          >
+            X.Ny
+          </a>
+        </footer>
+      </div>
+    </main>
   );
 }
 

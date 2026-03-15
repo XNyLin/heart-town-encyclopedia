@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
+import ControlPanel from "@/components/ControlPanel";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import InfoPill from "@/components/ui/InfoPill";
 import {
@@ -423,228 +424,34 @@ export default function Home() {
           <DogGallery setTab={setTab} />
         ) : (
           <>
-            <section
-              style={{
-                ...panelStyle,
-                marginBottom: "16px",
-                padding: "16px",
-              }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "minmax(0, 1.45fr) minmax(280px, 0.95fr)",
-                  gap: "16px",
-                  alignItems: "start",
-                }}
-              >
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "12px",
-                    minWidth: 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "8px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
-
-                    <InfoPill
-                      label="目前時段"
-                      value={effectivePeriodName}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          marginLeft: "4px",
-                          whiteSpace: "nowrap",
-                          fontSize: "12px",
-                          color: "#444",
-                        }}
-                      >
-                        <ToggleSwitch
-                          checked={autoPeriod}
-                          onChange={setAutoPeriod}
-                        />
-                        自動判斷
-                      </div>
-                    </InfoPill>
-
-                    {placeFilter && (
-                      <>
-                        <InfoPill label="📍現在查看的位置" value={placeFilter} />
-                        <button
-                          onClick={() => setPlaceFilter("")}
-                          style={miniChipStyle}
-                        >
-                          返回全部位置
-                        </button>
-                      </>
-                    )}
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                      gap: "12px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div style={inlineFilterItemStyle}>
-                      <span style={inlineFilterLabelStyle}>天氣</span>
-                      <select
-                        value={weatherFilter}
-                        onChange={(e) => setWeatherFilter(e.target.value)}
-                        style={compactSelectStyle}
-                      >
-                        <option value="全部">全部</option>
-                        <option value="晴天">晴天 ☀️</option>
-                        <option value="雨天">雨天 ☔️</option>
-                        <option value="雪天">雪天 ⛄️</option>
-                        <option value="彩虹">彩虹 🌈</option>
-                      </select>
-                    </div>
-
-                    <div style={inlineFilterItemStyle}>
-                      <span style={inlineFilterLabelStyle}>地區</span>
-                      <select
-                        value={areaFilter}
-                        onChange={(e) => setAreaFilter(e.target.value)}
-                        style={compactSelectStyle}
-                      >
-                        {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
-                          (item) => (
-                            <option key={item} value={item}>
-                              {item}
-                            </option>
-                          )
-                        )}
-                      </select>
-                    </div>
-
-                    <div style={inlineFilterItemStyle}>
-                      <span style={inlineFilterLabelStyle}>時段</span>
-                      <select
-                        value={manualPeriod}
-                        onChange={(e) => setManualPeriod(e.target.value)}
-                        style={{
-                          ...compactSelectStyle,
-                          opacity: autoPeriod ? 0.5 : 1,
-                          cursor: autoPeriod ? "not-allowed" : "pointer",
-                        }}
-                        disabled={autoPeriod}
-                      >
-                        <option value="全部">全部</option>
-                        <option value="1">清晨</option>
-                        <option value="2">上午</option>
-                        <option value="3">下午</option>
-                        <option value="4">晚上</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <button
-                      onClick={() => setShowAdvanced(!showAdvanced)}
-                      style={{
-                        ...miniChipStyle,
-                        height: "36px",
-                      }}
-                    >
-                      愛好等級 {showAdvanced ? "▲" : "▼"}
-                    </button>
-
-                    {showAdvanced && (
-                      <div
-                        style={{
-                          marginTop: "10px",
-                          padding: "12px 14px",
-                          border: "1px solid #eee",
-                          borderRadius: "12px",
-                          background: "#fafafa",
-                          display: "grid",
-                          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                          gap: "12px",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div style={inlineFilterItemStyle}>
-                          <span style={inlineFilterLabelStyle}>釣魚</span>
-                          <select
-                            value={fishLevel}
-                            onChange={(e) => setFishLevel(e.target.value)}
-                            style={compactSelectStyle}
-                          >
-                            <option value="全部">全部</option>
-                            {fishLevels.map((level) => (
-                              <option key={level} value={level}>
-                                {level}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div style={inlineFilterItemStyle}>
-                          <span style={inlineFilterLabelStyle}>捕蟲</span>
-                          <select
-                            value={bugLevel}
-                            onChange={(e) => setBugLevel(e.target.value)}
-                            style={compactSelectStyle}
-                          >
-                            <option value="全部">全部</option>
-                            {bugLevels.map((level) => (
-                              <option key={level} value={level}>
-                                {level}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div style={inlineFilterItemStyle}>
-                          <span style={inlineFilterLabelStyle}>觀鳥</span>
-                          <select
-                            value={birdLevel}
-                            onChange={(e) => setBirdLevel(e.target.value)}
-                            style={compactSelectStyle}
-                          >
-                            <option value="全部">全部</option>
-                            {birdLevels.map((level) => (
-                              <option key={level} value={level}>
-                                {level}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    minWidth: 0,
-                  }}
-                >
-                  <label style={labelStyle}>搜尋</label>
-                  <input
-                    type="text"
-                    placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    style={inputStyle}
-                  />
-                </div>
-              </div>
-            </section>
+<ControlPanel
+  currentTimeInfo={currentTimeInfo}
+  effectivePeriodName={effectivePeriodName}
+  autoPeriod={autoPeriod}
+  setAutoPeriod={setAutoPeriod}
+  manualPeriod={manualPeriod}
+  setManualPeriod={setManualPeriod}
+  weatherFilter={weatherFilter}
+  setWeatherFilter={setWeatherFilter}
+  areaFilter={areaFilter}
+  setAreaFilter={setAreaFilter}
+  keyword={keyword}
+  setKeyword={setKeyword}
+  tab={tab}
+  placeFilter={placeFilter}
+  setPlaceFilter={setPlaceFilter}
+  showAdvanced={showAdvanced}
+  setShowAdvanced={setShowAdvanced}
+  fishLevel={fishLevel}
+  setFishLevel={setFishLevel}
+  bugLevel={bugLevel}
+  setBugLevel={setBugLevel}
+  birdLevel={birdLevel}
+  setBirdLevel={setBirdLevel}
+  fishLevels={fishLevels}
+  bugLevels={bugLevels}
+  birdLevels={birdLevels}
+/>
 
             <section
               style={{

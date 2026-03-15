@@ -58,6 +58,15 @@ function normalizeText(value) {
   return String(value || "").replace(/\s+/g, "").trim();
 }
 
+function getField(row, keys) {
+  for (const key of keys) {
+    if (row[key] !== undefined && row[key] !== null && row[key] !== "") {
+      return row[key];
+    }
+  }
+  return "";
+}
+
 function matchesWeather(cellValue, selectedWeather) {
   if (selectedWeather === "全部") return true;
 
@@ -70,7 +79,8 @@ function matchesWeather(cellValue, selectedWeather) {
 function matchesPeriod(cellValue, currentPeriod) {
   const cell = normalizeText(cellValue);
 
-  // 保留 1~4 的數字，去掉其他符號
+  // 只保留數字，兼容：
+  // 1,2,3,4 / 1 2 3 4 / 1、2、3、4 / 1234
   const digitsOnly = cell.replace(/[^\d]/g, "");
 
   return digitsOnly.includes(String(currentPeriod));
@@ -108,8 +118,8 @@ function getCurrentTimeInfo(date) {
 
 function getUniqueSortedLevels(rows, type) {
   const values = rows
-    .filter((row) => row["類型"] === type)
-    .map((row) => Number(row["Level"]))
+    .filter((row) => getField(row, ["類型"]) === type)
+    .map((row) => Number(getField(row, ["Level", "等級"])))
     .filter((value) => !Number.isNaN(value));
 
   return [...new Set(values)].sort((a, b) => a - b);
@@ -141,7 +151,9 @@ export default function Home() {
         }
 
         const csvText = await res.text();
-        const parsedRows = parseCSV(csvText).filter((row) => row["名稱"]);
+        const parsedRows = parseCSV(csvText).filter(
+          (row) => getField(row, ["名稱"]) !== ""
+        );
         setRows(parsedRows);
       } catch (error) {
         console.error(error);
@@ -169,9 +181,13 @@ export default function Home() {
 
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
-      const rowType = row["類型"] || "";
-      const rowName = row["名稱"] || "";
-      const rowLevel = Number(row["Level"]);
+      const rowType = getField(row, ["類型"]);
+      const rowName = getField(row, ["名稱"]);
+      const rowLevel = Number(getField(row, ["Level", "等級"]));
+      const rowWeather = getField(row, ["天氣"]);
+      const rowPeriod = getField(row, ["時段", "時間"]);
+      const rowPlace = getField(row, ["地點"]);
+      const rowNote = getField(row, ["Note", "備註"]);
 
       const matchKeyword = keyword.trim()
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
@@ -180,8 +196,8 @@ export default function Home() {
       const matchType =
         typeFilter === "全部" ? true : rowType === typeFilter;
 
-      const matchWeather = matchesWeather(row["天氣"], weatherFilter);
-      const matchPeriod = matchesPeriod(row["時段"], currentTimeInfo.period);
+      const matchWeather = matchesWeather(rowWeather, weatherFilter);
+      const matchPeriod = matchesPeriod(rowPeriod, currentTimeInfo.period);
 
       let matchLevel = true;
 
@@ -194,11 +210,14 @@ export default function Home() {
       }
 
       return (
+        rowName !== "" &&
+        rowPlace !== "" &&
         matchKeyword &&
         matchType &&
         matchWeather &&
         matchPeriod &&
-        matchLevel
+        matchLevel &&
+        rowNote !== undefined
       );
     });
   }, [
@@ -434,14 +453,14 @@ export default function Home() {
                   </tr>
                 ) : (
                   filteredRows.map((row, index) => (
-                    <tr key={`${row["名稱"]}-${index}`}>
-                      <td style={tdStyle}>{row["類型"]}</td>
-                      <td style={tdStyle}>{row["Level"]}</td>
-                      <td style={tdStyleStrong}>{row["名稱"]}</td>
-                      <td style={tdStyle}>{row["天氣"]}</td>
-                      <td style={tdStyle}>{row["時段"]}</td>
-                      <td style={tdStyle}>{row["地點"]}</td>
-                      <td style={tdStyle}>{row["Note"]}</td>
+                    <tr key={`${getField(row, ["名稱"])}-${index}`}>
+                      <td style={tdStyle}>{getField(row, ["類型"])}</td>
+                      <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
+                      <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
+                      <td style={tdStyle}>{getField(row, ["天氣"])}</td>
+                      <td style={tdStyle}>{getField(row, ["時段", "時間"])}</td>
+                      <td style={tdStyle}>{getField(row, ["地點"])}</td>
+                      <td style={tdStyle}>{getField(row, ["Note", "備註"])}</td>
                     </tr>
                   ))
                 )}

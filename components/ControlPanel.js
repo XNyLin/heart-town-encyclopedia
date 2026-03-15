@@ -196,69 +196,18 @@ export default function ControlPanel({
               愛好等級 {showAdvanced ? "▲" : "▼"}
             </button>
 
-            {showAdvanced && (
-              <div
-                style={{
-                  marginTop: "10px",
-                  padding: "12px 14px",
-                  border: "1px solid #eee",
-                  borderRadius: "12px",
-                  background: "#fafafa",
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                  gap: "12px",
-                  alignItems: "center",
-                }}
-              >
-                <div style={inlineFilterItemStyle}>
-                  <span style={inlineFilterLabelStyle}>釣魚</span>
-                  <select
-                    value={fishLevel}
-                    onChange={(e) => setFishLevel(e.target.value)}
-                    style={compactSelectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {fishLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={inlineFilterItemStyle}>
-                  <span style={inlineFilterLabelStyle}>捕蟲</span>
-                  <select
-                    value={bugLevel}
-                    onChange={(e) => setBugLevel(e.target.value)}
-                    style={compactSelectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {bugLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div style={inlineFilterItemStyle}>
-                  <span style={inlineFilterLabelStyle}>觀鳥</span>
-                  <select
-                    value={birdLevel}
-                    onChange={(e) => setBirdLevel(e.target.value)}
-                    style={compactSelectStyle}
-                  >
-                    <option value="全部">全部</option>
-                    {birdLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
+{showAdvanced && (
+  <div
+    style={{
+      display: "flex",
+      gap: "16px",
+      marginTop: "8px",
+      flexWrap: "wrap",
+    }}
+  >
+    ...
+  </div>
+)}
           </div>
         </div>
 

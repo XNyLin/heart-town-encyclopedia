@@ -884,9 +884,33 @@ export default function Home() {
               </tbody>
             </table>
           )}
-        </section>
-      </div>
-    </main>
+</section>
+
+<footer
+  style={{
+    marginTop: "40px",
+    textAlign: "center",
+    fontSize: "14px",
+    color: "#888",
+  }}
+>
+  Powered By{" "}
+  <a
+    href="https://XNy.tw"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      color: "#111",
+      fontWeight: 700,
+      textDecoration: "none",
+    }}
+  >
+    X.Ny
+  </a>
+</footer>
+
+</div>
+</main>
   );
 }
 

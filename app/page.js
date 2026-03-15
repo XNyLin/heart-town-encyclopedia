@@ -10,7 +10,7 @@ function parseCSVLine(line) {
   let current = "";
   let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
+  for (let i = 0; i < line.length; i += 1) {
     const char = line[i];
     const nextChar = line[i + 1];
 
@@ -42,7 +42,9 @@ function parseCSV(text) {
 
   const headers = parseCSVLine(lines[0]);
 
-  return lines.slice(1).map((line) => {
+  return lines.map((line, lineIndex) => {
+    if (lineIndex === 0) return null;
+
     const values = parseCSVLine(line);
     const row = {};
 
@@ -51,7 +53,7 @@ function parseCSV(text) {
     });
 
     return row;
-  });
+  }).filter(Boolean);
 }
 
 function normalizeText(value) {
@@ -77,9 +79,19 @@ function matchesWeather(cellValue, selectedWeather) {
 }
 
 function matchesPeriod(cellValue, currentPeriod) {
+  if (currentPeriod === "全部") return true;
+
   const cell = normalizeText(cellValue);
   const digitsOnly = cell.replace(/[^\d]/g, "");
+
   return digitsOnly.includes(String(currentPeriod));
+}
+
+function matchesArea(cellValue, selectedArea) {
+  if (selectedArea === "全部") return true;
+
+  const cell = normalizeText(cellValue);
+  return cell.includes(selectedArea);
 }
 
 function getPeriodName(period) {
@@ -141,6 +153,7 @@ export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [typeFilter, setTypeFilter] = useState("全部");
   const [weatherFilter, setWeatherFilter] = useState("全部");
+  const [areaFilter, setAreaFilter] = useState("全部");
 
   const [fishLevel, setFishLevel] = useState("全部");
   const [bugLevel, setBugLevel] = useState("全部");
@@ -153,9 +166,7 @@ export default function Home() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch(SHEET_CSV_URL, {
-          cache: "no-store",
-        });
+        const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
 
         if (!res.ok) {
           throw new Error("無法讀取 Google Sheet 資料");
@@ -214,19 +225,18 @@ export default function Home() {
       const rowLevel = Number(getField(row, ["Level", "等級"]));
       const rowWeather = getField(row, ["天氣"]);
       const rowPeriod = getField(row, ["時段", "時間"]);
+      const rowArea = getField(row, ["地區"]);
+      const rowPlace = getField(row, ["地點"]);
+      const rowNote = getField(row, ["Note", "備註"]);
 
       const matchKeyword = keyword.trim()
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
       const matchType = typeFilter === "全部" ? true : rowType === typeFilter;
-
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
-
-      const matchPeriod =
-        effectivePeriod === "全部"
-          ? true
-          : matchesPeriod(rowPeriod, effectivePeriod);
+      const matchArea = matchesArea(rowArea, areaFilter);
+      const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
 
       let matchLevel = true;
 
@@ -243,8 +253,11 @@ export default function Home() {
         matchKeyword &&
         matchType &&
         matchWeather &&
+        matchArea &&
         matchPeriod &&
-        matchLevel
+        matchLevel &&
+        rowPlace !== "" &&
+        rowNote !== undefined
       );
     });
   }, [
@@ -252,6 +265,7 @@ export default function Home() {
     keyword,
     typeFilter,
     weatherFilter,
+    areaFilter,
     fishLevel,
     bugLevel,
     birdLevel,
@@ -374,7 +388,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div style={{ gridColumn: "span 3" }}>
+            <div style={{ gridColumn: "span 2" }}>
               <label style={labelStyle}>天氣</label>
               <select
                 value={weatherFilter}
@@ -386,6 +400,23 @@ export default function Home() {
                     {item}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={labelStyle}>地區</label>
+              <select
+                value={areaFilter}
+                onChange={(e) => setAreaFilter(e.target.value)}
+                style={selectStyle}
+              >
+                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
+                  (item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  )
+                )}
               </select>
             </div>
 
@@ -438,7 +469,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 2" }}>
+            <div style={{ gridColumn: "span 1.666" }}>
               <label style={labelStyle}>魚愛好等級</label>
               <select
                 value={fishLevel}
@@ -503,13 +534,13 @@ export default function Home() {
             <table
               style={{
                 width: "100%",
-                minWidth: "980px",
+                minWidth: "1080px",
                 borderCollapse: "collapse",
               }}
             >
               <thead>
                 <tr>
-                  {["類型", "Level", "名稱", "天氣", "時段", "地點", "Note"].map(
+                  {["類型", "Level", "名稱", "天氣", "時段", "地點", "地區", "Note"].map(
                     (title) => (
                       <th key={title} style={thStyle}>
                         {title}
@@ -523,7 +554,7 @@ export default function Home() {
                 {filteredRows.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       style={{
                         padding: "24px 14px",
                         textAlign: "center",
@@ -545,6 +576,7 @@ export default function Home() {
                         {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                       </td>
                       <td style={tdStyle}>{getField(row, ["地點"])}</td>
+                      <td style={tdStyle}>{getField(row, ["地區"])}</td>
                       <td style={tdStyle}>{getField(row, ["Note", "備註"])}</td>
                     </tr>
                   ))

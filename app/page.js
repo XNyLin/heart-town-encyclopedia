@@ -5,7 +5,16 @@ import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import InfoPill from "@/components/ui/InfoPill";
-import { parseCSV, normalizeText, getField } from "@/lib/bio-utils";
+import {
+  parseCSV,
+  normalizeText,
+  getField,
+  matchesWeather,
+  matchesPeriod,
+  matchesArea,
+  getPeriodName,
+  getCurrentTimeInfo,
+} from "@/lib/bio-utils";
 import {
   panelStyle,
   labelStyle,
@@ -52,50 +61,6 @@ const CAT_SECTIONS = [
 ];
 
 
-function matchesWeather(cellValue, selectedWeather) {
-  if (selectedWeather === "全部") return true;
-  return normalizeText(cellValue).includes(normalizeText(selectedWeather));
-}
-
-function matchesPeriod(cellValue, currentPeriod) {
-  if (currentPeriod === "全部") return true;
-  const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
-  return digitsOnly.includes(String(currentPeriod));
-}
-
-function matchesArea(cellValue, selectedArea) {
-  if (selectedArea === "全部") return true;
-  return normalizeText(cellValue).includes(selectedArea);
-}
-
-function getPeriodName(period) {
-  const map = {
-    "1": "清晨",
-    "2": "上午",
-    "3": "下午",
-    "4": "晚上",
-  };
-  return map[String(period)] || "";
-}
-
-function getCurrentTimeInfo(date) {
-  const hour = date.getHours();
-  const minute = date.getMinutes();
-
-  let period = "1";
-  if (hour >= 6 && hour < 12) period = "2";
-  else if (hour >= 12 && hour < 18) period = "3";
-  else if (hour >= 18) period = "4";
-
-  return {
-    period,
-    periodName: getPeriodName(period),
-    timeText: `${String(hour).padStart(2, "0")}:${String(minute).padStart(
-      2,
-      "0"
-    )}`,
-  };
-}
 
 function getUniqueSortedLevels(rows, type) {
   const values = rows

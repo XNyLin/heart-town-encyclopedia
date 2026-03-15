@@ -38,14 +38,14 @@ export default function ControlPanel({
   bugLevels,
   birdLevels,
 }) {
-  const inlineFilterItemStyle = {
+  const filterItemStyle = {
     display: "flex",
     alignItems: "center",
     gap: "8px",
     minWidth: 0,
   };
 
-  const inlineFilterLabelStyle = {
+  const filterLabelStyle = {
     fontSize: "13px",
     fontWeight: 600,
     color: "#555",
@@ -56,6 +56,13 @@ export default function ControlPanel({
   const compactSelectStyle = {
     ...selectStyle,
     height: "36px",
+  };
+
+  const filterGridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "12px",
+    alignItems: "center",
   };
 
   return (
@@ -103,10 +110,7 @@ export default function ControlPanel({
                   color: "#444",
                 }}
               >
-                <ToggleSwitch
-                  checked={autoPeriod}
-                  onChange={setAutoPeriod}
-                />
+                <ToggleSwitch checked={autoPeriod} onChange={setAutoPeriod} />
                 自動判斷
               </div>
             </InfoPill>
@@ -124,16 +128,9 @@ export default function ControlPanel({
             )}
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-              gap: "12px",
-              alignItems: "center",
-            }}
-          >
-            <div style={inlineFilterItemStyle}>
-              <span style={inlineFilterLabelStyle}>天氣</span>
+          <div style={filterGridStyle}>
+            <div style={filterItemStyle}>
+              <span style={filterLabelStyle}>天氣</span>
               <select
                 value={weatherFilter}
                 onChange={(e) => setWeatherFilter(e.target.value)}
@@ -147,8 +144,8 @@ export default function ControlPanel({
               </select>
             </div>
 
-            <div style={inlineFilterItemStyle}>
-              <span style={inlineFilterLabelStyle}>地區</span>
+            <div style={filterItemStyle}>
+              <span style={filterLabelStyle}>地區</span>
               <select
                 value={areaFilter}
                 onChange={(e) => setAreaFilter(e.target.value)}
@@ -164,8 +161,8 @@ export default function ControlPanel({
               </select>
             </div>
 
-            <div style={inlineFilterItemStyle}>
-              <span style={inlineFilterLabelStyle}>時段</span>
+            <div style={filterItemStyle}>
+              <span style={filterLabelStyle}>時段</span>
               <select
                 value={manualPeriod}
                 onChange={(e) => setManualPeriod(e.target.value)}
@@ -196,25 +193,66 @@ export default function ControlPanel({
               愛好等級 {showAdvanced ? "▲" : "▼"}
             </button>
 
-{showAdvanced && (
-  <div
-    style={{
-      display: "flex",
-      gap: "16px",
-      marginTop: "8px",
-      flexWrap: "wrap",
-    }}
-  >
-  </div>
-)}
+            {showAdvanced && (
+              <div
+                style={{
+                  ...filterGridStyle,
+                  marginTop: "8px",
+                }}
+              >
+                <div style={filterItemStyle}>
+                  <span style={filterLabelStyle}>釣魚</span>
+                  <select
+                    value={fishLevel}
+                    onChange={(e) => setFishLevel(e.target.value)}
+                    style={compactSelectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {fishLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={filterItemStyle}>
+                  <span style={filterLabelStyle}>捕蟲</span>
+                  <select
+                    value={bugLevel}
+                    onChange={(e) => setBugLevel(e.target.value)}
+                    style={compactSelectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {bugLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={filterItemStyle}>
+                  <span style={filterLabelStyle}>觀鳥</span>
+                  <select
+                    value={birdLevel}
+                    onChange={(e) => setBirdLevel(e.target.value)}
+                    style={compactSelectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {birdLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div
-          style={{
-            minWidth: 0,
-          }}
-        >
+        <div style={{ minWidth: 0 }}>
           <label style={labelStyle}>搜尋</label>
           <input
             type="text"

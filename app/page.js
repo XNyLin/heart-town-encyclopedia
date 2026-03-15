@@ -895,52 +895,59 @@ export default function Home() {
   </select>
 </div>
 
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "8px",
-              marginBottom: "6px",
-            }}
-          >
-            <label style={{ ...labelStyle, marginBottom: 0 }}>時段</label>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "12px",
-                color: "#444",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <ToggleSwitch
-                checked={autoPeriod}
-                onChange={setAutoPeriod}
-              />
-              自動判斷
-            </div>
-          </div>
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}
+>
+  <span
+    style={{
+      fontSize: "13px",
+      fontWeight: 600,
+      color: "#555",
+      whiteSpace: "nowrap",
+    }}
+  >
+    時段
+  </span>
 
-          <select
-            value={manualPeriod}
-            onChange={(e) => setManualPeriod(e.target.value)}
-            style={{
-              ...selectStyle,
-              opacity: autoPeriod ? 0.5 : 1,
-              cursor: autoPeriod ? "not-allowed" : "pointer",
-            }}
-            disabled={autoPeriod}
-          >
-            <option value="全部">全部</option>
-            <option value="1">清晨</option>
-            <option value="2">上午</option>
-            <option value="3">下午</option>
-            <option value="4">晚上</option>
-          </select>
-        </div>
+  <select
+    value={manualPeriod}
+    onChange={(e) => setManualPeriod(e.target.value)}
+    style={{
+      ...selectStyle,
+      opacity: autoPeriod ? 0.5 : 1,
+      cursor: autoPeriod ? "not-allowed" : "pointer",
+    }}
+    disabled={autoPeriod}
+  >
+    <option value="全部">全部</option>
+    <option value="1">清晨</option>
+    <option value="2">上午</option>
+    <option value="3">下午</option>
+    <option value="4">晚上</option>
+  </select>
+
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      marginLeft: "4px",
+      whiteSpace: "nowrap",
+      fontSize: "12px",
+      color: "#444",
+    }}
+  >
+    <ToggleSwitch
+      checked={autoPeriod}
+      onChange={setAutoPeriod}
+    />
+    自動判斷
+  </div>
+</div>
       </div>
 
       <div>

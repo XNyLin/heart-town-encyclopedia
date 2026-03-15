@@ -551,6 +551,7 @@ export default function Home() {
   const [fishLevel, setFishLevel] = useState("全部");
   const [bugLevel, setBugLevel] = useState("全部");
   const [birdLevel, setBirdLevel] = useState("全部");
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [tab, setTab] = useState("全部");
   const [levelSort, setLevelSort] = useState("none");
@@ -930,59 +931,123 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                      gap: "12px",
-                    }}
-                  >
-                    <div>
-                      <label style={labelStyle}>魚愛好等級</label>
-                      <select
-                        value={fishLevel}
-                        onChange={(e) => setFishLevel(e.target.value)}
-                        style={selectStyle}
+                  <div>
+                    <div style={{ display: "block" }}>
+                      <button
+                        onClick={() => setShowAdvanced(!showAdvanced)}
+                        style={{
+                          ...miniChipStyle,
+                          height: "36px",
+                        }}
                       >
-                        <option value="全部">全部</option>
-                        {fishLevels.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                        愛好等級 {showAdvanced ? "▲" : "▼"}
+                      </button>
 
-                    <div>
-                      <label style={labelStyle}>蟲愛好等級</label>
-                      <select
-                        value={bugLevel}
-                        onChange={(e) => setBugLevel(e.target.value)}
-                        style={selectStyle}
-                      >
-                        <option value="全部">全部</option>
-                        {bugLevels.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                      {showAdvanced && (
+                        <div
+                          style={{
+                            marginTop: "10px",
+                            padding: "12px 14px",
+                            border: "1px solid #eee",
+                            borderRadius: "12px",
+                            background: "#fafafa",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "14px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                color: "#555",
+                              }}
+                            >
+                              釣魚
+                            </span>
+                            <select
+                              value={fishLevel}
+                              onChange={(e) => setFishLevel(e.target.value)}
+                              style={{ ...selectStyle, width: "88px", height: "36px" }}
+                            >
+                              <option value="全部">全部</option>
+                              {fishLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
 
-                    <div>
-                      <label style={labelStyle}>鳥愛好等級</label>
-                      <select
-                        value={birdLevel}
-                        onChange={(e) => setBirdLevel(e.target.value)}
-                        style={selectStyle}
-                      >
-                        <option value="全部">全部</option>
-                        {birdLevels.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
-                          </option>
-                        ))}
-                      </select>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                color: "#555",
+                              }}
+                            >
+                              捕蟲
+                            </span>
+                            <select
+                              value={bugLevel}
+                              onChange={(e) => setBugLevel(e.target.value)}
+                              style={{ ...selectStyle, width: "88px", height: "36px" }}
+                            >
+                              <option value="全部">全部</option>
+                              {bugLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: "13px",
+                                fontWeight: 600,
+                                color: "#555",
+                              }}
+                            >
+                              觀鳥
+                            </span>
+                            <select
+                              value={birdLevel}
+                              onChange={(e) => setBirdLevel(e.target.value)}
+                              style={{ ...selectStyle, width: "88px", height: "36px" }}
+                            >
+                              <option value="全部">全部</option>
+                              {birdLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

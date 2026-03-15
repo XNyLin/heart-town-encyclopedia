@@ -5,18 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
-const catImages = [
-  "/cat01.png",
-  "/cat02.png",
-  "/cat03.png",
-  "/cat04.png",
-  "/cat05.png",
-  "/cat06.png",
-  "/cat07.png",
-  "/cat08.png",
-  "/cat09.png",
-];
-
 function parseCSVLine(line) {
   const result = [];
   let current = "";
@@ -352,25 +340,84 @@ function InfoPill({ label, value }) {
   );
 }
 
-function CatGallery() {
+function SourceBlock({ tab }) {
+  const sourceMap = {
+    魚: {
+      label: "魚",
+      url: "https://www.taptap.cn/moment/749717851794834457",
+    },
+    蟲: {
+      label: "蟲",
+      url: "https://www.taptap.cn/moment/750798610429379688",
+    },
+    鳥: {
+      label: "鳥",
+      url: "https://www.taptap.cn/moment/751907102351427401",
+    },
+    貓: {
+      label: "貓",
+      url: "https://www.taptap.cn/moment/577453568177472572",
+    },
+  };
 
+  if (!sourceMap[tab]) return null;
+
+  return (
+    <div
+      style={{
+        marginTop: "24px",
+        paddingTop: "16px",
+        borderTop: "1px solid #eee",
+        fontSize: "14px",
+        color: "#777",
+        textAlign: "center",
+        lineHeight: "28px",
+      }}
+    >
+      資料來源：
+      <a
+        href={sourceMap[tab].url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          marginLeft: "6px",
+          color: "#2563eb",
+          textDecoration: "none",
+          fontWeight: 600,
+        }}
+      >
+        {sourceMap[tab].label} TapTap
+      </a>
+    </div>
+  );
+}
+
+function CatGallery() {
   const catSections = [
-    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓.png" },
+    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
     { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
     { id: "白貓", name: "白貓", img: "/白貓.png" },
     { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
-    { id: "金漸層貓", name: "金漸層貓", img: "/金漸層.png" },
-    { id: "銀漸層貓", name: "銀漸層貓", img: "/銀漸層.png" },
+    { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
+    { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
     { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
     { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
     { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
     { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
     { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
     { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
-    { id: "銀虎斑貓", name: "銀虎斑貓", img: "/銀虎斑.png" },
-    { id: "棕虎斑貓", name: "棕虎斑貓", img: "/棕色虎斑.png" },
-    { id: "橘虎斑貓", name: "橘虎斑貓", img: "/橘虎斑.png" }
+    { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
+    { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
   ];
+
+  const [catFilter, setCatFilter] = useState("全部");
+
+  const visibleCats =
+    catFilter === "全部"
+      ? catSections
+      : catSections.filter((cat) => cat.name === catFilter);
+
+  const catTabs = ["全部", ...catSections.map((cat) => cat.name)];
 
   return (
     <section
@@ -381,7 +428,6 @@ function CatGallery() {
         padding: "24px",
       }}
     >
-
       <h2
         style={{
           fontSize: "26px",
@@ -392,7 +438,6 @@ function CatGallery() {
         貓咪圖鑑
       </h2>
 
-      {/* 快速導航 */}
       <div
         style={{
           display: "flex",
@@ -401,27 +446,29 @@ function CatGallery() {
           marginBottom: "26px",
         }}
       >
-        {catSections.map((cat) => (
-          <a
-            key={cat.id}
-            href={`#${cat.id}`}
-            style={{
-              padding: "8px 14px",
-              borderRadius: "999px",
-              background: "#f3f4f6",
-              border: "1px solid #e5e7eb",
-              fontSize: "14px",
-              textDecoration: "none",
-              color: "#333",
-              fontWeight: 600,
-            }}
-          >
-            {cat.name}
-          </a>
-        ))}
+        {catTabs.map((name) => {
+          const active = catFilter === name;
+          return (
+            <button
+              key={name}
+              onClick={() => setCatFilter(name)}
+              style={{
+                padding: "8px 14px",
+                borderRadius: "999px",
+                background: active ? "#111" : "#f3f4f6",
+                border: active ? "1px solid #111" : "1px solid #e5e7eb",
+                fontSize: "14px",
+                color: active ? "#fff" : "#333",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {name}
+            </button>
+          );
+        })}
       </div>
 
-      {/* 圖鑑圖片 */}
       <div
         style={{
           display: "grid",
@@ -429,7 +476,7 @@ function CatGallery() {
           gap: "24px",
         }}
       >
-        {catSections.map((cat) => (
+        {visibleCats.map((cat) => (
           <div key={cat.id} id={cat.id}>
             <img
               src={cat.img}
@@ -443,31 +490,8 @@ function CatGallery() {
           </div>
         ))}
       </div>
-<div
-  style={{
-    marginTop: "30px",
-    paddingTop: "16px",
-    borderTop: "1px solid #eee",
-    fontSize: "14px",
-    color: "#777",
-    textAlign: "center"
-  }}
->
-  資料來源：
-  <a
-    href="https://www.taptap.cn/moment/577453568177472572"
-    target="_blank"
-    rel="noopener noreferrer"
-    style={{
-      marginLeft: "6px",
-      color: "#2563eb",
-      fontWeight: 600,
-      textDecoration: "none"
-    }}
-  >
-    TapTap
-  </a>
-</div>
+
+      <SourceBlock tab="貓" />
     </section>
   );
 }
@@ -637,6 +661,8 @@ export default function Home() {
     levelSort,
   ]);
 
+  const topTabs = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
+
   return (
     <main
       style={{
@@ -680,24 +706,54 @@ export default function Home() {
         </header>
 
         <div style={{ marginBottom: "20px" }}>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {["全部", "魚", "蟲", "鳥", "貓", "狗"].map((type) => {
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            {topTabs.map((type, index) => {
               const active = tab === type;
+              const showDivider = topTabs[index] === "鳥";
+
               return (
-                <button
+                <div
                   key={type}
-                  onClick={() => setTab(type)}
                   style={{
-                    ...chipStyle,
-                    background: active ? "#111" : "#f1f1f1",
-                    color: active ? "#fff" : "#333",
-                    border: active
-                      ? "1px solid #111"
-                      : "1px solid #e5e5e5",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
-                  {type}
-                </button>
+                  <button
+                    onClick={() => setTab(type)}
+                    style={{
+                      ...chipStyle,
+                      background: active ? "#111" : "#f1f1f1",
+                      color: active ? "#fff" : "#333",
+                      border: active
+                        ? "1px solid #111"
+                        : "1px solid #e5e5e5",
+                    }}
+                  >
+                    {type}
+                  </button>
+
+                  {showDivider && (
+                    <span
+                      style={{
+                        color: "#bbb",
+                        fontSize: "18px",
+                        fontWeight: 600,
+                        padding: "0 2px",
+                      }}
+                    >
+                      ｜
+                    </span>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -1065,55 +1121,8 @@ export default function Home() {
                 </table>
               )}
             </section>
-            <div
-  style={{
-    marginTop: "24px",
-    paddingTop: "16px",
-    borderTop: "1px solid #eee",
-    fontSize: "14px",
-    color: "#777",
-    textAlign: "center",
-    lineHeight: "28px"
-  }}
->
-  資料來源：
 
-  <div>
-    魚：
-    <a
-      href="https://www.taptap.cn/moment/749717851794834457"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
-    >
-      TapTap
-    </a>
-  </div>
-
-  <div>
-    蟲：
-    <a
-      href="https://www.taptap.cn/moment/750798610429379688"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
-    >
-      TapTap
-    </a>
-  </div>
-
-  <div>
-    鳥：
-    <a
-      href="https://www.taptap.cn/moment/751907102351427401"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
-    >
-      TapTap
-    </a>
-  </div>
-</div>
+            {["魚", "蟲", "鳥"].includes(tab) && <SourceBlock tab={tab} />}
           </>
         )}
 

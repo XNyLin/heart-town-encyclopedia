@@ -60,7 +60,7 @@ export default function ControlPanel({
 
   const filterGridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "1fr",
     gap: "12px",
     alignItems: "center",
   };
@@ -76,7 +76,7 @@ export default function ControlPanel({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1.45fr) minmax(280px, 0.95fr)",
+          gridTemplateColumns: "1fr",
           gap: "16px",
           alignItems: "start",
         }}

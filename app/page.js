@@ -1082,12 +1082,12 @@ export default function Home() {
                   資料載入中...
                 </div>
               ) : (
-                <table
-                 style={{
-                   width: "100%",
-                   borderCollapse: "collapse",
-                   tableLayout: "auto",
-                }}
+<table
+  style={{
+    width: "100%",
+    borderCollapse: "collapse",
+    tableLayout: "auto",
+  }}
 >
                   <thead>
                     <tr>

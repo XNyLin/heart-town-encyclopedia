@@ -194,6 +194,19 @@ export default function Home() {
   const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
   const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
 
+  const fishCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "魚").length,
+    [rows]
+  );
+  const bugCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "蟲").length,
+    [rows]
+  );
+  const birdCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "鳥").length,
+    [rows]
+  );
+
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       const rowType = getField(row, ["類型"]);
@@ -271,7 +284,7 @@ export default function Home() {
               color: "#111",
             }}
           >
-            心動小鎮圖鑑
+            心動小鎮｜生物圖鑑
           </h1>
 
           <p
@@ -283,7 +296,7 @@ export default function Home() {
           >
             {loading
               ? "資料載入中..."
-              : `目前共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
+              : `目前魚圖鑑 ${fishCount} 筆、蟲圖鑑 ${bugCount} 筆、鳥圖鑑 ${birdCount} 筆，共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
           </p>
         </header>
 
@@ -377,19 +390,36 @@ export default function Home() {
             </div>
 
             <div style={{ gridColumn: "span 3" }}>
-              <label style={labelStyle}>時段模式</label>
-              <select
-                value={autoPeriod ? "自動" : "手動"}
-                onChange={(e) => setAutoPeriod(e.target.value === "自動")}
-                style={selectStyle}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                  gap: "12px",
+                }}
               >
-                <option value="自動">自動判斷</option>
-                <option value="手動">手動選擇</option>
-              </select>
-            </div>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>時段</label>
 
-            <div style={{ gridColumn: "span 3" }}>
-              <label style={labelStyle}>時段</label>
+                <label
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "13px",
+                    color: "#444",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={autoPeriod}
+                    onChange={(e) => setAutoPeriod(e.target.checked)}
+                  />
+                  自動判斷
+                </label>
+              </div>
+
               <select
                 value={manualPeriod}
                 onChange={(e) => setManualPeriod(e.target.value)}
@@ -408,7 +438,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 3" }}>
+            <div style={{ gridColumn: "span 2" }}>
               <label style={labelStyle}>魚愛好等級</label>
               <select
                 value={fishLevel}
@@ -424,7 +454,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 4" }}>
+            <div style={{ gridColumn: "span 2" }}>
               <label style={labelStyle}>蟲愛好等級</label>
               <select
                 value={bugLevel}
@@ -440,7 +470,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 4" }}>
+            <div style={{ gridColumn: "span 2" }}>
               <label style={labelStyle}>鳥愛好等級</label>
               <select
                 value={birdLevel}

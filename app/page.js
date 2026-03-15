@@ -542,9 +542,9 @@ function DogGallery({ setTab }) {
           lineHeight: 1.8,
         }}
       >
-        狗很吵、很黏、很會吃，還會一直咬壞傢俱，
-        <br />
-        是否確定要領養？
+        很吵、很黏、還超級容易餓，<br />
+        還會一直搞破壞，<br />
+        確定嗎？
       </div>
 
       <div

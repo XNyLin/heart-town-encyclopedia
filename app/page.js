@@ -143,7 +143,56 @@ function formatPeriodDisplay(cellValue) {
   const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
   const uniquePeriods = [...new Set(digitsOnly.split("").filter(Boolean))];
 
+  if (
+    uniquePeriods.includes("1") &&
+    uniquePeriods.includes("2") &&
+    uniquePeriods.includes("3") &&
+    uniquePeriods.includes("4")
+  ) {
+    return "全天";
+  }
+
   return uniquePeriods.map((period) => getPeriodName(period)).join("、");
+}
+
+function formatWeatherDisplay(cellValue) {
+  const text = normalizeText(cellValue);
+
+  const allWeather = ["彩虹", "晴天", "雨天", "雪天"];
+  const hasAll = allWeather.every((w) => text.includes(w));
+
+  if (hasAll) return "全天氣";
+
+  const weatherMap = {
+    彩虹: "🌈",
+    晴天: "☀️",
+    雨天: "☔️",
+    雪天: "⛄️",
+  };
+
+  const result = [];
+
+  for (const key of Object.keys(weatherMap)) {
+    if (text.includes(key)) {
+      result.push(weatherMap[key]);
+    }
+  }
+
+  return result.length > 0 ? result.join(" ") : cellValue;
+}
+
+function formatFishShadowDisplay(value) {
+  const text = String(value || "");
+
+  if (text.includes("金魚影")) {
+    return <span style={{ color: "#d97706", fontWeight: 700 }}>{text}</span>;
+  }
+
+  if (text.includes("藍魚影")) {
+    return <span style={{ color: "#2563eb", fontWeight: 700 }}>{text}</span>;
+  }
+
+  return text;
 }
 
 function sortRowsByLevel(rows, order) {
@@ -685,12 +734,16 @@ export default function Home() {
                       <td style={tdStyle}>{getField(row, ["類型"])}</td>
                       <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
                       <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
-                      <td style={tdStyle}>{getField(row, ["天氣"])}</td>
+                      <td style={tdStyle}>
+                        {formatWeatherDisplay(getField(row, ["天氣"]))}
+                      </td>
                       <td style={tdStyle}>
                         {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                       </td>
                       <td style={tdStyle}>{getField(row, ["地點"])}</td>
-                      <td style={tdStyle}>{getField(row, ["Note", "備註"])}</td>
+                      <td style={tdStyle}>
+                        {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
+                      </td>
                     </tr>
                   ))
                 )}

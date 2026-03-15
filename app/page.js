@@ -488,25 +488,75 @@ function CatGallery() {
   );
 }
 
-function DogGallery() {
+function DogGallery({ setTab }) {
+  function handleChooseCat() {
+    setTab("貓");
+  }
+
+  function handleCancel() {
+    alert("你的決定是對的。");
+  }
+
   return (
     <section
       style={{
         background: "#fff",
         borderRadius: "18px",
         boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-        padding: "24px",
+        padding: "40px",
         textAlign: "center",
       }}
     >
       <div
         style={{
-          fontSize: "28px",
-          fontWeight: 800,
-          color: "#111",
+          fontSize: "22px",
+          fontWeight: 700,
+          marginBottom: "30px",
+          color: "#333",
+          lineHeight: 1.8,
         }}
       >
-        我是貓派
+        狗很吵、很黏、很會吃，還會一直咬壞傢俱，
+        <br />
+        是否確定要領養？
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "16px",
+        }}
+      >
+        <button
+          onClick={handleCancel}
+          style={{
+            padding: "10px 22px",
+            borderRadius: "10px",
+            border: "1px solid #ddd",
+            background: "#fff",
+            color: "#333",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          取消
+        </button>
+
+        <button
+          onClick={handleChooseCat}
+          style={{
+            padding: "10px 22px",
+            borderRadius: "10px",
+            border: "1px solid #111",
+            background: "#111",
+            color: "#fff",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          我選貓
+        </button>
       </div>
     </section>
   );
@@ -751,11 +801,11 @@ export default function Home() {
           </div>
         </div>
 
-        {tab === "貓" ? (
-          <CatGallery />
-        ) : tab === "狗" ? (
-          <DogGallery />
-        ) : (
+{tab === "貓" ? (
+  <CatGallery />
+) : tab === "狗" ? (
+  <DogGallery setTab={setTab} />
+) : (
           <>
             <section
               style={{

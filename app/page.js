@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
 import ControlPanel from "@/components/ControlPanel";
-import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import InfoPill from "@/components/ui/InfoPill";
+
 import {
   parseCSV,
   normalizeText,
@@ -22,6 +22,7 @@ import {
   getNextLevelSort,
   getLevelSortIcon,
 } from "@/lib/bio-utils";
+
 import {
   panelStyle,
   labelStyle,
@@ -644,37 +645,6 @@ const panelStyle = {
   boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
 };
 
-const labelStyle = {
-  display: "block",
-  fontSize: "13px",
-  fontWeight: 700,
-  color: "#444",
-  marginBottom: "6px",
-};
-
-const inputStyle = {
-  width: "100%",
-  height: "40px",
-  borderRadius: "10px",
-  border: "1px solid #ddd",
-  padding: "0 12px",
-  fontSize: "14px",
-  outline: "none",
-  background: "#fff",
-  boxSizing: "border-box",
-};
-
-const selectStyle = {
-  width: "100%",
-  height: "40px",
-  borderRadius: "10px",
-  border: "1px solid #ddd",
-  padding: "0 12px",
-  fontSize: "14px",
-  outline: "none",
-  background: "#fff",
-  boxSizing: "border-box",
-};
 
 const sortIconButtonStyle = {
   width: "24px",

@@ -54,11 +54,69 @@ function parseCSV(text) {
   });
 }
 
+function normalizeText(value) {
+  return String(value || "").replace(/\s+/g, "").trim();
+}
+
+function splitMultiValue(value) {
+  const normalized = normalizeText(value)
+    .replace(/，/g, ",")
+    .replace(/、/g, ",");
+  return normalized ? normalized.split(",").filter(Boolean) : [];
+}
+
+function getCurrentTimeInfo(date) {
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+
+  let period = "1";
+  let periodLabel = "時段1（00:00–05:59）";
+
+  if (hour >= 6 && hour < 12) {
+    period = "2";
+    periodLabel = "時段2（06:00–11:59）";
+  } else if (hour >= 12 && hour < 18) {
+    period = "3";
+    periodLabel = "時段3（12:00–17:59）";
+  } else if (hour >= 18) {
+    period = "4";
+    periodLabel = "時段4（18:00–23:59）";
+  }
+
+  return {
+    hour,
+    minute,
+    period,
+    periodLabel,
+    timeText: `${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0"
+    )}`,
+  };
+}
+
+function getUniqueSortedLevels(rows, type) {
+  const values = rows
+    .filter((row) => row["類型"] === type)
+    .map((row) => Number(row["Level"]))
+    .filter((value) => !Number.isNaN(value));
+
+  return [...new Set(values)].sort((a, b) => a - b);
+}
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [keyword, setKeyword] = useState("");
   const [typeFilter, setTypeFilter] = useState("全部");
+  const [weatherFilter, setWeatherFilter] = useState("全部");
+
+  const [fishLevel, setFishLevel] = useState("全部");
+  const [bugLevel, setBugLevel] = useState("全部");
+  const [birdLevel, setBirdLevel] = useState("全部");
+
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     async function loadData() {
@@ -84,18 +142,70 @@ export default function Home() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
+
+  const fishLevels = useMemo(() => getUniqueSortedLevels(rows, "魚"), [rows]);
+  const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
+  const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
+
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
-      const matchType =
-        typeFilter === "全部" ? true : row["類型"] === typeFilter;
+      const rowType = row["類型"] || "";
+      const rowName = row["名稱"] || "";
+      const rowLevel = Number(row["Level"]);
+      const weatherList = splitMultiValue(row["天氣"]);
+      const periodList = splitMultiValue(row["時段"]);
 
       const matchKeyword = keyword.trim()
-        ? row["名稱"]?.toLowerCase().includes(keyword.trim().toLowerCase())
+        ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
-      return matchType && matchKeyword;
+      const matchType =
+        typeFilter === "全部" ? true : rowType === typeFilter;
+
+      const matchWeather =
+        weatherFilter === "全部"
+          ? true
+          : weatherList.includes(normalizeText(weatherFilter));
+
+      const matchPeriod = periodList.includes(currentTimeInfo.period);
+
+      let matchLevel = true;
+
+      if (rowType === "魚" && fishLevel !== "全部") {
+        matchLevel = rowLevel <= Number(fishLevel);
+      } else if (rowType === "蟲" && bugLevel !== "全部") {
+        matchLevel = rowLevel <= Number(bugLevel);
+      } else if (rowType === "鳥" && birdLevel !== "全部") {
+        matchLevel = rowLevel <= Number(birdLevel);
+      }
+
+      return (
+        matchKeyword &&
+        matchType &&
+        matchWeather &&
+        matchPeriod &&
+        matchLevel
+      );
     });
-  }, [rows, typeFilter, keyword]);
+  }, [
+    rows,
+    keyword,
+    typeFilter,
+    weatherFilter,
+    fishLevel,
+    bugLevel,
+    birdLevel,
+    currentTimeInfo.period,
+  ]);
 
   return (
     <main
@@ -109,7 +219,7 @@ export default function Home() {
     >
       <div
         style={{
-          maxWidth: "1200px",
+          maxWidth: "1280px",
           margin: "0 auto",
         }}
       >
@@ -151,12 +261,26 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(220px, 1fr) auto",
+              gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
               gap: "16px",
-              alignItems: "end",
             }}
           >
-            <div>
+            <div style={{ gridColumn: "span 12" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "12px",
+                  alignItems: "center",
+                  marginBottom: "4px",
+                }}
+              >
+                <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
+                <InfoPill label="目前時段" value={currentTimeInfo.periodLabel} />
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "span 12" }}>
               <label style={labelStyle}>搜尋名稱</label>
               <input
                 type="text"
@@ -167,7 +291,7 @@ export default function Home() {
               />
             </div>
 
-            <div>
+            <div style={{ gridColumn: "span 12" }}>
               <label style={labelStyle}>類型</label>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {["全部", "魚", "蟲", "鳥"].map((type) => {
@@ -190,6 +314,69 @@ export default function Home() {
                   );
                 })}
               </div>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>天氣</label>
+              <select
+                value={weatherFilter}
+                onChange={(e) => setWeatherFilter(e.target.value)}
+                style={selectStyle}
+              >
+                {["全部", "晴天", "雨天", "雪天", "彩虹"].map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>魚愛好等級</label>
+              <select
+                value={fishLevel}
+                onChange={(e) => setFishLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {fishLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>蟲愛好等級</label>
+              <select
+                value={bugLevel}
+                onChange={(e) => setBugLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {bugLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>鳥愛好等級</label>
+              <select
+                value={birdLevel}
+                onChange={(e) => setBirdLevel(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="全部">全部</option>
+                {birdLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </section>
@@ -262,6 +449,27 @@ export default function Home() {
   );
 }
 
+function InfoPill({ label, value }) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "10px 14px",
+        borderRadius: "999px",
+        background: "#f3f4f6",
+        border: "1px solid #e5e7eb",
+        fontSize: "14px",
+        color: "#333",
+      }}
+    >
+      <span style={{ fontWeight: 700 }}>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
 const labelStyle = {
   display: "block",
   fontSize: "14px",
@@ -271,6 +479,17 @@ const labelStyle = {
 };
 
 const inputStyle = {
+  width: "100%",
+  height: "44px",
+  borderRadius: "12px",
+  border: "1px solid #ddd",
+  padding: "0 14px",
+  fontSize: "15px",
+  outline: "none",
+  background: "#fff",
+};
+
+const selectStyle = {
   width: "100%",
   height: "44px",
   borderRadius: "12px",

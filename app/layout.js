@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "心動小鎮圖鑑",
+  title: "心動小鎮｜生物圖鑑",
   description: "Heart Town Encyclopedia",
 };
 

@@ -489,12 +489,38 @@ function CatGallery() {
 }
 
 function DogGallery({ setTab }) {
+  const [showResult, setShowResult] = useState(false);
+
   function handleChooseCat() {
     setTab("貓");
   }
 
-  function handleCancel() {
-    alert("你的決定是對的。");
+  function handleChooseDog() {
+    setShowResult(true);
+  }
+
+  if (showResult) {
+    return (
+      <section
+        style={{
+          background: "#fff",
+          borderRadius: "18px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+          padding: "40px",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "28px",
+            fontWeight: 800,
+            color: "#111",
+          }}
+        >
+          我是貓派
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -529,21 +555,6 @@ function DogGallery({ setTab }) {
         }}
       >
         <button
-          onClick={handleCancel}
-          style={{
-            padding: "10px 22px",
-            borderRadius: "10px",
-            border: "1px solid #ddd",
-            background: "#fff",
-            color: "#333",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          取消
-        </button>
-
-        <button
           onClick={handleChooseCat}
           style={{
             padding: "10px 22px",
@@ -556,6 +567,21 @@ function DogGallery({ setTab }) {
           }}
         >
           我選貓
+        </button>
+
+        <button
+          onClick={handleChooseDog}
+          style={{
+            padding: "10px 22px",
+            borderRadius: "10px",
+            border: "1px solid #ddd",
+            background: "#fff",
+            color: "#333",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          我選狗
         </button>
       </div>
     </section>

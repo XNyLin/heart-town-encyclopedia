@@ -6,10 +6,10 @@ import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
 import ControlPanel from "@/components/ControlPanel";
 import BioTable from "@/components/BioTable";
+import SourceBlock from "@/components/ui/SourceBlock";
 
 import {
   parseCSV,
-  normalizeText,
   getField,
   matchesWeather,
   matchesPeriod,
@@ -20,11 +20,7 @@ import {
   sortRowsByLevel,
 } from "@/lib/bio-utils";
 
-import {
-  chipStyle,
-  miniChipStyle,
-  actionButtonStyle,
-} from "@/styles/bioStyles";
+import { chipStyle } from "@/styles/bioStyles";
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
@@ -39,64 +35,6 @@ const TAB_LABELS = {
   貓: "🐱 貓",
   狗: "🐶 狗",
 };
-
-const CAT_SECTIONS = [
-  { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
-  { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
-  { id: "白貓", name: "白貓", img: "/白貓.png" },
-  { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
-  { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
-  { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
-  { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
-  { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
-  { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
-  { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
-  { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
-  { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
-  { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
-  { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
-];
-
-
-function SourceBlock({ tab }) {
-  const sourceMap = {
-    魚: "https://www.taptap.cn/moment/749717851794834457",
-    蟲: "https://www.taptap.cn/moment/750798610429379688",
-    鳥: "https://www.taptap.cn/moment/751907102351427401",
-    貓: "https://www.taptap.cn/moment/577453568177472572",
-  };
-
-  if (!sourceMap[tab]) return null;
-
-  return (
-    <div
-      style={{
-        marginTop: "18px",
-        paddingTop: "12px",
-        borderTop: "1px solid #eee",
-        fontSize: "13px",
-        color: "#777",
-        textAlign: "center",
-      }}
-    >
-      資料來源：
-      <a
-        href={sourceMap[tab]}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          marginLeft: "6px",
-          color: "#2563eb",
-          textDecoration: "none",
-          fontWeight: 600,
-        }}
-      >
-        TapTap
-      </a>
-    </div>
-  );
-}
-
 
 export default function Home() {
   const [rows, setRows] = useState([]);
@@ -196,6 +134,7 @@ export default function Home() {
       const matchPlace = placeFilter ? rowPlace === placeFilter : true;
 
       let matchLevel = true;
+
       if (rowType === "魚" && fishLevel !== "全部") {
         matchLevel = rowLevel <= Number(fishLevel);
       } else if (rowType === "蟲" && bugLevel !== "全部") {
@@ -232,26 +171,6 @@ export default function Home() {
     tab,
     levelSort,
   ]);
-
-  const inlineFilterItemStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    minWidth: 0,
-  };
-
-  const inlineFilterLabelStyle = {
-    fontSize: "13px",
-    fontWeight: 600,
-    color: "#555",
-    whiteSpace: "nowrap",
-    flexShrink: 0,
-  };
-
-  const compactSelectStyle = {
-    ...selectStyle,
-    height: "36px",
-  };
 
   return (
     <main
@@ -356,43 +275,43 @@ export default function Home() {
           <DogGallery setTab={setTab} />
         ) : (
           <>
-<ControlPanel
-  currentTimeInfo={currentTimeInfo}
-  effectivePeriodName={effectivePeriodName}
-  autoPeriod={autoPeriod}
-  setAutoPeriod={setAutoPeriod}
-  manualPeriod={manualPeriod}
-  setManualPeriod={setManualPeriod}
-  weatherFilter={weatherFilter}
-  setWeatherFilter={setWeatherFilter}
-  areaFilter={areaFilter}
-  setAreaFilter={setAreaFilter}
-  keyword={keyword}
-  setKeyword={setKeyword}
-  tab={tab}
-  placeFilter={placeFilter}
-  setPlaceFilter={setPlaceFilter}
-  showAdvanced={showAdvanced}
-  setShowAdvanced={setShowAdvanced}
-  fishLevel={fishLevel}
-  setFishLevel={setFishLevel}
-  bugLevel={bugLevel}
-  setBugLevel={setBugLevel}
-  birdLevel={birdLevel}
-  setBirdLevel={setBirdLevel}
-  fishLevels={fishLevels}
-  bugLevels={bugLevels}
-  birdLevels={birdLevels}
-/>
+            <ControlPanel
+              currentTimeInfo={currentTimeInfo}
+              effectivePeriodName={effectivePeriodName}
+              autoPeriod={autoPeriod}
+              setAutoPeriod={setAutoPeriod}
+              manualPeriod={manualPeriod}
+              setManualPeriod={setManualPeriod}
+              weatherFilter={weatherFilter}
+              setWeatherFilter={setWeatherFilter}
+              areaFilter={areaFilter}
+              setAreaFilter={setAreaFilter}
+              keyword={keyword}
+              setKeyword={setKeyword}
+              tab={tab}
+              placeFilter={placeFilter}
+              setPlaceFilter={setPlaceFilter}
+              showAdvanced={showAdvanced}
+              setShowAdvanced={setShowAdvanced}
+              fishLevel={fishLevel}
+              setFishLevel={setFishLevel}
+              bugLevel={bugLevel}
+              setBugLevel={setBugLevel}
+              birdLevel={birdLevel}
+              setBirdLevel={setBirdLevel}
+              fishLevels={fishLevels}
+              bugLevels={bugLevels}
+              birdLevels={birdLevels}
+            />
 
-<BioTable
-  loading={loading}
-  filteredRows={filteredRows}
-  levelSort={levelSort}
-  setLevelSort={setLevelSort}
-  placeFilter={placeFilter}
-  setPlaceFilter={setPlaceFilter}
-/>
+            <BioTable
+              loading={loading}
+              filteredRows={filteredRows}
+              levelSort={levelSort}
+              setLevelSort={setLevelSort}
+              placeFilter={placeFilter}
+              setPlaceFilter={setPlaceFilter}
+            />
 
             {["魚", "蟲", "鳥"].includes(tab) && <SourceBlock tab={tab} />}
           </>
@@ -424,77 +343,3 @@ export default function Home() {
     </main>
   );
 }
-
-const panelStyle = {
-  background: "#fff",
-  borderRadius: "16px",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
-};
-
-
-const sortIconButtonStyle = {
-  width: "24px",
-  height: "24px",
-  borderRadius: "7px",
-  border: "1px solid #ddd",
-  background: "#fff",
-  cursor: "pointer",
-  fontSize: "12px",
-  lineHeight: 1,
-  padding: 0,
-  flexShrink: 0,
-};
-
-const chipStyle = {
-  height: "36px",
-  padding: "0 12px",
-  borderRadius: "999px",
-  fontSize: "13px",
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const miniChipStyle = {
-  height: "34px",
-  padding: "0 12px",
-  borderRadius: "999px",
-  fontSize: "13px",
-  fontWeight: 600,
-  cursor: "pointer",
-  background: "#fff",
-  border: "1px solid #ddd",
-  color: "#333",
-};
-
-const actionButtonStyle = {
-  padding: "10px 20px",
-  borderRadius: "10px",
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const thStyle = {
-  textAlign: "left",
-  padding: "10px 8px",
-  borderBottom: "1px solid #e8e8e8",
-  fontSize: "13px",
-  fontWeight: 700,
-  color: "#444",
-  whiteSpace: "nowrap",
-  background: "#fff",
-  verticalAlign: "middle",
-};
-
-const tdStyle = {
-  padding: "8px 6px",
-  borderBottom: "1px solid #eee",
-  fontSize: "14px",
-  color: "#222",
-  verticalAlign: "middle",
-  lineHeight: 1.45,
-};
-
-const tdStyleStrong = {
-  ...tdStyle,
-  fontWeight: 700,
-};

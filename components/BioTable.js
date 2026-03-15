@@ -112,9 +112,9 @@ export default function BioTable({
 
   const mobileTdStyle = {
     ...tdStyle,
-    padding: "5px 6px",
+    padding: "8px 6px",
     fontSize: "12px",
-    lineHeight: 1.3,
+    lineHeight: 1.5,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -122,9 +122,9 @@ export default function BioTable({
 
   const mobileTdStrongStyle = {
     ...tdStyleStrong,
-    padding: "5px 6px",
+    padding: "8px 6px",
     fontSize: "12px",
-    lineHeight: 1.3,
+    lineHeight: 1.5,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -414,36 +414,69 @@ export default function BioTable({
               filteredRows.map((row, index) => {
                 const place = getField(row, ["地點"]);
                 const isActivePlace = placeFilter === place;
+                const rowBackground = index % 2 === 0 ? "#ffffff" : "#f7f7f7";
 
                 return (
-                  <tr key={`${getField(row, ["名稱"])}-${index}`}>
+                  <tr
+                    key={`${getField(row, ["名稱"])}-${index}`}
+                    style={{
+                      background: rowBackground,
+                    }}
+                  >
                     <td
                       style={{
                         ...mobileTdStyle,
                         textAlign: "center",
                         fontSize: "15px",
+                        background: rowBackground,
                       }}
                     >
                       {getTypeEmoji(getField(row, ["類型"]))}
                     </td>
 
-                    <td style={{ ...mobileTdStyle, textAlign: "center" }}>
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        textAlign: "center",
+                        background: rowBackground,
+                      }}
+                    >
                       {getField(row, ["Level", "等級"])}
                     </td>
 
-                    <td style={mobileTdStrongStyle}>
+                    <td
+                      style={{
+                        ...mobileTdStrongStyle,
+                        background: rowBackground,
+                      }}
+                    >
                       {getField(row, ["名稱"])}
                     </td>
 
-                    <td style={mobileTdStyle}>
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        background: rowBackground,
+                      }}
+                    >
                       {formatWeatherDisplay(getField(row, ["天氣"]))}
                     </td>
 
-                    <td style={mobileTdStyle}>
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        background: rowBackground,
+                      }}
+                    >
                       {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                     </td>
 
-                    <td style={mobileTdStyle}>
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        background: rowBackground,
+                      }}
+                    >
                       <button
                         onClick={() => setPlaceFilter(place)}
                         style={{
@@ -458,7 +491,12 @@ export default function BioTable({
                       </button>
                     </td>
 
-                    <td style={mobileTdStyle}>
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        background: rowBackground,
+                      }}
+                    >
                       {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
                     </td>
                   </tr>

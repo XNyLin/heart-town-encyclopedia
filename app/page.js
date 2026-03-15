@@ -730,6 +730,14 @@ export default function Home() {
   ]);
 
   const topTabs = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
+  const TAB_LABELS = {
+  全部: "全部",
+  魚: "🐟 魚",
+  蟲: "🐞 蟲",
+  鳥: "🕊 鳥",
+  貓: "🐱 貓",
+  狗: "🐶 狗",
+};
 
   return (
     <main
@@ -806,7 +814,7 @@ export default function Home() {
                         : "1px solid #e5e5e5",
                     }}
                   >
-                    {type}
+{TAB_LABELS[type]}
                   </button>
 
                   {showDivider && (

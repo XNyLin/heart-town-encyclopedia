@@ -1082,14 +1082,12 @@ export default function Home() {
                   資料載入中...
                 </div>
               ) : (
-                <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "4px",
-  }}
->
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                  }}
+                >
                   <thead>
                     <tr>
 <td
@@ -1101,6 +1099,8 @@ export default function Home() {
     fontSize: "18px",
   }}
 >
+
+</td>
 <td
   style={{
     ...tdStyle,

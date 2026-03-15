@@ -1083,24 +1083,33 @@ export default function Home() {
                 </div>
               ) : (
                 <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                  }}
-                >
+                 style={{
+                   width: "100%",
+                   borderCollapse: "collapse",
+                   tableLayout: "auto",
+                }}
+>
                   <thead>
                     <tr>
-<th style={{ ...thStyle, width: "40px", textAlign: "center" }}>類型</th>
-
-<th style={{ ...thStyle, width: "55px", textAlign: "center" }}>
-                        <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "4px",
-  }}
->
+<th style={{ ...thStyle, width: "36px", textAlign: "center" }}>類型</th>
+<th style={{ ...thStyle, width: "60px", textAlign: "center" }}>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "4px",
+    }}
+  >
+    <span>等級</span>
+    <button
+      onClick={() => setLevelSort(getNextLevelSort(levelSort))}
+      style={sortIconButtonStyle}
+    >
+      {getLevelSortIcon(levelSort)}
+    </button>
+  </div>
+</th>
                           <span>等級</span>
                           <button
                             onClick={() =>
@@ -1149,16 +1158,31 @@ export default function Home() {
 
                         return (
                           <tr key={`${getField(row, ["名稱"])}-${index}`}>
-<td style={{ ...tdStyle, width: "40px", textAlign: "center" }}>
-  {{
+<td
+  style={{
+    ...tdStyle,
+    width: "36px",
+    textAlign: "center",
+    padding: "6px 2px",
+    fontSize: "18px",
+  }}
+>  {{
     魚: "🐟",
     蟲: "🐞",
     鳥: "🕊",
   }[getField(row, ["類型"])] || ""}
 </td>
 
-<td style={{ ...tdStyle, width: "55px", textAlign: "center" }}>
-  {getField(row, ["Level", "等級"])}
+<td
+  style={{
+    ...tdStyle,
+    width: "60px",
+    textAlign: "center",
+    padding: "6px 4px",
+    fontWeight: 500,
+  }}
+>
+    {getField(row, ["Level", "等級"])}
 </td>
                             <td style={tdStyleStrong}>
                               {getField(row, ["名稱"])}
@@ -1302,11 +1326,9 @@ const thStyle = {
 };
 
 const tdStyle = {
-  padding: "16px 14px",
-  borderBottom: "1px solid #f0f0f0",
-  fontSize: "15px",
-  color: "#222",
-  verticalAlign: "top",
+  padding: "8px 8px",
+  borderBottom: "1px solid #eee",
+  fontSize: "14px",
 };
 
 const tdStyleStrong = {

@@ -1065,6 +1065,55 @@ export default function Home() {
                 </table>
               )}
             </section>
+            <div
+  style={{
+    marginTop: "24px",
+    paddingTop: "16px",
+    borderTop: "1px solid #eee",
+    fontSize: "14px",
+    color: "#777",
+    textAlign: "center",
+    lineHeight: "28px"
+  }}
+>
+  資料來源：
+
+  <div>
+    魚：
+    <a
+      href="https://www.taptap.cn/moment/749717851794834457"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
+    >
+      TapTap
+    </a>
+  </div>
+
+  <div>
+    蟲：
+    <a
+      href="https://www.taptap.cn/moment/750798610429379688"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
+    >
+      TapTap
+    </a>
+  </div>
+
+  <div>
+    鳥：
+    <a
+      href="https://www.taptap.cn/moment/751907102351427401"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ marginLeft: "6px", color: "#2563eb", textDecoration: "none" }}
+    >
+      TapTap
+    </a>
+  </div>
+</div>
           </>
         )}
 

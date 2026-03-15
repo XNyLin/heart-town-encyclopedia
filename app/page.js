@@ -443,7 +443,31 @@ function CatGallery() {
           </div>
         ))}
       </div>
-
+<div
+  style={{
+    marginTop: "30px",
+    paddingTop: "16px",
+    borderTop: "1px solid #eee",
+    fontSize: "14px",
+    color: "#777",
+    textAlign: "center"
+  }}
+>
+  資料來源：
+  <a
+    href="https://www.taptap.cn/moment/577453568177472572"
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      marginLeft: "6px",
+      color: "#2563eb",
+      fontWeight: 600,
+      textDecoration: "none"
+    }}
+  >
+    TapTap
+  </a>
+</div>
     </section>
   );
 }

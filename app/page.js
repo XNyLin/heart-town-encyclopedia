@@ -233,6 +233,18 @@ function sortRowsByLevel(rows, order) {
   return cloned;
 }
 
+function getNextLevelSort(current) {
+  if (current === "none") return "asc";
+  if (current === "asc") return "desc";
+  return "none";
+}
+
+function getLevelSortIcon(current) {
+  if (current === "asc") return "↑";
+  if (current === "desc") return "↓";
+  return "↕";
+}
+
 function ToggleSwitch({ checked, onChange }) {
   return (
     <label
@@ -400,15 +412,15 @@ export default function Home() {
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
 
-     let matchLevel = true;
+      let matchLevel = true;
 
-if (rowType === "魚" && fishLevel !== "全部") {
-  matchLevel = rowLevel <= Number(fishLevel);
-} else if (rowType === "蟲" && bugLevel !== "全部") {
-  matchLevel = rowLevel <= Number(bugLevel);
-} else if (rowType === "鳥" && birdLevel !== "全部") {
-  matchLevel = rowLevel <= Number(birdLevel);
-}
+      if (rowType === "魚" && fishLevel !== "全部") {
+        matchLevel = rowLevel <= Number(fishLevel);
+      } else if (rowType === "蟲" && bugLevel !== "全部") {
+        matchLevel = rowLevel <= Number(bugLevel);
+      } else if (rowType === "鳥" && birdLevel !== "全部") {
+        matchLevel = rowLevel <= Number(birdLevel);
+      }
 
       return (
         rowName !== "" &&
@@ -553,132 +565,161 @@ if (rowType === "魚" && fishLevel !== "全部") {
               />
             </div>
 
-            <div style={{ gridColumn: "span 2" }}>
-              <label style={labelStyle}>天氣</label>
-              <select
-                value={weatherFilter}
-                onChange={(e) => setWeatherFilter(e.target.value)}
-                style={selectStyle}
-              >
-                {["全部", "晴天", "雨天", "雪天", "彩虹"].map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ gridColumn: "span 2" }}>
-              <label style={labelStyle}>地區</label>
-              <select
-                value={areaFilter}
-                onChange={(e) => setAreaFilter(e.target.value)}
-                style={selectStyle}
-              >
-                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
-                  (item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  )
-                )}
-              </select>
-            </div>
-
-            <div style={{ gridColumn: "span 3" }}>
+            <div
+              style={{
+                gridColumn: "span 12",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "16px",
+              }}
+            >
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "8px",
-                  gap: "12px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  gap: "16px",
+                  alignItems: "start",
                 }}
               >
-                <label style={{ ...labelStyle, marginBottom: 0 }}>時段</label>
+                <div>
+                  <label style={labelStyle}>天氣</label>
+                  <select
+                    value={weatherFilter}
+                    onChange={(e) => setWeatherFilter(e.target.value)}
+                    style={selectStyle}
+                  >
+                    {["全部", "晴天", "雨天", "雪天", "彩虹"].map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    fontSize: "13px",
-                    color: "#444",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <ToggleSwitch
-                    checked={autoPeriod}
-                    onChange={setAutoPeriod}
-                  />
-                  自動判斷
+                <div>
+                  <label style={labelStyle}>地區</label>
+                  <select
+                    value={areaFilter}
+                    onChange={(e) => setAreaFilter(e.target.value)}
+                    style={selectStyle}
+                  >
+                    {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
+                      (item) => (
+                        <option key={item} value={item}>
+                          {item}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
+                      gap: "12px",
+                    }}
+                  >
+                    <label style={{ ...labelStyle, marginBottom: 0 }}>
+                      時段
+                    </label>
+
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontSize: "13px",
+                        color: "#444",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <ToggleSwitch
+                        checked={autoPeriod}
+                        onChange={setAutoPeriod}
+                      />
+                      自動判斷
+                    </div>
+                  </div>
+
+                  <select
+                    value={manualPeriod}
+                    onChange={(e) => setManualPeriod(e.target.value)}
+                    style={{
+                      ...selectStyle,
+                      opacity: autoPeriod ? 0.5 : 1,
+                      cursor: autoPeriod ? "not-allowed" : "pointer",
+                    }}
+                    disabled={autoPeriod}
+                  >
+                    <option value="全部">全部</option>
+                    <option value="1">清晨</option>
+                    <option value="2">上午</option>
+                    <option value="3">下午</option>
+                    <option value="4">晚上</option>
+                  </select>
                 </div>
               </div>
 
-              <select
-                value={manualPeriod}
-                onChange={(e) => setManualPeriod(e.target.value)}
+              <div
                 style={{
-                  ...selectStyle,
-                  opacity: autoPeriod ? 0.5 : 1,
-                  cursor: autoPeriod ? "not-allowed" : "pointer",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  gap: "16px",
+                  alignItems: "start",
                 }}
-                disabled={autoPeriod}
               >
-                <option value="全部">全部</option>
-                <option value="1">清晨</option>
-                <option value="2">上午</option>
-                <option value="3">下午</option>
-                <option value="4">晚上</option>
-              </select>
-            </div>
+                <div>
+                  <label style={labelStyle}>魚愛好等級</label>
+                  <select
+                    value={fishLevel}
+                    onChange={(e) => setFishLevel(e.target.value)}
+                    style={selectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {fishLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ gridColumn: "span 1.666" }}>
-              <label style={labelStyle}>魚愛好等級</label>
-              <select
-                value={fishLevel}
-                onChange={(e) => setFishLevel(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="全部">全部</option>
-                {fishLevels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div>
+                  <label style={labelStyle}>蟲愛好等級</label>
+                  <select
+                    value={bugLevel}
+                    onChange={(e) => setBugLevel(e.target.value)}
+                    style={selectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {bugLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div style={{ gridColumn: "span 2" }}>
-              <label style={labelStyle}>蟲愛好等級</label>
-              <select
-                value={bugLevel}
-                onChange={(e) => setBugLevel(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="全部">全部</option>
-                {bugLevels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ gridColumn: "span 2" }}>
-              <label style={labelStyle}>鳥愛好等級</label>
-              <select
-                value={birdLevel}
-                onChange={(e) => setBirdLevel(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="全部">全部</option>
-                {birdLevels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
+                <div>
+                  <label style={labelStyle}>鳥愛好等級</label>
+                  <select
+                    value={birdLevel}
+                    onChange={(e) => setBirdLevel(e.target.value)}
+                    style={selectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {birdLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -714,15 +755,19 @@ if (rowType === "魚" && fishLevel !== "全部") {
                       }}
                     >
                       <span>Level</span>
-                      <select
-                        value={levelSort}
-                        onChange={(e) => setLevelSort(e.target.value)}
-                        style={miniSelectStyle}
+                      <button
+                        onClick={() => setLevelSort(getNextLevelSort(levelSort))}
+                        style={sortIconButtonStyle}
+                        title={
+                          levelSort === "none"
+                            ? "目前：未排序"
+                            : levelSort === "asc"
+                            ? "目前：低到高"
+                            : "目前：高到低"
+                        }
                       >
-                        <option value="none">預設</option>
-                        <option value="asc">低→高</option>
-                        <option value="desc">高→低</option>
-                      </select>
+                        {getLevelSortIcon(levelSort)}
+                      </button>
                     </div>
                   </th>
                   <th style={thStyle}>名稱</th>
@@ -764,7 +809,9 @@ if (rowType === "魚" && fishLevel !== "全部") {
                         {formatPlaceDisplay(getField(row, ["地點"]))}
                       </td>
                       <td style={tdStyle}>
-                        {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
+                        {formatFishShadowDisplay(
+                          getField(row, ["Note", "備註"])
+                        )}
                       </td>
                     </tr>
                   ))
@@ -808,13 +855,15 @@ const selectStyle = {
   background: "#fff",
 };
 
-const miniSelectStyle = {
+const sortIconButtonStyle = {
+  width: "30px",
   height: "30px",
   borderRadius: "8px",
   border: "1px solid #ddd",
-  padding: "0 8px",
-  fontSize: "12px",
   background: "#fff",
+  cursor: "pointer",
+  fontSize: "14px",
+  lineHeight: 1,
 };
 
 const chipStyle = {

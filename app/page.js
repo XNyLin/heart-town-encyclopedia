@@ -627,17 +627,17 @@ export default function Home() {
               >
                 <div>
                   <label style={labelStyle}>天氣</label>
-                  <select
-                    value={weatherFilter}
-                    onChange={(e) => setWeatherFilter(e.target.value)}
-                    style={selectStyle}
-                  >
-                    {["全部", "晴天", "雨天", "雪天", "彩虹"].map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+<select
+  value={weatherFilter}
+  onChange={(e) => setWeatherFilter(e.target.value)}
+  style={selectStyle}
+>
+  <option value="全部">全部</option>
+  <option value="晴天">晴天 ☀️</option>
+  <option value="雨天">雨天 ☔️</option>
+  <option value="雪天">雪天 ⛄️</option>
+  <option value="彩虹">彩虹 🌈</option>
+</select>
                 </div>
 
                 <div>

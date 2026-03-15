@@ -1082,17 +1082,33 @@ export default function Home() {
                   資料載入中...
                 </div>
               ) : (
-                <table
-                  style={{
-                    width: "100%",
-                    minWidth: "1040px",
-                    borderCollapse: "collapse",
-                  }}
-                >
+                <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "4px",
+  }}
+>
                   <thead>
                     <tr>
-<th style={{ ...thStyle, width: "44px", textAlign: "center" }}>類型</th>
-<th style={{ ...thStyle, width: "70px", textAlign: "center" }}>
+<td
+  style={{
+    ...tdStyle,
+    width: "40px",
+    textAlign: "center",
+    padding: "8px 2px",
+    fontSize: "18px",
+  }}
+>
+<td
+  style={{
+    ...tdStyle,
+    width: "55px",
+    textAlign: "center",
+    padding: "8px 4px",
+  }}
+>
                         <div
   style={{
     display: "flex",

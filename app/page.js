@@ -342,22 +342,10 @@ function InfoPill({ label, value }) {
 
 function SourceBlock({ tab }) {
   const sourceMap = {
-    魚: {
-      label: "魚",
-      url: "https://www.taptap.cn/moment/749717851794834457",
-    },
-    蟲: {
-      label: "蟲",
-      url: "https://www.taptap.cn/moment/750798610429379688",
-    },
-    鳥: {
-      label: "鳥",
-      url: "https://www.taptap.cn/moment/751907102351427401",
-    },
-    貓: {
-      label: "貓",
-      url: "https://www.taptap.cn/moment/577453568177472572",
-    },
+    魚: "https://www.taptap.cn/moment/749717851794834457",
+    蟲: "https://www.taptap.cn/moment/750798610429379688",
+    鳥: "https://www.taptap.cn/moment/751907102351427401",
+    貓: "https://www.taptap.cn/moment/577453568177472572",
   };
 
   if (!sourceMap[tab]) return null;
@@ -376,7 +364,7 @@ function SourceBlock({ tab }) {
     >
       資料來源：
       <a
-        href={sourceMap[tab].url}
+        href={sourceMap[tab]}
         target="_blank"
         rel="noopener noreferrer"
         style={{
@@ -386,7 +374,7 @@ function SourceBlock({ tab }) {
           fontWeight: 600,
         }}
       >
-        {sourceMap[tab].label} TapTap
+        TapTap
       </a>
     </div>
   );

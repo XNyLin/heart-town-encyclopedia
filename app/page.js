@@ -56,18 +56,22 @@ export default function Home() {
   const [now, setNow] = useState(new Date());
   const [autoPeriod, setAutoPeriod] = useState(true);
   const [manualPeriod, setManualPeriod] = useState("全部");
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       try {
         const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+
         if (!res.ok) throw new Error("無法讀取 Google Sheet 資料");
 
         const csvText = await res.text();
+
         const parsedRows = parseCSV(csvText).filter(
           (row) => getField(row, ["名稱"]) !== ""
         );
+
         setRows(parsedRows);
       } catch (error) {
         console.error(error);
@@ -90,13 +94,16 @@ export default function Home() {
     }
 
     handleResize();
+
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
 
   const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
+
   const effectivePeriodName =
     effectivePeriod === "全部" ? "全部" : getPeriodName(effectivePeriod);
 
@@ -108,10 +115,12 @@ export default function Home() {
     () => rows.filter((row) => getField(row, ["類型"]) === "魚").length,
     [rows]
   );
+
   const bugCount = useMemo(
     () => rows.filter((row) => getField(row, ["類型"]) === "蟲").length,
     [rows]
   );
+
   const birdCount = useMemo(
     () => rows.filter((row) => getField(row, ["類型"]) === "鳥").length,
     [rows]
@@ -195,7 +204,7 @@ export default function Home() {
     >
       <div
         style={{
-          maxWidth: "1080px",
+          maxWidth: "800px",
           width: "100%",
           margin: "0 auto",
         }}
@@ -203,7 +212,7 @@ export default function Home() {
         <header style={{ marginBottom: "20px" }}>
           <h1
             style={{
-              fontSize: isMobile ? "32px" : "36px",
+              fontSize: isMobile ? "30px" : "34px",
               lineHeight: 1.1,
               fontWeight: 800,
               margin: "0 0 10px 0",

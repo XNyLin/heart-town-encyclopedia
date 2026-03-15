@@ -78,12 +78,18 @@ function matchesWeather(cellValue, selectedWeather) {
 
 function matchesPeriod(cellValue, currentPeriod) {
   const cell = normalizeText(cellValue);
-
-  // 只保留數字，兼容：
-  // 1,2,3,4 / 1 2 3 4 / 1、2、3、4 / 1234
   const digitsOnly = cell.replace(/[^\d]/g, "");
-
   return digitsOnly.includes(String(currentPeriod));
+}
+
+function getPeriodName(period) {
+  const map = {
+    "1": "清晨",
+    "2": "上午",
+    "3": "下午",
+    "4": "晚上",
+  };
+  return map[String(period)] || "";
 }
 
 function getCurrentTimeInfo(date) {
@@ -91,24 +97,20 @@ function getCurrentTimeInfo(date) {
   const minute = date.getMinutes();
 
   let period = "1";
-  let periodLabel = "時段1（00:00–05:59）";
 
   if (hour >= 6 && hour < 12) {
     period = "2";
-    periodLabel = "時段2（06:00–11:59）";
   } else if (hour >= 12 && hour < 18) {
     period = "3";
-    periodLabel = "時段3（12:00–17:59）";
   } else if (hour >= 18) {
     period = "4";
-    periodLabel = "時段4（18:00–23:59）";
   }
 
   return {
     hour,
     minute,
     period,
-    periodLabel,
+    periodName: getPeriodName(period),
     timeText: `${String(hour).padStart(2, "0")}:${String(minute).padStart(
       2,
       "0"
@@ -125,6 +127,13 @@ function getUniqueSortedLevels(rows, type) {
   return [...new Set(values)].sort((a, b) => a - b);
 }
 
+function formatPeriodDisplay(cellValue) {
+  const digitsOnly = normalizeText(cellValue).replace(/[^\d]/g, "");
+  const uniquePeriods = [...new Set(digitsOnly.split("").filter(Boolean))];
+
+  return uniquePeriods.map((period) => getPeriodName(period)).join("、");
+}
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -138,6 +147,8 @@ export default function Home() {
   const [birdLevel, setBirdLevel] = useState("全部");
 
   const [now, setNow] = useState(new Date());
+  const [autoPeriod, setAutoPeriod] = useState(true);
+  const [manualPeriod, setManualPeriod] = useState("全部");
 
   useEffect(() => {
     async function loadData() {
@@ -175,6 +186,10 @@ export default function Home() {
 
   const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
 
+  const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
+  const effectivePeriodName =
+    effectivePeriod === "全部" ? "全部" : getPeriodName(effectivePeriod);
+
   const fishLevels = useMemo(() => getUniqueSortedLevels(rows, "魚"), [rows]);
   const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
   const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
@@ -186,18 +201,19 @@ export default function Home() {
       const rowLevel = Number(getField(row, ["Level", "等級"]));
       const rowWeather = getField(row, ["天氣"]);
       const rowPeriod = getField(row, ["時段", "時間"]);
-      const rowPlace = getField(row, ["地點"]);
-      const rowNote = getField(row, ["Note", "備註"]);
 
       const matchKeyword = keyword.trim()
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
         : true;
 
-      const matchType =
-        typeFilter === "全部" ? true : rowType === typeFilter;
+      const matchType = typeFilter === "全部" ? true : rowType === typeFilter;
 
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
-      const matchPeriod = matchesPeriod(rowPeriod, currentTimeInfo.period);
+
+      const matchPeriod =
+        effectivePeriod === "全部"
+          ? true
+          : matchesPeriod(rowPeriod, effectivePeriod);
 
       let matchLevel = true;
 
@@ -211,13 +227,11 @@ export default function Home() {
 
       return (
         rowName !== "" &&
-        rowPlace !== "" &&
         matchKeyword &&
         matchType &&
         matchWeather &&
         matchPeriod &&
-        matchLevel &&
-        rowNote !== undefined
+        matchLevel
       );
     });
   }, [
@@ -228,7 +242,7 @@ export default function Home() {
     fishLevel,
     bugLevel,
     birdLevel,
-    currentTimeInfo.period,
+    effectivePeriod,
   ]);
 
   return (
@@ -300,7 +314,14 @@ export default function Home() {
                 }}
               >
                 <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
-                <InfoPill label="目前時段" value={currentTimeInfo.periodLabel} />
+                <InfoPill
+                  label="目前時段"
+                  value={
+                    autoPeriod
+                      ? `${currentTimeInfo.periodName}（自動）`
+                      : `${effectivePeriodName}（手動）`
+                  }
+                />
               </div>
             </div>
 
@@ -356,6 +377,38 @@ export default function Home() {
             </div>
 
             <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>時段模式</label>
+              <select
+                value={autoPeriod ? "自動" : "手動"}
+                onChange={(e) => setAutoPeriod(e.target.value === "自動")}
+                style={selectStyle}
+              >
+                <option value="自動">自動判斷</option>
+                <option value="手動">手動選擇</option>
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
+              <label style={labelStyle}>時段</label>
+              <select
+                value={manualPeriod}
+                onChange={(e) => setManualPeriod(e.target.value)}
+                style={{
+                  ...selectStyle,
+                  opacity: autoPeriod ? 0.5 : 1,
+                  cursor: autoPeriod ? "not-allowed" : "pointer",
+                }}
+                disabled={autoPeriod}
+              >
+                <option value="全部">全部</option>
+                <option value="1">清晨</option>
+                <option value="2">上午</option>
+                <option value="3">下午</option>
+                <option value="4">晚上</option>
+              </select>
+            </div>
+
+            <div style={{ gridColumn: "span 3" }}>
               <label style={labelStyle}>魚愛好等級</label>
               <select
                 value={fishLevel}
@@ -371,7 +424,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 3" }}>
+            <div style={{ gridColumn: "span 4" }}>
               <label style={labelStyle}>蟲愛好等級</label>
               <select
                 value={bugLevel}
@@ -387,7 +440,7 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "span 3" }}>
+            <div style={{ gridColumn: "span 4" }}>
               <label style={labelStyle}>鳥愛好等級</label>
               <select
                 value={birdLevel}
@@ -458,7 +511,9 @@ export default function Home() {
                       <td style={tdStyle}>{getField(row, ["Level", "等級"])}</td>
                       <td style={tdStyleStrong}>{getField(row, ["名稱"])}</td>
                       <td style={tdStyle}>{getField(row, ["天氣"])}</td>
-                      <td style={tdStyle}>{getField(row, ["時段", "時間"])}</td>
+                      <td style={tdStyle}>
+                        {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
+                      </td>
                       <td style={tdStyle}>{getField(row, ["地點"])}</td>
                       <td style={tdStyle}>{getField(row, ["Note", "備註"])}</td>
                     </tr>

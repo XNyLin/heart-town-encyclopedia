@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SourceBlock from "./ui/SourceBlock";
+import SourceBlock from "./SourceBlock";
 import { panelStyle, miniChipStyle } from "@/styles/bioStyles";
 
 const CAT_SECTIONS = [

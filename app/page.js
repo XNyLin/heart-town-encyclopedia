@@ -1238,6 +1238,7 @@ const inputStyle = {
   fontSize: "15px",
   outline: "none",
   background: "#fff",
+  boxSizing: "border-box",
 };
 
 const selectStyle = {

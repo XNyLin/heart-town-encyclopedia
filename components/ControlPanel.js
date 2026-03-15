@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import InfoPill from "@/components/ui/InfoPill";
 import {
@@ -38,9 +39,22 @@ export default function ControlPanel({
   bugLevels,
   birdLevels,
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const filterItemStyle = {
     display: "flex",
-    alignItems: "center",
+    alignItems: isMobile ? "stretch" : "center",
+    flexDirection: isMobile ? "column" : "row",
     gap: "8px",
     minWidth: 0,
   };
@@ -51,6 +65,7 @@ export default function ControlPanel({
     color: "#555",
     whiteSpace: "nowrap",
     flexShrink: 0,
+    width: isMobile ? "100%" : "auto",
   };
 
   const compactSelectStyle = {
@@ -60,7 +75,9 @@ export default function ControlPanel({
 
   const filterGridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: isMobile
+      ? "1fr"
+      : "repeat(3, minmax(0, 1fr))",
     gap: "12px",
     alignItems: "center",
   };
@@ -76,7 +93,9 @@ export default function ControlPanel({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1.45fr) minmax(280px, 0.95fr)",
+          gridTemplateColumns: isMobile
+            ? "1fr"
+            : "minmax(0, 1.45fr) minmax(280px, 0.95fr)",
           gap: "16px",
           alignItems: "start",
         }}
@@ -252,7 +271,12 @@ export default function ControlPanel({
           </div>
         </div>
 
-        <div style={{ minWidth: 0 }}>
+        <div
+          style={{
+            minWidth: 0,
+            width: "100%",
+          }}
+        >
           <label style={labelStyle}>搜尋</label>
           <input
             type="text"

@@ -1,98 +1,88 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import CatGallery from "@/components/CatGallery";
+import DogGallery from "@/components/DogGallery";
+import ControlPanel from "@/components/ControlPanel";
+import BioTable from "@/components/BioTable";
+import SourceBlock from "@/components/SourceBlock";
+
 import {
-  sortIconButtonStyle,
-  thStyle,
-  tdStyle,
-  tdStyleStrong,
-  panelStyle,
-  miniChipStyle,
-} from "@/styles/bioStyles";
-import {
-  formatPeriodDisplay,
-  formatWeatherDisplay,
-  getLevelSortIcon,
-  getNextLevelSort,
+  parseCSV,
   getField,
+  matchesWeather,
+  matchesPeriod,
+  matchesArea,
+  getPeriodName,
+  getCurrentTimeInfo,
+  getUniqueSortedLevels,
+  sortRowsByLevel,
 } from "@/lib/bio-utils";
 
-function formatFishShadowDisplay(value) {
-  const text = String(value || "");
+import { chipStyle } from "@/styles/bioStyles";
 
-  if (text.includes("金魚影")) {
-    return <span style={{ color: "#d97706", fontWeight: 700 }}>{text}</span>;
-  }
+const SHEET_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
-  if (text.includes("藍魚影")) {
-    return <span style={{ color: "#2563eb", fontWeight: 700 }}>{text}</span>;
-  }
+const TOP_TABS = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
 
-  return text;
-}
+const TAB_LABELS = {
+  全部: "全部",
+  魚: "🐟 魚",
+  蟲: "🐞 蟲",
+  鳥: "🕊 鳥",
+  貓: "🐱 貓",
+  狗: "🐶 狗",
+};
 
-function formatPlaceDisplay(value) {
-  const text = String(value || "");
-  let color = "#222";
+export default function Home() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const isEvent = text.includes("事件") || text.includes("⭐️");
-  const isRiver = text.includes("河");
-  const isLake = text.includes("湖");
-  const isSea = text.includes("海");
+  const [keyword, setKeyword] = useState("");
+  const [weatherFilter, setWeatherFilter] = useState("全部");
+  const [areaFilter, setAreaFilter] = useState("全部");
+  const [placeFilter, setPlaceFilter] = useState("");
 
-  const isNorth = text.includes("⬆");
-  const isWest = text.includes("⬅");
-  const isEast = text.includes("⮕");
-  const isSouth = text.includes("⬇");
-  const isCenter =
-    text.includes("⊡") || text.includes("中心城區") || text.includes("🏘️");
+  const [fishLevel, setFishLevel] = useState("全部");
+  const [bugLevel, setBugLevel] = useState("全部");
+  const [birdLevel, setBirdLevel] = useState("全部");
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  if (isEvent) {
-    color = "#dc2626";
-  } else if (isRiver) {
-    color = "#38bdf8";
-  } else if (isLake) {
-    if (isNorth) color = "#15803d";
-    else if (isEast) color = "#166534";
-    else if (isWest) color = "#22c55e";
-    else if (isSouth) color = "#4ade80";
-    else color = "#16a34a";
-  } else if (isSea) {
-    if (isNorth) color = "#1e3a8a";
-    else if (isEast) color = "#1e40af";
-    else if (isWest) color = "#2563eb";
-    else if (isSouth) color = "#3b82f6";
-    else color = "#1d4ed8";
-  } else {
-    if (isNorth) color = "#8b5a2b";
-    else if (isWest) color = "#9ad87a";
-    else if (isEast) color = "#1f7a3a";
-    else if (isSouth) color = "#2563eb";
-    else if (isCenter) color = "#eab308";
-  }
+  const [tab, setTab] = useState("全部");
+  const [levelSort, setLevelSort] = useState("none");
 
-  return <span style={{ color, fontWeight: 600 }}>{text}</span>;
-}
-
-function getTypeEmoji(type) {
-  return (
-    {
-      魚: "🐟",
-      蟲: "🐞",
-      鳥: "🕊",
-    }[type] || ""
-  );
-}
-
-export default function BioTable({
-  loading,
-  filteredRows,
-  levelSort,
-  setLevelSort,
-  placeFilter,
-  setPlaceFilter,
-}) {
+  const [now, setNow] = useState(new Date());
+  const [autoPeriod, setAutoPeriod] = useState(true);
+  const [manualPeriod, setManualPeriod] = useState("全部");
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("無法讀取 Google Sheet 資料");
+
+        const csvText = await res.text();
+        const parsedRows = parseCSV(csvText).filter(
+          (row) => getField(row, ["名稱"]) !== ""
+        );
+        setRows(parsedRows);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -104,370 +94,264 @@ export default function BioTable({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const mobileThStyle = {
-    ...thStyle,
-    padding: "6px 6px",
-    fontSize: "12px",
-  };
+  const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
 
-  const mobileTdStyle = {
-    ...tdStyle,
-    padding: "5px 6px",
-    fontSize: "12px",
-    lineHeight: 1.3,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  };
+  const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
+  const effectivePeriodName =
+    effectivePeriod === "全部" ? "全部" : getPeriodName(effectivePeriod);
 
-  const mobileTdStrongStyle = {
-    ...tdStyleStrong,
-    padding: "5px 6px",
-    fontSize: "12px",
-    lineHeight: 1.3,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  };
+  const fishLevels = useMemo(() => getUniqueSortedLevels(rows, "魚"), [rows]);
+  const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
+  const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
 
-  if (isMobile) {
-    return (
-      <section
+  const fishCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "魚").length,
+    [rows]
+  );
+  const bugCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "蟲").length,
+    [rows]
+  );
+  const birdCount = useMemo(
+    () => rows.filter((row) => getField(row, ["類型"]) === "鳥").length,
+    [rows]
+  );
+
+  const filteredRows = useMemo(() => {
+    const baseFiltered = rows.filter((row) => {
+      const rowType = getField(row, ["類型"]);
+      const rowName = getField(row, ["名稱"]);
+      const rowLevel = Number(getField(row, ["Level", "等級"]));
+      const rowWeather = getField(row, ["天氣"]);
+      const rowPeriod = getField(row, ["時段", "時間"]);
+      const rowArea = getField(row, ["地區"]);
+      const rowPlace = getField(row, ["地點"]);
+      const rowNote = getField(row, ["Note", "備註"]);
+
+      const matchKeyword = keyword.trim()
+        ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
+        : true;
+
+      const matchTab =
+        tab === "全部"
+          ? true
+          : tab === "貓" || tab === "狗"
+          ? false
+          : rowType === tab;
+
+      const matchWeather = matchesWeather(rowWeather, weatherFilter);
+      const matchArea = matchesArea(rowArea, areaFilter);
+      const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
+      const matchPlace = placeFilter ? rowPlace === placeFilter : true;
+
+      let matchLevel = true;
+
+      if (rowType === "魚" && fishLevel !== "全部") {
+        matchLevel = rowLevel <= Number(fishLevel);
+      } else if (rowType === "蟲" && bugLevel !== "全部") {
+        matchLevel = rowLevel <= Number(bugLevel);
+      } else if (rowType === "鳥" && birdLevel !== "全部") {
+        matchLevel = rowLevel <= Number(birdLevel);
+      }
+
+      return (
+        rowName !== "" &&
+        matchKeyword &&
+        matchTab &&
+        matchWeather &&
+        matchArea &&
+        matchPeriod &&
+        matchPlace &&
+        matchLevel &&
+        rowPlace !== "" &&
+        rowNote !== undefined
+      );
+    });
+
+    return sortRowsByLevel(baseFiltered, levelSort);
+  }, [
+    rows,
+    keyword,
+    weatherFilter,
+    areaFilter,
+    placeFilter,
+    fishLevel,
+    bugLevel,
+    birdLevel,
+    effectivePeriod,
+    tab,
+    levelSort,
+  ]);
+
+  return (
+    <main
+      style={{
+        minHeight: "100vh",
+        background: "#f7f7f7",
+        padding: "28px 16px",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
+      }}
+    >
+      <div
         style={{
-          ...panelStyle,
-          padding: "12px",
+          maxWidth: "1080px",
+          width: "100%",
+          margin: "0 auto",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "12px",
-            gap: "8px",
-          }}
-        >
-          <div
+        <header style={{ marginBottom: "20px" }}>
+          <h1
             style={{
-              fontSize: "14px",
-              fontWeight: 700,
-              color: "#333",
+              fontSize: isMobile ? "32px" : "36px",
+              lineHeight: 1.1,
+              fontWeight: 800,
+              margin: "0 0 10px 0",
+              color: "#111",
+              letterSpacing: "-0.02em",
             }}
           >
-            圖鑑資料
-          </div>
+            心動小鎮｜生物圖鑑
+          </h1>
 
-          <button
-            onClick={() => setLevelSort(getNextLevelSort(levelSort))}
+          <p
             style={{
-              ...miniChipStyle,
-              height: "32px",
-              display: "inline-flex",
+              margin: 0,
+              fontSize: isMobile ? "14px" : "15px",
+              color: "#666",
+              lineHeight: 1.6,
+            }}
+          >
+            {loading
+              ? "資料載入中..."
+              : `目前魚圖鑑 ${fishCount} 筆、蟲圖鑑 ${bugCount} 筆、鳥圖鑑 ${birdCount} 筆，共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
+          </p>
+        </header>
+
+        <div style={{ marginBottom: "16px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
-              gap: "6px",
+              gap: "8px",
             }}
           >
-            等級 {getLevelSortIcon(levelSort)}
-          </button>
-        </div>
-
-        {loading ? (
-          <div style={{ padding: "16px 4px", color: "#666" }}>資料載入中...</div>
-        ) : filteredRows.length === 0 ? (
-          <div
-            style={{
-              padding: "16px 4px",
-              color: "#777",
-              fontSize: "13px",
-              textAlign: "center",
-            }}
-          >
-            沒有符合條件的資料
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gap: "10px",
-            }}
-          >
-            {filteredRows.map((row, index) => {
-              const type = getField(row, ["類型"]);
-              const name = getField(row, ["名稱"]);
-              const level = getField(row, ["Level", "等級"]);
-              const weather = getField(row, ["天氣"]);
-              const period = getField(row, ["時段", "時間"]);
-              const place = getField(row, ["地點"]);
-              const note = getField(row, ["Note", "備註"]);
-              const isActivePlace = placeFilter === place;
+            {TOP_TABS.map((type, index) => {
+              const active = tab === type;
+              const showDivider = !isMobile && TOP_TABS[index] === "鳥";
 
               return (
                 <div
-                  key={`${name}-${index}`}
+                  key={type}
                   style={{
-                    border: "1px solid #ececec",
-                    borderRadius: "14px",
-                    padding: "12px",
-                    background: "#fff",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
-                  <div
+                  <button
+                    onClick={() => setTab(type)}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: "10px",
-                      marginBottom: "8px",
+                      ...chipStyle,
+                      background: active ? "#111" : "#f1f1f1",
+                      color: active ? "#fff" : "#333",
+                      border: active
+                        ? "1px solid #111"
+                        : "1px solid #e5e5e5",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        minWidth: 0,
-                      }}
-                    >
-                      <span style={{ fontSize: "18px", flexShrink: 0 }}>
-                        {getTypeEmoji(type)}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "16px",
-                          fontWeight: 800,
-                          color: "#111",
-                          minWidth: 0,
-                        }}
-                      >
-                        {name}
-                      </span>
-                    </div>
+                    {TAB_LABELS[type]}
+                  </button>
 
-                    <div
+                  {showDivider && (
+                    <span
                       style={{
-                        flexShrink: 0,
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: "#444",
+                        color: "#bbb",
+                        fontSize: "18px",
+                        fontWeight: 600,
                       }}
                     >
-                      Lv.{level}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gap: "6px",
-                      fontSize: "13px",
-                      color: "#444",
-                      lineHeight: 1.45,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "52px 1fr",
-                        gap: "8px",
-                        alignItems: "start",
-                      }}
-                    >
-                      <span style={{ color: "#888" }}>天氣</span>
-                      <span>{formatWeatherDisplay(weather)}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "52px 1fr",
-                        gap: "8px",
-                        alignItems: "start",
-                      }}
-                    >
-                      <span style={{ color: "#888" }}>時段</span>
-                      <span>{formatPeriodDisplay(period)}</span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "52px 1fr",
-                        gap: "8px",
-                        alignItems: "start",
-                      }}
-                    >
-                      <span style={{ color: "#888" }}>地點</span>
-                      <button
-                        onClick={() => setPlaceFilter(place)}
-                        style={{
-                          background: isActivePlace ? "#eef2ff" : "transparent",
-                          border: isActivePlace
-                            ? "1px solid #c7d2fe"
-                            : "1px solid transparent",
-                          borderRadius: "8px",
-                          padding: "0",
-                          cursor: "pointer",
-                          fontSize: "13px",
-                          textAlign: "left",
-                          lineHeight: 1.4,
-                          justifySelf: "start",
-                        }}
-                        title="點擊查看該地點所有生物"
-                      >
-                        {formatPlaceDisplay(place)}
-                      </button>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "52px 1fr",
-                        gap: "8px",
-                        alignItems: "start",
-                      }}
-                    >
-                      <span style={{ color: "#888" }}>Note</span>
-                      <span>{formatFishShadowDisplay(note)}</span>
-                    </div>
-                  </div>
+                      ｜
+                    </span>
+                  )}
                 </div>
               );
             })}
           </div>
-        )}
-      </section>
-    );
-  }
+        </div>
 
-  return (
-    <section
-      style={{
-        ...panelStyle,
-        padding: "10px 14px",
-        overflowX: "auto",
-      }}
-    >
-      {loading ? (
-        <div style={{ padding: "20px", color: "#666" }}>資料載入中...</div>
-      ) : (
-        <table
+        {tab === "貓" ? (
+          <CatGallery />
+        ) : tab === "狗" ? (
+          <DogGallery setTab={setTab} />
+        ) : (
+          <>
+            <ControlPanel
+              currentTimeInfo={currentTimeInfo}
+              effectivePeriodName={effectivePeriodName}
+              autoPeriod={autoPeriod}
+              setAutoPeriod={setAutoPeriod}
+              manualPeriod={manualPeriod}
+              setManualPeriod={setManualPeriod}
+              weatherFilter={weatherFilter}
+              setWeatherFilter={setWeatherFilter}
+              areaFilter={areaFilter}
+              setAreaFilter={setAreaFilter}
+              keyword={keyword}
+              setKeyword={setKeyword}
+              tab={tab}
+              placeFilter={placeFilter}
+              setPlaceFilter={setPlaceFilter}
+              showAdvanced={showAdvanced}
+              setShowAdvanced={setShowAdvanced}
+              fishLevel={fishLevel}
+              setFishLevel={setFishLevel}
+              bugLevel={bugLevel}
+              setBugLevel={setBugLevel}
+              birdLevel={birdLevel}
+              setBirdLevel={setBirdLevel}
+              fishLevels={fishLevels}
+              bugLevels={bugLevels}
+              birdLevels={birdLevels}
+            />
+
+            <BioTable
+              loading={loading}
+              filteredRows={filteredRows}
+              levelSort={levelSort}
+              setLevelSort={setLevelSort}
+              placeFilter={placeFilter}
+              setPlaceFilter={setPlaceFilter}
+            />
+
+            {["魚", "蟲", "鳥"].includes(tab) && <SourceBlock tab={tab} />}
+          </>
+        )}
+
+        <footer
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            tableLayout: "fixed",
+            marginTop: "28px",
+            textAlign: "center",
+            fontSize: "13px",
+            color: "#888",
           }}
         >
-          <thead>
-            <tr>
-              <th style={{ ...mobileThStyle, width: "36px", textAlign: "center" }}>
-                類型
-              </th>
-
-              <th style={{ ...mobileThStyle, width: "60px", textAlign: "center" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "4px",
-                  }}
-                >
-                  等級
-                  <button
-                    onClick={() => setLevelSort(getNextLevelSort(levelSort))}
-                    style={{
-                      ...sortIconButtonStyle,
-                      width: "20px",
-                      height: "20px",
-                      fontSize: "11px",
-                    }}
-                  >
-                    {getLevelSortIcon(levelSort)}
-                  </button>
-                </div>
-              </th>
-
-              <th style={{ ...mobileThStyle, width: "120px" }}>名稱</th>
-              <th style={{ ...mobileThStyle, width: "80px" }}>天氣</th>
-              <th style={{ ...mobileThStyle, width: "90px" }}>時段</th>
-              <th style={{ ...mobileThStyle, width: "120px" }}>地點</th>
-              <th style={mobileThStyle}>Note</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredRows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={7}
-                  style={{
-                    padding: "20px",
-                    textAlign: "center",
-                    color: "#777",
-                    fontSize: "13px",
-                  }}
-                >
-                  沒有符合條件的資料
-                </td>
-              </tr>
-            ) : (
-              filteredRows.map((row, index) => {
-                const place = getField(row, ["地點"]);
-                const isActivePlace = placeFilter === place;
-
-                return (
-                  <tr key={`${getField(row, ["名稱"])}-${index}`}>
-                    <td
-                      style={{
-                        ...mobileTdStyle,
-                        textAlign: "center",
-                        fontSize: "15px",
-                      }}
-                    >
-                      {getTypeEmoji(getField(row, ["類型"]))}
-                    </td>
-
-                    <td style={{ ...mobileTdStyle, textAlign: "center" }}>
-                      {getField(row, ["Level", "等級"])}
-                    </td>
-
-                    <td style={mobileTdStrongStyle}>
-                      {getField(row, ["名稱"])}
-                    </td>
-
-                    <td style={mobileTdStyle}>
-                      {formatWeatherDisplay(getField(row, ["天氣"]))}
-                    </td>
-
-                    <td style={mobileTdStyle}>
-                      {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
-                    </td>
-
-                    <td style={mobileTdStyle}>
-                      <button
-                        onClick={() => setPlaceFilter(place)}
-                        style={{
-                          background: isActivePlace ? "#eef2ff" : "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "0",
-                          fontSize: "inherit",
-                        }}
-                      >
-                        {formatPlaceDisplay(place)}
-                      </button>
-                    </td>
-
-                    <td style={mobileTdStyle}>
-                      {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      )}
-    </section>
+          Powered By{" "}
+          <a
+            href="https://XNy.tw"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#111",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
+          >
+            X.Ny
+          </a>
+        </footer>
+      </div>
+    </main>
   );
 }

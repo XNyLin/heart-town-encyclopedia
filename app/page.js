@@ -1090,8 +1090,9 @@ export default function Home() {
                 >
                   <thead>
                     <tr>
-<th style={{ ...thStyle, width: "44px", textAlign: "center" }}>類型</th>
-<th style={{ ...thStyle, width: "70px", textAlign: "center" }}>
+<th style={{ ...thStyle, width: "40px", textAlign: "center" }}>類型</th>
+
+<th style={{ ...thStyle, width: "55px", textAlign: "center" }}>
                         <div
   style={{
     display: "flex",
@@ -1148,7 +1149,7 @@ export default function Home() {
 
                         return (
                           <tr key={`${getField(row, ["名稱"])}-${index}`}>
-<td style={tdStyle}>
+<td style={{ ...tdStyle, width: "40px", textAlign: "center" }}>
   {{
     魚: "🐟",
     蟲: "🐞",
@@ -1156,7 +1157,7 @@ export default function Home() {
   }[getField(row, ["類型"])] || ""}
 </td>
 
-<td style={{ ...tdStyle, width: "90px" }}>
+<td style={{ ...tdStyle, width: "55px", textAlign: "center" }}>
   {getField(row, ["Level", "等級"])}
 </td>
                             <td style={tdStyleStrong}>

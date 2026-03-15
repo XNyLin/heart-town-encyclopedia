@@ -58,11 +58,22 @@ function normalizeText(value) {
   return String(value || "").replace(/\s+/g, "").trim();
 }
 
-function splitMultiValue(value) {
-  const normalized = normalizeText(value)
-    .replace(/，/g, ",")
-    .replace(/、/g, ",");
-  return normalized ? normalized.split(",").filter(Boolean) : [];
+function matchesWeather(cellValue, selectedWeather) {
+  if (selectedWeather === "全部") return true;
+
+  const cell = normalizeText(cellValue);
+  const target = normalizeText(selectedWeather);
+
+  return cell.includes(target);
+}
+
+function matchesPeriod(cellValue, currentPeriod) {
+  const cell = normalizeText(cellValue);
+
+  // 保留 1~4 的數字，去掉其他符號
+  const digitsOnly = cell.replace(/[^\d]/g, "");
+
+  return digitsOnly.includes(String(currentPeriod));
 }
 
 function getCurrentTimeInfo(date) {
@@ -161,8 +172,6 @@ export default function Home() {
       const rowType = row["類型"] || "";
       const rowName = row["名稱"] || "";
       const rowLevel = Number(row["Level"]);
-      const weatherList = splitMultiValue(row["天氣"]);
-      const periodList = splitMultiValue(row["時段"]);
 
       const matchKeyword = keyword.trim()
         ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
@@ -171,12 +180,8 @@ export default function Home() {
       const matchType =
         typeFilter === "全部" ? true : rowType === typeFilter;
 
-      const matchWeather =
-        weatherFilter === "全部"
-          ? true
-          : weatherList.includes(normalizeText(weatherFilter));
-
-      const matchPeriod = periodList.includes(currentTimeInfo.period);
+      const matchWeather = matchesWeather(row["天氣"], weatherFilter);
+      const matchPeriod = matchesPeriod(row["時段"], currentTimeInfo.period);
 
       let matchLevel = true;
 

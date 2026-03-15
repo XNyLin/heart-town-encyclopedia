@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import CatGallery from "@/components/CatGallery";
 import DogGallery from "@/components/DogGallery";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
+import InfoPill from "@/components/ui/InfoPill";
 import {
   panelStyle,
   labelStyle,
@@ -289,29 +290,6 @@ function getLevelSortIcon(current) {
   return "↕";
 }
 
-
-function InfoPill({ label, value, children }) {
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
-        padding: "8px 12px",
-        borderRadius: "999px",
-        background: "#f3f4f6",
-        border: "1px solid #e5e7eb",
-        fontSize: "13px",
-        color: "#333",
-        lineHeight: 1,
-      }}
-    >
-      <span style={{ fontWeight: 700 }}>{label}</span>
-      <span>{value}</span>
-      {children}
-    </div>
-  );
-}
 
 function SourceBlock({ tab }) {
   const sourceMap = {

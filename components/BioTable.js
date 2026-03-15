@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   sortIconButtonStyle,
   thStyle,
@@ -80,11 +81,43 @@ export default function BioTable({
   placeFilter,
   setPlaceFilter,
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const mobileThStyle = {
+    ...thStyle,
+    padding: isMobile ? "8px 6px" : thStyle.padding,
+    fontSize: isMobile ? "12px" : thStyle.fontSize,
+  };
+
+  const mobileTdStyle = {
+    ...tdStyle,
+    padding: isMobile ? "6px 4px" : tdStyle.padding,
+    fontSize: isMobile ? "12px" : tdStyle.fontSize,
+    lineHeight: isMobile ? 1.35 : tdStyle.lineHeight,
+  };
+
+  const mobileTdStyleStrong = {
+    ...tdStyleStrong,
+    padding: isMobile ? "6px 4px" : tdStyleStrong.padding,
+    fontSize: isMobile ? "12px" : tdStyleStrong.fontSize,
+    lineHeight: isMobile ? 1.35 : tdStyleStrong.lineHeight,
+  };
+
   return (
     <section
       style={{
         ...panelStyle,
-        padding: "10px 14px",
+        padding: isMobile ? "8px 8px" : "10px 14px",
         overflowX: "auto",
       }}
     >
@@ -94,16 +127,30 @@ export default function BioTable({
         <table
           style={{
             width: "100%",
+            minWidth: isMobile ? "760px" : "unset",
             borderCollapse: "collapse",
             tableLayout: "auto",
           }}
         >
           <thead>
             <tr>
-              <th style={{ ...thStyle, width: "30px", textAlign: "center" }}>
+              <th
+                style={{
+                  ...mobileThStyle,
+                  width: isMobile ? "26px" : "30px",
+                  textAlign: "center",
+                }}
+              >
                 類型
               </th>
-              <th style={{ ...thStyle, width: "54px", textAlign: "center" }}>
+
+              <th
+                style={{
+                  ...mobileThStyle,
+                  width: isMobile ? "48px" : "54px",
+                  textAlign: "center",
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
@@ -115,7 +162,12 @@ export default function BioTable({
                   <span>等級</span>
                   <button
                     onClick={() => setLevelSort(getNextLevelSort(levelSort))}
-                    style={sortIconButtonStyle}
+                    style={{
+                      ...sortIconButtonStyle,
+                      width: isMobile ? "20px" : sortIconButtonStyle.width,
+                      height: isMobile ? "20px" : sortIconButtonStyle.height,
+                      fontSize: isMobile ? "11px" : sortIconButtonStyle.fontSize,
+                    }}
                     title={
                       levelSort === "none"
                         ? "目前：未排序"
@@ -128,11 +180,12 @@ export default function BioTable({
                   </button>
                 </div>
               </th>
-              <th style={thStyle}>名稱</th>
-              <th style={thStyle}>天氣</th>
-              <th style={thStyle}>時段</th>
-              <th style={thStyle}>地點</th>
-              <th style={thStyle}>Note</th>
+
+              <th style={mobileThStyle}>名稱</th>
+              <th style={mobileThStyle}>天氣</th>
+              <th style={mobileThStyle}>時段</th>
+              <th style={mobileThStyle}>地點</th>
+              <th style={mobileThStyle}>Note</th>
             </tr>
           </thead>
 
@@ -146,6 +199,7 @@ export default function BioTable({
                     textAlign: "center",
                     color: "#777",
                     borderBottom: "1px solid #f0f0f0",
+                    fontSize: isMobile ? "12px" : "14px",
                   }}
                 >
                   沒有符合條件的資料
@@ -160,11 +214,11 @@ export default function BioTable({
                   <tr key={`${getField(row, ["名稱"])}-${index}`}>
                     <td
                       style={{
-                        ...tdStyle,
-                        width: "30px",
+                        ...mobileTdStyle,
+                        width: isMobile ? "26px" : "30px",
                         textAlign: "center",
-                        padding: "6px 2px",
-                        fontSize: "16px",
+                        padding: isMobile ? "6px 2px" : "6px 2px",
+                        fontSize: isMobile ? "14px" : "16px",
                       }}
                     >
                       {{
@@ -176,44 +230,42 @@ export default function BioTable({
 
                     <td
                       style={{
-                        ...tdStyle,
-                        width: "54px",
+                        ...mobileTdStyle,
+                        width: isMobile ? "48px" : "54px",
                         textAlign: "center",
-                        padding: "6px 4px",
+                        padding: isMobile ? "6px 2px" : "6px 4px",
                         fontWeight: 500,
                       }}
                     >
                       {getField(row, ["Level", "等級"])}
                     </td>
 
-                    <td style={tdStyleStrong}>
+                    <td style={mobileTdStyleStrong}>
                       {getField(row, ["名稱"])}
                     </td>
 
-                    <td style={tdStyle}>
+                    <td style={mobileTdStyle}>
                       {formatWeatherDisplay(getField(row, ["天氣"]))}
                     </td>
 
-                    <td style={tdStyle}>
+                    <td style={mobileTdStyle}>
                       {formatPeriodDisplay(getField(row, ["時段", "時間"]))}
                     </td>
 
-                    <td style={tdStyle}>
+                    <td style={mobileTdStyle}>
                       <button
                         onClick={() => setPlaceFilter(place)}
                         style={{
-                          background: isActivePlace
-                            ? "#eef2ff"
-                            : "transparent",
+                          background: isActivePlace ? "#eef2ff" : "transparent",
                           border: isActivePlace
                             ? "1px solid #c7d2fe"
                             : "1px solid transparent",
                           borderRadius: "7px",
-                          padding: "2px 4px",
+                          padding: isMobile ? "2px 3px" : "2px 4px",
                           cursor: "pointer",
-                          fontSize: "14px",
+                          fontSize: isMobile ? "12px" : "14px",
                           textAlign: "left",
-                          lineHeight: 1.4,
+                          lineHeight: isMobile ? 1.3 : 1.4,
                         }}
                         title="點擊查看該地點所有生物"
                       >
@@ -221,7 +273,7 @@ export default function BioTable({
                       </button>
                     </td>
 
-                    <td style={tdStyle}>
+                    <td style={mobileTdStyle}>
                       {formatFishShadowDisplay(getField(row, ["Note", "備註"]))}
                     </td>
                   </tr>

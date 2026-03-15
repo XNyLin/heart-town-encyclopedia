@@ -1083,8 +1083,8 @@ export default function Home() {
                 >
                   <thead>
                     <tr>
-                      <th style={thStyle}>類型</th>
-                      <th style={thStyle}>
+<th style={{ ...thStyle, width: "70px" }}>類型</th>
+<th style={{ ...thStyle, width: "90px" }}>
                         <div
                           style={{
                             display: "inline-flex",
@@ -1140,10 +1140,13 @@ export default function Home() {
 
                         return (
                           <tr key={`${getField(row, ["名稱"])}-${index}`}>
-                            <td style={tdStyle}>{getField(row, ["類型"])}</td>
-                            <td style={tdStyle}>
-                              {getField(row, ["Level", "等級"])}
-                            </td>
+<td style={{ ...tdStyle, width: "70px" }}>
+  {getField(row, ["類型"])}
+</td>
+
+<td style={{ ...tdStyle, width: "90px" }}>
+  {getField(row, ["Level", "等級"])}
+</td>
                             <td style={tdStyleStrong}>
                               {getField(row, ["名稱"])}
                             </td>

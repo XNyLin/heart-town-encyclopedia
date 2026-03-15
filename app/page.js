@@ -353,47 +353,97 @@ function InfoPill({ label, value }) {
 }
 
 function CatGallery() {
+
+  const catSections = [
+    { id: "熊貓貓", name: "熊貓貓", img: "/熊貓貓.png" },
+    { id: "浣熊貓", name: "浣熊貓", img: "/浣熊貓.png" },
+    { id: "白貓", name: "白貓", img: "/白貓.png" },
+    { id: "黑貓", name: "黑貓", img: "/黑貓.png" },
+    { id: "金漸層", name: "金漸層", img: "/金漸層.png" },
+    { id: "銀漸層", name: "銀漸層", img: "/銀漸層.png" },
+    { id: "奶牛貓", name: "奶牛貓", img: "/奶牛貓.png" },
+    { id: "三花貓", name: "三花貓", img: "/三花貓.png" },
+    { id: "暹羅貓", name: "暹羅貓", img: "/暹羅貓.png" },
+    { id: "玳瑁貓", name: "玳瑁貓", img: "/玳瑁貓.png" },
+    { id: "藍貓", name: "藍貓", img: "/藍貓.png" },
+    { id: "橘貓", name: "橘貓", img: "/橘貓.png" },
+    { id: "銀虎斑", name: "銀色古典斑貓", img: "/銀虎斑.png" },
+    { id: "棕色虎斑", name: "棕色虎斑貓", img: "/棕色虎斑.png" },
+    { id: "橘虎斑", name: "橘色魚骨斑貓", img: "/橘虎斑.png" }
+  ];
+
   return (
     <section
       style={{
         background: "#fff",
         borderRadius: "18px",
         boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-        padding: "20px",
+        padding: "24px",
       }}
     >
+
       <h2
         style={{
-          fontSize: "24px",
+          fontSize: "26px",
           fontWeight: 800,
-          margin: "0 0 20px 0",
-          color: "#111",
+          marginBottom: "18px",
         }}
       >
         貓咪圖鑑
       </h2>
 
+      {/* 快速導航 */}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "10px",
+          marginBottom: "26px",
+        }}
+      >
+        {catSections.map((cat) => (
+          <a
+            key={cat.id}
+            href={`#${cat.id}`}
+            style={{
+              padding: "8px 14px",
+              borderRadius: "999px",
+              background: "#f3f4f6",
+              border: "1px solid #e5e7eb",
+              fontSize: "14px",
+              textDecoration: "none",
+              color: "#333",
+              fontWeight: 600,
+            }}
+          >
+            {cat.name}
+          </a>
+        ))}
+      </div>
+
+      {/* 圖鑑圖片 */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-          gap: "16px",
+          gridTemplateColumns: "repeat(auto-fill, minmax(440px, 1fr))",
+          gap: "24px",
         }}
       >
-        {catImages.map((src, i) => (
-          <img
-            key={i}
-            src={src}
-            alt={`貓咪圖鑑 ${i + 1}`}
-            style={{
-              width: "100%",
-              borderRadius: "14px",
-              display: "block",
-              background: "#fff",
-            }}
-          />
+        {catSections.map((cat) => (
+          <div key={cat.id} id={cat.id}>
+            <img
+              src={cat.img}
+              alt={cat.name}
+              style={{
+                width: "100%",
+                borderRadius: "16px",
+                display: "block",
+              }}
+            />
+          </div>
         ))}
       </div>
+
     </section>
   );
 }

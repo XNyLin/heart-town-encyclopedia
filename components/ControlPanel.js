@@ -272,20 +272,59 @@ export default function ControlPanel({
         </div>
 
         <div
-          style={{
-            minWidth: 0,
-            width: "100%",
-          }}
-        >
-          <label style={labelStyle}>搜尋</label>
-          <input
-            type="text"
-            placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            style={inputStyle}
-          />
-        </div>
+  style={{
+    minWidth: 0,
+    width: "100%",
+    display: "grid",
+    gap: "12px",
+  }}
+>
+  <div
+    style={{
+      border: "1px solid #e5e7eb",
+      borderRadius: "12px",
+      background: "#fff",
+      padding: "12px 14px",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "13px",
+        fontWeight: 700,
+        color: "#111",
+        marginBottom: "8px",
+      }}
+    >
+      更新日誌
+    </div>
+
+    <div
+      style={{
+        display: "grid",
+        gap: "6px",
+        fontSize: "13px",
+        color: "#666",
+        lineHeight: 1.5,
+      }}
+    >
+      <div>• [斑皇鳩] 名稱錯誤已修正</div>
+      <div>• 新增手機版卡片列表</div>
+      <div>• 時段格式已優化</div>
+      <div>• 表格列高度與交替底色已調整</div>
+    </div>
+  </div>
+
+  <div>
+    <label style={labelStyle}>搜尋</label>
+    <input
+      type="text"
+      placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
+      value={keyword}
+      onChange={(e) => setKeyword(e.target.value)}
+      style={inputStyle}
+    />
+  </div>
+</div>
       </div>
     </section>
   );

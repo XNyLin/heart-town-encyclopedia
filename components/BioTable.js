@@ -327,7 +327,14 @@ export default function BioTable({
                       }}
                     >
                       <span style={{ color: "#888" }}>Note</span>
-                      <span>{formatFishShadowDisplay(note)}</span>
+                      <span
+                        style={{
+                          whiteSpace: "pre-line",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {formatFishShadowDisplay(note)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -494,6 +501,10 @@ export default function BioTable({
                     <td
                       style={{
                         ...mobileTdStyle,
+                        whiteSpace: "pre-line",
+                        overflow: "visible",
+                        textOverflow: "unset",
+                        lineHeight: 1.5,
                         background: rowBackground,
                       }}
                     >

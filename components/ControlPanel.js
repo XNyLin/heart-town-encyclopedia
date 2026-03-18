@@ -321,8 +321,11 @@ export default function ControlPanel({
                   }}
                 >
                   {latestLog.items.map((item, index) => (
-                    <div key={index}>• {item}</div>
-                  ))}
+  <div
+    key={index}
+    dangerouslySetInnerHTML={{ __html: `• ${item}` }}
+  />
+))}
                 </div>
               </>
             ) : (

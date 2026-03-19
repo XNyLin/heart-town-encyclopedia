@@ -41,6 +41,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const [keyword, setKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
   const [weatherFilter, setWeatherFilter] = useState("全部");
   const [areaFilter, setAreaFilter] = useState("全部");
   const [placeFilter, setPlaceFilter] = useState("");
@@ -68,9 +69,31 @@ export default function Home() {
 
         const csvText = await res.text();
 
-        const parsedRows = parseCSV(csvText).filter(
-          (row) => getField(row, ["名稱"]) !== ""
-        );
+        const parsedRows = parseCSV(csvText)
+          .filter((row) => getField(row, ["名稱"]) !== "")
+          .map((row) => {
+            const name = getField(row, ["名稱"]);
+            const type = getField(row, ["類型"]);
+            const level = Number(getField(row, ["Level", "等級"])) || 0;
+            const weather = getField(row, ["天氣"]);
+            const period = getField(row, ["時段", "時間"]);
+            const area = getField(row, ["地區"]);
+            const place = getField(row, ["地點"]);
+            const note = getField(row, ["Note", "備註"]);
+
+            return {
+              ...row,
+              _name: name,
+              _nameLower: String(name).toLowerCase(),
+              _type: type,
+              _level: level,
+              _weather: weather,
+              _period: period,
+              _area: area,
+              _place: place,
+              _note: note,
+            };
+          });
 
         setRows(parsedRows);
       } catch (error) {
@@ -87,6 +110,14 @@ export default function Home() {
     const timer = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [keyword]);
 
   useEffect(() => {
     function handleResize() {
@@ -112,33 +143,33 @@ export default function Home() {
   const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
 
   const fishCount = useMemo(
-    () => rows.filter((row) => getField(row, ["類型"]) === "魚").length,
+    () => rows.filter((row) => row._type === "魚").length,
     [rows]
   );
 
   const bugCount = useMemo(
-    () => rows.filter((row) => getField(row, ["類型"]) === "蟲").length,
+    () => rows.filter((row) => row._type === "蟲").length,
     [rows]
   );
 
   const birdCount = useMemo(
-    () => rows.filter((row) => getField(row, ["類型"]) === "鳥").length,
+    () => rows.filter((row) => row._type === "鳥").length,
     [rows]
   );
 
   const filteredRows = useMemo(() => {
     const baseFiltered = rows.filter((row) => {
-      const rowType = getField(row, ["類型"]);
-      const rowName = getField(row, ["名稱"]);
-      const rowLevel = Number(getField(row, ["Level", "等級"]));
-      const rowWeather = getField(row, ["天氣"]);
-      const rowPeriod = getField(row, ["時段", "時間"]);
-      const rowArea = getField(row, ["地區"]);
-      const rowPlace = getField(row, ["地點"]);
-      const rowNote = getField(row, ["Note", "備註"]);
+      const rowType = row._type;
+      const rowName = row._name;
+      const rowLevel = row._level;
+      const rowWeather = row._weather;
+      const rowPeriod = row._period;
+      const rowArea = row._area;
+      const rowPlace = row._place;
+      const rowNote = row._note;
 
-      const matchKeyword = keyword.trim()
-        ? rowName.toLowerCase().includes(keyword.trim().toLowerCase())
+      const matchKeyword = debouncedKeyword.trim()
+        ? row._nameLower.includes(debouncedKeyword.trim().toLowerCase())
         : true;
 
       const matchTab =
@@ -180,7 +211,7 @@ export default function Home() {
     return sortRowsByLevel(baseFiltered, levelSort);
   }, [
     rows,
-    keyword,
+    debouncedKeyword,
     weatherFilter,
     areaFilter,
     placeFilter,

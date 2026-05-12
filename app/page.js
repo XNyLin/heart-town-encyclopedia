@@ -39,6 +39,9 @@ const TAB_LABELS = {
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [starRecords, setStarRecords] = useState({});
+  const [starRecordsReady, setStarRecordsReady] = useState(false);
+  const [hideFullStars, setHideFullStars] = useState(false);
 
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
@@ -59,6 +62,33 @@ export default function Home() {
   const [manualPeriod, setManualPeriod] = useState("全部");
 
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("heartTownStarRecords");
+
+      if (saved) {
+        setStarRecords(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error("讀取星數紀錄失敗:", error);
+    } finally {
+      setStarRecordsReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!starRecordsReady) return;
+
+    try {
+      window.localStorage.setItem(
+        "heartTownStarRecords",
+        JSON.stringify(starRecords)
+      );
+    } catch (error) {
+      console.error("儲存星數紀錄失敗:", error);
+    }
+  }, [starRecords, starRecordsReady]);
 
   useEffect(() => {
     async function loadData() {
@@ -157,6 +187,15 @@ export default function Home() {
     [rows]
   );
 
+  function setStarRecord(name, star) {
+    if (!name) return;
+
+    setStarRecords((prev) => ({
+      ...prev,
+      [name]: Number(star),
+    }));
+  }
+
   const filteredRows = useMemo(() => {
     const baseFiltered = rows.filter((row) => {
       const rowType = row._type;
@@ -184,6 +223,10 @@ export default function Home() {
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
       const matchPlace = placeFilter ? rowPlace === placeFilter : true;
 
+      const matchFullStar = hideFullStars
+        ? Number(starRecords[rowName] ?? 0) !== 5
+        : true;
+
       let matchLevel = true;
 
       if (rowType === "魚" && fishLevel !== "全部") {
@@ -203,6 +246,7 @@ export default function Home() {
         matchPeriod &&
         matchPlace &&
         matchLevel &&
+        matchFullStar &&
         rowPlace !== "" &&
         rowNote !== undefined
       );
@@ -221,6 +265,8 @@ export default function Home() {
     effectivePeriod,
     tab,
     levelSort,
+    starRecords,
+    hideFullStars,
   ]);
 
   return (
@@ -363,6 +409,10 @@ export default function Home() {
               setLevelSort={setLevelSort}
               placeFilter={placeFilter}
               setPlaceFilter={setPlaceFilter}
+              starRecords={starRecords}
+              setStarRecord={setStarRecord}
+              hideFullStars={hideFullStars}
+              setHideFullStars={setHideFullStars}
             />
 
             {["魚", "蟲", "鳥"].includes(tab) && <SourceBlock tab={tab} />}

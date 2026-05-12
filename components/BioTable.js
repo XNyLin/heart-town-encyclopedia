@@ -74,6 +74,7 @@ function formatPlaceDisplay(value) {
   return <span style={{ color, fontWeight: 600 }}>{text}</span>;
 }
 
+
 function getTypeEmoji(type) {
   return (
     {
@@ -84,6 +85,56 @@ function getTypeEmoji(type) {
   );
 }
 
+function StarSelector({ name, value, onChange }) {
+  const currentValue = Number(value ?? 0);
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "1px",
+        whiteSpace: "nowrap",
+      }}
+      aria-label={`${name} 星數 ${currentValue}`}
+    >
+      {[1, 2, 3, 4, 5].map((star) => {
+        const active = star <= currentValue;
+
+        return (
+          <button
+            key={`${name}-${star}`}
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              if (typeof onChange === "function") {
+                onChange(name, star === currentValue ? 0 : star);
+              }
+            }}
+            style={{
+              border: "none",
+              background: "transparent",
+              color: active ? "#111" : "#c7c7c7",
+              padding: "0 1px",
+              fontSize: "16px",
+              lineHeight: 1,
+              cursor: "pointer",
+              userSelect: "none",
+              WebkitTapHighlightColor: "transparent",
+            }}
+            title={`${star} 星`}
+            aria-label={`${star} 星`}
+          >
+            ★
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function BioTable({
   loading,
   filteredRows,
@@ -91,6 +142,10 @@ export default function BioTable({
   setLevelSort,
   placeFilter,
   setPlaceFilter,
+  starRecords = {},
+  setStarRecord,
+  hideFullStars = false,
+  setHideFullStars,
 }) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -157,6 +212,26 @@ export default function BioTable({
             圖鑑資料
           </div>
 
+          <label
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "12px",
+              color: "#555",
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={hideFullStars}
+              onChange={(event) => setHideFullStars?.(event.target.checked)}
+              style={{ margin: 0 }}
+            />
+            隱藏滿星
+          </label>
+
           <button
             onClick={() => setLevelSort(getNextLevelSort(levelSort))}
             style={{
@@ -199,6 +274,7 @@ export default function BioTable({
               const period = getField(row, ["時段", "時間"]);
               const place = getField(row, ["地點"]);
               const note = getField(row, ["Note", "備註"]);
+              const starValue = Number(starRecords[name] ?? 0);
               const isActivePlace = placeFilter === place;
 
               return (
@@ -336,6 +412,22 @@ export default function BioTable({
                         {formatFishShadowDisplay(note)}
                       </span>
                     </div>
+
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "52px 1fr",
+                        gap: "8px",
+                        alignItems: "start",
+                      }}
+                    >
+                      <span style={{ color: "#888" }}>星數</span>
+                      <StarSelector
+                        name={name}
+                        value={starValue}
+                        onChange={setStarRecord}
+                      />
+                    </div>
                   </div>
                 </div>
               );
@@ -397,7 +489,27 @@ export default function BioTable({
               <th style={{ ...mobileThStyle, width: "120px" }}>名稱</th>
               <th style={{ ...mobileThStyle, width: "80px" }}>天氣</th>
               <th style={{ ...mobileThStyle, width: "90px" }}>時段</th>
-              <th style={{ ...mobileThStyle, width: "120px" }}>地點</th>
+              <th style={{ ...mobileThStyle, width: "96px" }}>地點</th>
+              <th style={{ ...mobileThStyle, width: "96px" }}>
+                <label
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    whiteSpace: "nowrap",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={hideFullStars}
+                    onChange={(event) => setHideFullStars?.(event.target.checked)}
+                    style={{ margin: 0 }}
+                  />
+                  隱藏滿星
+                </label>
+              </th>
               <th style={mobileThStyle}>Note</th>
             </tr>
           </thead>
@@ -406,7 +518,7 @@ export default function BioTable({
             {filteredRows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   style={{
                     padding: "20px",
                     textAlign: "center",
@@ -419,13 +531,15 @@ export default function BioTable({
               </tr>
             ) : (
               filteredRows.map((row, index) => {
+                const name = getField(row, ["名稱"]);
                 const place = getField(row, ["地點"]);
+                const starValue = Number(starRecords[name] ?? 0);
                 const isActivePlace = placeFilter === place;
                 const rowBackground = index % 2 === 0 ? "#ffffff" : "#f7f7f7";
 
                 return (
                   <tr
-                    key={`${getField(row, ["名稱"])}-${index}`}
+                    key={`${name}-${index}`}
                     style={{
                       background: rowBackground,
                     }}
@@ -457,7 +571,7 @@ export default function BioTable({
                         background: rowBackground,
                       }}
                     >
-                      {getField(row, ["名稱"])}
+                      {name}
                     </td>
 
                     <td
@@ -496,6 +610,22 @@ export default function BioTable({
                       >
                         {formatPlaceDisplay(place)}
                       </button>
+                    </td>
+
+                    <td
+                      style={{
+                        ...mobileTdStyle,
+                        overflow: "visible",
+                        textOverflow: "unset",
+                        textAlign: "center",
+                        background: rowBackground,
+                      }}
+                    >
+                      <StarSelector
+                        name={name}
+                        value={starValue}
+                        onChange={setStarRecord}
+                      />
                     </td>
 
                     <td

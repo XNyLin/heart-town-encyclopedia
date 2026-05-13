@@ -115,6 +115,13 @@ export default function ControlPanel({
     fontWeight: 400,
   };
 
+  function getProgressColor(progress) {
+    if (progress >= 80) return "#16a34a";
+    if (progress >= 60) return "#ca8a04";
+    if (progress >= 40) return "#ea580c";
+    return "#dc2626";
+  }
+
   return (
     <section
       style={{
@@ -397,7 +404,9 @@ export default function ControlPanel({
             >
               <div>
                 總 ⭐️ 數 {ownedStars} / {totalStars}｜
-                <strong>完成度 {collectionProgress}%</strong>
+                <strong style={{ color: getProgressColor(collectionProgress) }}>
+                  完成度 {collectionProgress}%
+                </strong>
               </div>
               <div
                 style={{
@@ -407,15 +416,36 @@ export default function ControlPanel({
               >
                 <div>
                   🐟 {safeFishOwnedStars} / {fishTotalStars}｜
-                  <span style={progressPercentStyle}>完成度 {fishProgress}%</span>
+                  <span
+                    style={{
+                      ...progressPercentStyle,
+                      color: getProgressColor(fishProgress),
+                    }}
+                  >
+                    完成度 {fishProgress}%
+                  </span>
                 </div>
                 <div>
                   🐞 {safeBugOwnedStars} / {bugTotalStars}｜
-                  <span style={progressPercentStyle}>完成度 {bugProgress}%</span>
+                  <span
+                    style={{
+                      ...progressPercentStyle,
+                      color: getProgressColor(bugProgress),
+                    }}
+                  >
+                    完成度 {bugProgress}%
+                  </span>
                 </div>
                 <div>
                   🕊 {safeBirdOwnedStars} / {birdTotalStars}｜
-                  <span style={progressPercentStyle}>完成度 {birdProgress}%</span>
+                  <span
+                    style={{
+                      ...progressPercentStyle,
+                      color: getProgressColor(birdProgress),
+                    }}
+                  >
+                    完成度 {birdProgress}%
+                  </span>
                 </div>
               </div>
             </div>

@@ -422,7 +422,7 @@ export default function ControlPanel({
               }}
             >
               <div>
-                總 ⭐️ 數 {ownedStars} / {totalStars}｜
+                ⭐️ 總數 {ownedStars} / {totalStars}｜
                 <strong style={{ color: getProgressColor(collectionProgress) }}>
                   完成度 {collectionProgress}%
                 </strong>

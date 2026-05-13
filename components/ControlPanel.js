@@ -1,3 +1,5 @@
+[No output, as the requested changes are to be made in /Users/x.ny/projects/web/heart-town-encyclopedia/app/page.js, not in components/ControlPanel.js.]
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -108,6 +110,11 @@ export default function ControlPanel({
     borderRadius: "12px",
     background: "#fff",
     padding: "12px 14px",
+  };
+
+  const progressPercentStyle = {
+    fontSize: "12px",
+    fontWeight: 800,
   };
 
   return (
@@ -392,8 +399,24 @@ export default function ControlPanel({
               <div>
                 已擁有星星數 {ownedStars} / {totalStars}｜完成度 {collectionProgress}%
               </div>
-              <div>
-                🐟 {safeFishOwnedStars}/{fishTotalStars} {fishProgress}%｜🐞 {safeBugOwnedStars}/{bugTotalStars} {bugProgress}%｜🕊 {safeBirdOwnedStars}/{birdTotalStars} {birdProgress}%
+              <div
+                style={{
+                  display: "grid",
+                  gap: "3px",
+                }}
+              >
+                <div>
+                  🐟 {safeFishOwnedStars} / {fishTotalStars}{" "}
+                  <span style={progressPercentStyle}>{fishProgress}%</span>
+                </div>
+                <div>
+                  🐞 {safeBugOwnedStars} / {bugTotalStars}{" "}
+                  <span style={progressPercentStyle}>{bugProgress}%</span>
+                </div>
+                <div>
+                  🕊 {safeBirdOwnedStars} / {birdTotalStars}{" "}
+                  <span style={progressPercentStyle}>{birdProgress}%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -432,11 +455,11 @@ export default function ControlPanel({
                   }}
                 >
                   {latestLog.items.map((item, index) => (
-  <div
-    key={index}
-    dangerouslySetInnerHTML={{ __html: `• ${item}` }}
-  />
-))}
+                    <div
+                      key={index}
+                      dangerouslySetInnerHTML={{ __html: `• ${item}` }}
+                    />
+                  ))}
                 </div>
               </>
             ) : (

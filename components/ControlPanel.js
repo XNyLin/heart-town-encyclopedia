@@ -368,7 +368,7 @@ export default function ControlPanel({
                   <label style={labelStyle}>搜尋</label>
                   <input
                     type="text"
-                    placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
+                    placeholder="輸入生物名稱"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     style={inputStyle}
@@ -532,11 +532,10 @@ export default function ControlPanel({
                     <div
                       key={index}
                       style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        whiteSpace: "normal",
+                        overflow: "visible",
+                        textOverflow: "unset",
                       }}
-                      title={item.replace(/<[^>]+>/g, "")}
                       dangerouslySetInnerHTML={{ __html: `• ${item}` }}
                     />
                   ))}

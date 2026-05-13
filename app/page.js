@@ -308,7 +308,7 @@ export default function Home() {
               lineHeight: 1.6,
             }}
           >
-            {loading ? "資料載入中..." : ""}
+            {loading ? "資料載入中..." : "心動小鎮生物圖鑑查詢工具 · v2.0.0"}
           </p>
         </header>
 

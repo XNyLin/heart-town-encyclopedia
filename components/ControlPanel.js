@@ -96,6 +96,13 @@ export default function ControlPanel({
     height: "36px",
   };
 
+  const levelSelectStyle = {
+    ...compactSelectStyle,
+    width: "72px",
+    minWidth: "72px",
+    flex: "0 0 72px",
+  };
+
   const filterGridStyle = {
     display: "grid",
     gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
@@ -288,7 +295,7 @@ export default function ControlPanel({
                   <select
                     value={fishLevel}
                     onChange={(e) => setFishLevel(e.target.value)}
-                    style={compactSelectStyle}
+                    style={levelSelectStyle}
                   >
                     <option value="全部">全部</option>
                     {fishLevels.map((level) => (
@@ -304,7 +311,7 @@ export default function ControlPanel({
                   <select
                     value={bugLevel}
                     onChange={(e) => setBugLevel(e.target.value)}
-                    style={compactSelectStyle}
+                    style={levelSelectStyle}
                   >
                     <option value="全部">全部</option>
                     {bugLevels.map((level) => (
@@ -320,7 +327,7 @@ export default function ControlPanel({
                   <select
                     value={birdLevel}
                     onChange={(e) => setBirdLevel(e.target.value)}
-                    style={compactSelectStyle}
+                    style={levelSelectStyle}
                   >
                     <option value="全部">全部</option>
                     {birdLevels.map((level) => (
@@ -518,6 +525,12 @@ export default function ControlPanel({
                   {latestLog.items.map((item, index) => (
                     <div
                       key={index}
+                      style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                      title={item.replace(/<[^>]+>/g, "")}
                       dangerouslySetInnerHTML={{ __html: `• ${item}` }}
                     />
                   ))}

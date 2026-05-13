@@ -298,6 +298,17 @@ export default function Home() {
             }}
           >
             心動小鎮｜生物圖鑑
+            <span
+              style={{
+                marginLeft: "10px",
+                fontSize: isMobile ? "14px" : "15px",
+                fontWeight: 400,
+                color: "#666",
+                letterSpacing: 0,
+              }}
+            >
+              · v2.0.0
+            </span>
           </h1>
 
           <p
@@ -308,7 +319,7 @@ export default function Home() {
               lineHeight: 1.6,
             }}
           >
-            {loading ? "資料載入中..." : "心動小鎮生物圖鑑查詢工具 · v2.0.0"}
+            {loading ? "資料載入中..." : ""}
           </p>
         </header>
 

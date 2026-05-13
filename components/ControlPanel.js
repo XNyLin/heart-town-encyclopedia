@@ -365,7 +365,7 @@ export default function ControlPanel({
                 marginBottom: "6px",
               }}
             >
-              圖鑑搜集進度
+              圖鑑進度
             </div>
 
             <div
@@ -379,9 +379,6 @@ export default function ControlPanel({
             >
               <div>已擁有星星數 {ownedStars} / {totalStars}</div>
               <div>完成度 {collectionProgress}%</div>
-              <div style={{ color: "#888" }}>
-                魚 {fishCount} 筆 · 蟲 {bugCount} 筆 · 鳥 {birdCount} 筆
-              </div>
             </div>
           </div>
 

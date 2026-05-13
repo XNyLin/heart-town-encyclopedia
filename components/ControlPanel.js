@@ -116,10 +116,29 @@ export default function ControlPanel({
   };
 
   function getProgressColor(progress) {
-    if (progress >= 80) return "#16a34a";
-    if (progress >= 60) return "#ca8a04";
-    if (progress >= 40) return "#ea580c";
-    return "#dc2626";
+    const rainbowScale = [
+      "#7f00ff", // 0–7.6 紫
+      "#5f27ff", // 7.7–15.3 紫藍
+      "#2e86ff", // 15.4–23 藍
+      "#00b8ff", // 23.1–30.7 淺藍
+      "#00c9a7", // 30.8–38.4 青綠
+      "#00d26a", // 38.5–46.1 綠
+      "#7bdc00", // 46.2–53.8 黃綠
+      "#c7e000", // 53.9–61.5 萊姆黃
+      "#ffd600", // 61.6–69.2 黃
+      "#ffb300", // 69.3–76.9 金橘
+      "#ff8c00", // 77–84.6 橘
+      "#ff5e57", // 84.7–92.3 橘紅
+      "#ff2d55", // 92.4–100 紅
+    ];
+
+    const normalizedProgress = Math.max(0, Math.min(Number(progress) || 0, 100));
+    const index = Math.min(
+      Math.floor(normalizedProgress / (100 / rainbowScale.length)),
+      rainbowScale.length - 1
+    );
+
+    return rainbowScale[index];
   }
 
   return (

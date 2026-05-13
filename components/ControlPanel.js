@@ -154,7 +154,7 @@ export default function ControlPanel({
           display: "grid",
           gridTemplateColumns: isMobile
             ? "1fr"
-            : "minmax(0, 1.45fr) minmax(280px, 0.95fr)",
+            : "minmax(360px, 0.95fr) minmax(240px, 0.62fr) minmax(260px, 0.72fr)",
           gap: "16px",
           alignItems: "start",
         }}
@@ -474,7 +474,14 @@ export default function ControlPanel({
               </div>
             </div>
           </div>
+        </div>
 
+        <div
+          style={{
+            minWidth: 0,
+            width: "100%",
+          }}
+        >
           <div style={rightColumnCardStyle}>
             <div
               style={{

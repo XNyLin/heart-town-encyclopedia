@@ -44,6 +44,7 @@ export default function ControlPanel({
   fishLevels,
   bugLevels,
   birdLevels,
+  filteredCount,
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -346,10 +347,12 @@ export default function ControlPanel({
                 lineHeight: 1.5,
               }}
             >
-              <div>魚 {fishCount} 筆</div>
-              <div>蟲 {bugCount} 筆</div>
-              <div>鳥 {birdCount} 筆</div>
-              <div>總圖鑑 {fishCount + bugCount + birdCount} 筆</div>
+              <div>
+                🐟 {fishCount} 筆｜🐞 {bugCount} 筆｜🕊 {birdCount} 筆
+              </div>
+              <div>
+                總圖鑑 {fishCount + bugCount + birdCount} 筆｜篩選後 {filteredCount} 筆
+              </div>
             </div>
           </div>
 

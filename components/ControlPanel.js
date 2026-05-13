@@ -28,8 +28,8 @@ export default function ControlPanel({
   fishCount,
   bugCount,
   birdCount,
-  totalCount,
-  filteredCount,
+  ownedStars,
+  totalStars,
   tab,
   placeFilter,
   setPlaceFilter,
@@ -59,6 +59,7 @@ export default function ControlPanel({
   }, []);
 
   const latestLog = CHANGELOG?.[0];
+  const collectionProgress = totalStars > 0 ? Math.round((ownedStars / totalStars) * 1000) / 10 : 0;
 
   const filterItemStyle = {
     display: "flex",
@@ -345,11 +346,11 @@ export default function ControlPanel({
                 lineHeight: 1.5,
               }}
             >
-              <div>目前魚圖鑑 {fishCount} 筆</div>
-              <div>蟲圖鑑 {bugCount} 筆</div>
-              <div>鳥圖鑑 {birdCount} 筆</div>
-              <div>共 {totalCount} 筆圖鑑資料</div>
-              <div>篩選後 {filteredCount} 筆</div>
+              <div>已擁有星星數 {ownedStars} / {totalStars}</div>
+              <div>完成度 {collectionProgress}%</div>
+              <div style={{ color: "#888" }}>
+                魚 {fishCount} 筆 · 蟲 {bugCount} 筆 · 鳥 {birdCount} 筆
+              </div>
             </div>
           </div>
 

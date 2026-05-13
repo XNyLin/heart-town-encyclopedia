@@ -111,8 +111,8 @@ export default function ControlPanel({
   };
 
   const progressPercentStyle = {
-    fontSize: "12px",
-    fontWeight: 800,
+    fontSize: "11px",
+    fontWeight: 400,
   };
 
   return (
@@ -396,7 +396,8 @@ export default function ControlPanel({
               }}
             >
               <div>
-                已擁有星星數 {ownedStars} / {totalStars}｜完成度 {collectionProgress}%
+                總 ⭐️ 數 {ownedStars} / {totalStars}｜
+                <strong>完成度 {collectionProgress}%</strong>
               </div>
               <div
                 style={{

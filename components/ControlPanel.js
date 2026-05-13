@@ -63,16 +63,16 @@ export default function ControlPanel({
   }, []);
 
   const latestLog = CHANGELOG?.[0];
-  const collectionProgress = totalStars > 0 ? Math.round((ownedStars / totalStars) * 1000) / 10 : 0;
+  const collectionProgress = totalStars > 0 ? Math.round((ownedStars / totalStars) * 100) : 0;
   const fishTotalStars = fishCount * 5;
   const bugTotalStars = bugCount * 5;
   const birdTotalStars = birdCount * 5;
   const safeFishOwnedStars = Number(fishOwnedStars || 0);
   const safeBugOwnedStars = Number(bugOwnedStars || 0);
   const safeBirdOwnedStars = Number(birdOwnedStars || 0);
-  const fishProgress = fishTotalStars > 0 ? Math.round((safeFishOwnedStars / fishTotalStars) * 1000) / 10 : 0;
-  const bugProgress = bugTotalStars > 0 ? Math.round((safeBugOwnedStars / bugTotalStars) * 1000) / 10 : 0;
-  const birdProgress = birdTotalStars > 0 ? Math.round((safeBirdOwnedStars / birdTotalStars) * 1000) / 10 : 0;
+  const fishProgress = fishTotalStars > 0 ? Math.round((safeFishOwnedStars / fishTotalStars) * 100) : 0;
+  const bugProgress = bugTotalStars > 0 ? Math.round((safeBugOwnedStars / bugTotalStars) * 100) : 0;
+  const birdProgress = birdTotalStars > 0 ? Math.round((safeBirdOwnedStars / birdTotalStars) * 100) : 0;
 
   const filterItemStyle = {
     display: "flex",

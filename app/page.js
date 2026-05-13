@@ -308,9 +308,7 @@ export default function Home() {
               lineHeight: 1.6,
             }}
           >
-            {loading
-              ? "資料載入中..."
-              : `目前魚圖鑑 ${fishCount} 筆、蟲圖鑑 ${bugCount} 筆、鳥圖鑑 ${birdCount} 筆，共 ${rows.length} 筆圖鑑資料，篩選後 ${filteredRows.length} 筆`}
+            {loading ? "資料載入中..." : ""}
           </p>
         </header>
 
@@ -389,7 +387,11 @@ export default function Home() {
               fishCount={fishCount}
               bugCount={bugCount}
               birdCount={birdCount}
-              totalCount={rows.length}
+              ownedStars={rows.reduce(
+                (sum, row) => sum + Number(starRecords[row._name] ?? 0),
+                0
+              )}
+              totalStars={rows.length * 5}
               filteredCount={filteredRows.length}
               tab={tab}
               placeFilter={placeFilter}

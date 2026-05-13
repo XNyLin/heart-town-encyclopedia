@@ -334,6 +334,34 @@ export default function ControlPanel({
                 marginBottom: "6px",
               }}
             >
+              圖鑑筆數
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: "4px",
+                fontSize: "13px",
+                color: "#555",
+                lineHeight: 1.5,
+              }}
+            >
+              <div>魚 {fishCount} 筆</div>
+              <div>蟲 {bugCount} 筆</div>
+              <div>鳥 {birdCount} 筆</div>
+              <div>總圖鑑 {fishCount + bugCount + birdCount} 筆</div>
+            </div>
+          </div>
+
+          <div style={rightColumnCardStyle}>
+            <div
+              style={{
+                fontSize: "13px",
+                fontWeight: 700,
+                color: "#111",
+                marginBottom: "6px",
+              }}
+            >
               圖鑑搜集進度
             </div>
 

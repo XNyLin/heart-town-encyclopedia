@@ -28,6 +28,9 @@ export default function ControlPanel({
   fishCount,
   bugCount,
   birdCount,
+  fishOwnedStars,
+  bugOwnedStars,
+  birdOwnedStars,
   ownedStars,
   totalStars,
   tab,
@@ -61,6 +64,12 @@ export default function ControlPanel({
 
   const latestLog = CHANGELOG?.[0];
   const collectionProgress = totalStars > 0 ? Math.round((ownedStars / totalStars) * 1000) / 10 : 0;
+  const fishTotalStars = fishCount * 5;
+  const bugTotalStars = bugCount * 5;
+  const birdTotalStars = birdCount * 5;
+  const fishProgress = fishTotalStars > 0 ? Math.round((fishOwnedStars / fishTotalStars) * 1000) / 10 : 0;
+  const bugProgress = bugTotalStars > 0 ? Math.round((bugOwnedStars / bugTotalStars) * 1000) / 10 : 0;
+  const birdProgress = birdTotalStars > 0 ? Math.round((birdOwnedStars / birdTotalStars) * 1000) / 10 : 0;
 
   const filterItemStyle = {
     display: "flex",
@@ -377,8 +386,12 @@ export default function ControlPanel({
                 lineHeight: 1.5,
               }}
             >
-              <div>已擁有星星數 {ownedStars} / {totalStars}</div>
-              <div>完成度 {collectionProgress}%</div>
+              <div>
+                已擁有星星數 {ownedStars} / {totalStars}｜完成度 {collectionProgress}%
+              </div>
+              <div>
+                🐟 {fishOwnedStars}/{fishTotalStars} {fishProgress}%｜🐞 {bugOwnedStars}/{bugTotalStars} {bugProgress}%｜🕊 {birdOwnedStars}/{birdTotalStars} {birdProgress}%
+              </div>
             </div>
           </div>
 

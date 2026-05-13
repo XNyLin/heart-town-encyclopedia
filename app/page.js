@@ -387,6 +387,15 @@ export default function Home() {
               fishCount={fishCount}
               bugCount={bugCount}
               birdCount={birdCount}
+              fishOwnedStars={rows
+                .filter((row) => row._type === "魚")
+                .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
+              bugOwnedStars={rows
+                .filter((row) => row._type === "蟲")
+                .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
+              birdOwnedStars={rows
+                .filter((row) => row._type === "鳥")
+                .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
               ownedStars={rows.reduce(
                 (sum, row) => sum + Number(starRecords[row._name] ?? 0),
                 0

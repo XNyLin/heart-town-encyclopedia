@@ -98,7 +98,7 @@ export default function ControlPanel({
 
   const filterGridStyle = {
     display: "grid",
-    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
     gap: "12px",
     alignItems: "center",
   };
@@ -176,13 +176,37 @@ export default function ControlPanel({
           >
             <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
 
-            <InfoPill label="目前時段" value={effectivePeriodName}>
+            <InfoPill label="目前時段" value={autoPeriod ? effectivePeriodName : ""}>
+              {!autoPeriod && (
+                <select
+                  value={manualPeriod}
+                  onChange={(e) => setManualPeriod(e.target.value)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: "#333",
+                    outline: "none",
+                    padding: 0,
+                    marginLeft: "2px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="全部">全部</option>
+                  <option value="1">清晨</option>
+                  <option value="2">上午</option>
+                  <option value="3">下午</option>
+                  <option value="4">晚上</option>
+                </select>
+              )}
+
               <div
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "6px",
-                  marginLeft: "4px",
+                  marginLeft: "8px",
                   whiteSpace: "nowrap",
                   fontSize: "12px",
                   color: "#444",
@@ -239,25 +263,6 @@ export default function ControlPanel({
               </select>
             </div>
 
-            <div style={filterItemStyle}>
-              <span style={filterLabelStyle}>時段</span>
-              <select
-                value={manualPeriod}
-                onChange={(e) => setManualPeriod(e.target.value)}
-                style={{
-                  ...compactSelectStyle,
-                  opacity: autoPeriod ? 0.5 : 1,
-                  cursor: autoPeriod ? "not-allowed" : "pointer",
-                }}
-                disabled={autoPeriod}
-              >
-                <option value="全部">全部</option>
-                <option value="1">清晨</option>
-                <option value="2">上午</option>
-                <option value="3">下午</option>
-                <option value="4">晚上</option>
-              </select>
-            </div>
           </div>
 
           <div>

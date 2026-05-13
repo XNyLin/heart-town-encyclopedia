@@ -368,7 +368,8 @@ export default function ControlPanel({
                 🐟 {fishCount} 筆｜🐞 {bugCount} 筆｜🕊 {birdCount} 筆
               </div>
               <div>
-                總圖鑑 {fishCount + bugCount + birdCount} 筆｜篩選後 {filteredCount} 筆
+                總圖鑑 {fishCount + bugCount + birdCount} 筆｜
+                <strong>篩選後 {filteredCount} 筆</strong>
               </div>
             </div>
           </div>
@@ -404,16 +405,16 @@ export default function ControlPanel({
                 }}
               >
                 <div>
-                  🐟 {safeFishOwnedStars} / {fishTotalStars}{" "}
-                  <span style={progressPercentStyle}>{fishProgress}%</span>
+                  🐟 {safeFishOwnedStars} / {fishTotalStars}｜
+                  <span style={progressPercentStyle}>完成度 {fishProgress}%</span>
                 </div>
                 <div>
-                  🐞 {safeBugOwnedStars} / {bugTotalStars}{" "}
-                  <span style={progressPercentStyle}>{bugProgress}%</span>
+                  🐞 {safeBugOwnedStars} / {bugTotalStars}｜
+                  <span style={progressPercentStyle}>完成度 {bugProgress}%</span>
                 </div>
                 <div>
-                  🕊 {safeBirdOwnedStars} / {birdTotalStars}{" "}
-                  <span style={progressPercentStyle}>{birdProgress}%</span>
+                  🕊 {safeBirdOwnedStars} / {birdTotalStars}｜
+                  <span style={progressPercentStyle}>完成度 {birdProgress}%</span>
                 </div>
               </div>
             </div>

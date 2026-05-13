@@ -453,7 +453,8 @@ export default function BioTable({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            tableLayout: "fixed",
+            tableLayout: "auto",
+            minWidth: "980px",
           }}
         >
           <thead>
@@ -487,10 +488,10 @@ export default function BioTable({
               </th>
 
               <th style={{ ...mobileThStyle, width: "120px" }}>名稱</th>
-              <th style={{ ...mobileThStyle, width: "80px" }}>天氣</th>
-              <th style={{ ...mobileThStyle, width: "90px" }}>時段</th>
-              <th style={{ ...mobileThStyle, width: "96px" }}>地點</th>
-              <th style={{ ...mobileThStyle, width: "96px" }}>
+              <th style={{ ...mobileThStyle, width: "76px" }}>天氣</th>
+              <th style={{ ...mobileThStyle, width: "118px" }}>時段</th>
+              <th style={{ ...mobileThStyle, width: "112px" }}>地點</th>
+              <th style={{ ...mobileThStyle, width: "128px" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -510,7 +511,7 @@ export default function BioTable({
                   隱藏滿星
                 </label>
               </th>
-              <th style={mobileThStyle}>Note</th>
+              <th style={{ ...mobileThStyle, width: "220px" }}>Note</th>
             </tr>
           </thead>
 
@@ -631,7 +632,10 @@ export default function BioTable({
                     <td
                       style={{
                         ...mobileTdStyle,
+                        minWidth: "220px",
                         whiteSpace: "pre-line",
+                        wordBreak: "keep-all",
+                        overflowWrap: "normal",
                         overflow: "visible",
                         textOverflow: "unset",
                         lineHeight: 1.5,

@@ -7,6 +7,7 @@ import DogGallery from "@/components/DogGallery";
 import ControlPanel from "@/components/ControlPanel";
 import BioTable from "@/components/BioTable";
 import SourceBlock from "@/components/SourceBlock";
+import { CHANGELOG } from "@/lib/changelog";
 
 import {
   parseCSV,
@@ -161,6 +162,7 @@ export default function Home() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const latestVersion = CHANGELOG?.[0]?.version ?? "v0.0.0";
   const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
 
   const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
@@ -307,7 +309,7 @@ export default function Home() {
                 letterSpacing: 0,
               }}
             >
-              · v2.0.0
+              · {latestVersion}
             </span>
           </h1>
 

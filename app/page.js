@@ -43,6 +43,19 @@ const PLACE_GROUPS = {
   湖泊: ["城郊湖", "草原湖", "森林湖", "溫泉山湖"],
 };
 
+const FILTER_SETTINGS_STORAGE_KEY = "heartTownFilterSettings";
+
+const DEFAULT_FILTER_SETTINGS = {
+  weatherFilter: "全部",
+  fishLevel: "全部",
+  bugLevel: "全部",
+  birdLevel: "全部",
+};
+
+function getValidStoredValue(value, fallback) {
+  return typeof value === "string" && value !== "" ? value : fallback;
+}
+
 function getPlaceFilterTargets(placeFilter) {
   if (!placeFilter) return null;
 
@@ -65,6 +78,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [starRecords, setStarRecords] = useState({});
   const [starRecordsReady, setStarRecordsReady] = useState(false);
+  const [filterSettingsReady, setFilterSettingsReady] = useState(false);
   const [hideFullStars, setHideFullStars] = useState(false);
 
   const [keyword, setKeyword] = useState("");
@@ -113,6 +127,51 @@ export default function Home() {
       console.error("儲存星數紀錄失敗:", error);
     }
   }, [starRecords, starRecordsReady]);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(FILTER_SETTINGS_STORAGE_KEY);
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+
+        setWeatherFilter(
+          getValidStoredValue(parsed.weatherFilter, DEFAULT_FILTER_SETTINGS.weatherFilter)
+        );
+        setFishLevel(
+          getValidStoredValue(parsed.fishLevel, DEFAULT_FILTER_SETTINGS.fishLevel)
+        );
+        setBugLevel(
+          getValidStoredValue(parsed.bugLevel, DEFAULT_FILTER_SETTINGS.bugLevel)
+        );
+        setBirdLevel(
+          getValidStoredValue(parsed.birdLevel, DEFAULT_FILTER_SETTINGS.birdLevel)
+        );
+      }
+    } catch (error) {
+      console.error("讀取篩選設定失敗:", error);
+    } finally {
+      setFilterSettingsReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!filterSettingsReady) return;
+
+    try {
+      window.localStorage.setItem(
+        FILTER_SETTINGS_STORAGE_KEY,
+        JSON.stringify({
+          weatherFilter,
+          fishLevel,
+          bugLevel,
+          birdLevel,
+        })
+      );
+    } catch (error) {
+      console.error("儲存篩選設定失敗:", error);
+    }
+  }, [weatherFilter, fishLevel, bugLevel, birdLevel, filterSettingsReady]);
 
   useEffect(() => {
     async function loadData() {

@@ -37,7 +37,28 @@ const TAB_LABELS = {
   狗: "🐶 狗",
 };
 
-const RIVER_PLACES = ["河流", "↘ 巨木河", "↗ 淺水河", "↖ 霞光河", "↙ 靜河"];
+const PLACE_GROUPS = {
+  河流: ["↘ 巨木河", "↗ 淺水河", "↖ 霞光河", "↙ 靜河"],
+  海洋: ["東海", "舊海", "緩風海", "鯨魚海"],
+  湖泊: ["城郊湖", "草原湖", "森林湖", "溫泉山湖"],
+};
+
+function getPlaceFilterTargets(placeFilter) {
+  if (!placeFilter) return null;
+
+  const groupEntry = Object.entries(PLACE_GROUPS).find(
+    ([basePlace, subPlaces]) =>
+      basePlace === placeFilter || subPlaces.includes(placeFilter)
+  );
+
+  if (!groupEntry) return [placeFilter];
+
+  const [basePlace, subPlaces] = groupEntry;
+
+  return basePlace === placeFilter
+    ? [basePlace, ...subPlaces]
+    : [basePlace, placeFilter];
+}
 
 export default function Home() {
   const [rows, setRows] = useState([]);
@@ -225,10 +246,9 @@ export default function Home() {
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
-      const matchPlace = placeFilter
-        ? RIVER_PLACES.includes(placeFilter)
-          ? RIVER_PLACES.includes(rowPlace)
-          : rowPlace === placeFilter
+      const placeFilterTargets = getPlaceFilterTargets(placeFilter);
+      const matchPlace = placeFilterTargets
+        ? placeFilterTargets.includes(rowPlace)
         : true;
 
       const matchFullStar = hideFullStars

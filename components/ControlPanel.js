@@ -25,6 +25,11 @@ export default function ControlPanel({
   setAreaFilter,
   keyword,
   setKeyword,
+  fishCount,
+  bugCount,
+  birdCount,
+  totalCount,
+  filteredCount,
   tab,
   placeFilter,
   setPlaceFilter,
@@ -41,6 +46,7 @@ export default function ControlPanel({
   birdLevels,
 }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     function handleResize() {
@@ -276,6 +282,37 @@ export default function ControlPanel({
                 </div>
               </div>
             )}
+
+            <div style={{ marginTop: "12px" }}>
+              <button
+                type="button"
+                onClick={() => setShowSearch((value) => !value)}
+                style={{
+                  ...miniChipStyle,
+                  height: "36px",
+                }}
+              >
+                搜尋 {showSearch ? "-" : "+"}
+              </button>
+
+              {showSearch && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    maxWidth: "360px",
+                  }}
+                >
+                  <label style={labelStyle}>搜尋</label>
+                  <input
+                    type="text"
+                    placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -287,6 +324,35 @@ export default function ControlPanel({
             gap: "12px",
           }}
         >
+          <div style={rightColumnCardStyle}>
+            <div
+              style={{
+                fontSize: "13px",
+                fontWeight: 700,
+                color: "#111",
+                marginBottom: "6px",
+              }}
+            >
+              圖鑑搜集進度
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: "4px",
+                fontSize: "13px",
+                color: "#555",
+                lineHeight: 1.5,
+              }}
+            >
+              <div>目前魚圖鑑 {fishCount} 筆</div>
+              <div>蟲圖鑑 {bugCount} 筆</div>
+              <div>鳥圖鑑 {birdCount} 筆</div>
+              <div>共 {totalCount} 筆圖鑑資料</div>
+              <div>篩選後 {filteredCount} 筆</div>
+            </div>
+          </div>
+
           <div style={rightColumnCardStyle}>
             <div
               style={{
@@ -338,17 +404,6 @@ export default function ControlPanel({
                 尚無更新紀錄
               </div>
             )}
-          </div>
-
-          <div>
-            <label style={labelStyle}>搜尋</label>
-            <input
-              type="text"
-              placeholder={tab === "全部" ? "輸入生物名稱" : `輸入${tab}名稱`}
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              style={inputStyle}
-            />
           </div>
         </div>
       </div>

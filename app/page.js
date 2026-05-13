@@ -386,6 +386,11 @@ export default function Home() {
               setAreaFilter={setAreaFilter}
               keyword={keyword}
               setKeyword={setKeyword}
+              fishCount={fishCount}
+              bugCount={bugCount}
+              birdCount={birdCount}
+              totalCount={rows.length}
+              filteredCount={filteredRows.length}
               tab={tab}
               placeFilter={placeFilter}
               setPlaceFilter={setPlaceFilter}

@@ -453,17 +453,16 @@ export default function BioTable({
           style={{
             width: "100%",
             borderCollapse: "collapse",
-            tableLayout: "auto",
-            minWidth: "980px",
+            tableLayout: "fixed",
           }}
         >
           <thead>
             <tr>
-              <th style={{ ...mobileThStyle, width: "36px", textAlign: "center" }}>
+              <th style={{ ...mobileThStyle, width: "34px", textAlign: "center" }}>
                 類型
               </th>
 
-              <th style={{ ...mobileThStyle, width: "60px", textAlign: "center" }}>
+              <th style={{ ...mobileThStyle, width: "54px", textAlign: "center" }}>
                 <div
                   style={{
                     display: "flex",
@@ -487,11 +486,11 @@ export default function BioTable({
                 </div>
               </th>
 
-              <th style={{ ...mobileThStyle, width: "120px" }}>名稱</th>
-              <th style={{ ...mobileThStyle, width: "76px" }}>天氣</th>
-              <th style={{ ...mobileThStyle, width: "118px" }}>時段</th>
-              <th style={{ ...mobileThStyle, width: "112px" }}>地點</th>
-              <th style={{ ...mobileThStyle, width: "128px" }}>
+              <th style={{ ...mobileThStyle, width: "122px" }}>名稱</th>
+              <th style={{ ...mobileThStyle, width: "70px" }}>天氣</th>
+              <th style={{ ...mobileThStyle, width: "116px" }}>時段</th>
+              <th style={{ ...mobileThStyle, width: "118px" }}>地點</th>
+              <th style={{ ...mobileThStyle, width: "126px" }}>
                 <label
                   style={{
                     display: "inline-flex",
@@ -511,7 +510,7 @@ export default function BioTable({
                   隱藏滿星
                 </label>
               </th>
-              <th style={{ ...mobileThStyle, width: "220px" }}>Note</th>
+              <th style={{ ...mobileThStyle }}>Note</th>
             </tr>
           </thead>
 
@@ -632,13 +631,13 @@ export default function BioTable({
                     <td
                       style={{
                         ...mobileTdStyle,
-                        minWidth: "220px",
                         whiteSpace: "pre-line",
-                        wordBreak: "keep-all",
-                        overflowWrap: "normal",
+                        wordBreak: "normal",
+                        overflowWrap: "break-word",
                         overflow: "visible",
                         textOverflow: "unset",
                         lineHeight: 1.5,
+                        fontSize: "11.5px",
                         background: rowBackground,
                       }}
                     >

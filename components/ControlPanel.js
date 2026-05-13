@@ -110,6 +110,12 @@ export default function ControlPanel({
     alignItems: "center",
   };
 
+  const levelGridStyle = {
+    ...filterGridStyle,
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, max-content)",
+    columnGap: "18px",
+  };
+
   const rightColumnCardStyle = {
     border: "1px solid #e5e7eb",
     borderRadius: "12px",
@@ -286,7 +292,7 @@ export default function ControlPanel({
             {showAdvanced && (
               <div
                 style={{
-                  ...filterGridStyle,
+                  ...levelGridStyle,
                   marginTop: "8px",
                 }}
               >

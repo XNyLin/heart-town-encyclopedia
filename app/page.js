@@ -37,6 +37,8 @@ const TAB_LABELS = {
   狗: "🐶 狗",
 };
 
+const RIVER_PLACES = ["河流", "↘ 巨木河", "↗ 淺水河", "↖ 霞光河", "↙ 靜河"];
+
 export default function Home() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -223,7 +225,11 @@ export default function Home() {
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
-      const matchPlace = placeFilter ? rowPlace === placeFilter : true;
+      const matchPlace = placeFilter
+        ? RIVER_PLACES.includes(placeFilter)
+          ? RIVER_PLACES.includes(rowPlace)
+          : rowPlace === placeFilter
+        : true;
 
       const matchFullStar = hideFullStars
         ? Number(starRecords[rowName] ?? 0) !== 5

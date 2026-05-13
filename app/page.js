@@ -58,7 +58,7 @@ function getValidStoredValue(value, fallback) {
 
 function normalizePlaceName(value) {
   return String(value || "")
-    .replace(/^[↖↗↘↙⬆⬇⬅⮕↔↕\s]+/, "")
+    .replace(/^[^\u4e00-\u9fff]+/u, "")
     .trim();
 }
 

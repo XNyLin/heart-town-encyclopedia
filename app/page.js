@@ -38,7 +38,7 @@ const TAB_LABELS = {
 };
 
 const PLACE_GROUPS = {
-  河流: ["↘ 巨木河", "↗ 淺水河", "↖ 霞光河", "↙ 靜河"],
+  河流: ["巨木河", "淺水河", "霞光河", "靜河"],
   海洋: ["東海", "舊海", "緩風海", "鯨魚海"],
   湖泊: ["城郊湖", "草原湖", "森林湖", "溫泉山湖"],
 };
@@ -56,21 +56,29 @@ function getValidStoredValue(value, fallback) {
   return typeof value === "string" && value !== "" ? value : fallback;
 }
 
+function normalizePlaceName(value) {
+  return String(value || "")
+    .replace(/^[↖↗↘↙⬆⬇⬅⮕↔↕\s]+/, "")
+    .trim();
+}
+
 function getPlaceFilterTargets(placeFilter) {
   if (!placeFilter) return null;
 
+  const normalizedPlaceFilter = normalizePlaceName(placeFilter);
+
   const groupEntry = Object.entries(PLACE_GROUPS).find(
     ([basePlace, subPlaces]) =>
-      basePlace === placeFilter || subPlaces.includes(placeFilter)
+      basePlace === normalizedPlaceFilter || subPlaces.includes(normalizedPlaceFilter)
   );
 
-  if (!groupEntry) return [placeFilter];
+  if (!groupEntry) return [normalizedPlaceFilter];
 
   const [basePlace, subPlaces] = groupEntry;
 
-  return basePlace === placeFilter
+  return basePlace === normalizedPlaceFilter
     ? [basePlace, ...subPlaces]
-    : [basePlace, placeFilter];
+    : [basePlace, normalizedPlaceFilter];
 }
 
 export default function Home() {
@@ -204,6 +212,7 @@ export default function Home() {
               _period: period,
               _area: area,
               _place: place,
+              _normalizedPlace: normalizePlaceName(place),
               _note: note,
             };
           });
@@ -289,6 +298,7 @@ export default function Home() {
       const rowPeriod = row._period;
       const rowArea = row._area;
       const rowPlace = row._place;
+      const rowNormalizedPlace = row._normalizedPlace;
       const rowNote = row._note;
 
       const matchKeyword = debouncedKeyword.trim()
@@ -307,7 +317,7 @@ export default function Home() {
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
       const placeFilterTargets = getPlaceFilterTargets(placeFilter);
       const matchPlace = placeFilterTargets
-        ? placeFilterTargets.includes(rowPlace)
+        ? placeFilterTargets.includes(rowNormalizedPlace)
         : true;
 
       const matchFullStar = hideFullStars

@@ -67,9 +67,12 @@ export default function ControlPanel({
   const fishTotalStars = fishCount * 5;
   const bugTotalStars = bugCount * 5;
   const birdTotalStars = birdCount * 5;
-  const fishProgress = fishTotalStars > 0 ? Math.round((fishOwnedStars / fishTotalStars) * 1000) / 10 : 0;
-  const bugProgress = bugTotalStars > 0 ? Math.round((bugOwnedStars / bugTotalStars) * 1000) / 10 : 0;
-  const birdProgress = birdTotalStars > 0 ? Math.round((birdOwnedStars / birdTotalStars) * 1000) / 10 : 0;
+  const safeFishOwnedStars = Number(fishOwnedStars || 0);
+  const safeBugOwnedStars = Number(bugOwnedStars || 0);
+  const safeBirdOwnedStars = Number(birdOwnedStars || 0);
+  const fishProgress = fishTotalStars > 0 ? Math.round((safeFishOwnedStars / fishTotalStars) * 1000) / 10 : 0;
+  const bugProgress = bugTotalStars > 0 ? Math.round((safeBugOwnedStars / bugTotalStars) * 1000) / 10 : 0;
+  const birdProgress = birdTotalStars > 0 ? Math.round((safeBirdOwnedStars / birdTotalStars) * 1000) / 10 : 0;
 
   const filterItemStyle = {
     display: "flex",
@@ -390,7 +393,7 @@ export default function ControlPanel({
                 已擁有星星數 {ownedStars} / {totalStars}｜完成度 {collectionProgress}%
               </div>
               <div>
-                🐟 {fishOwnedStars}/{fishTotalStars} {fishProgress}%｜🐞 {bugOwnedStars}/{bugTotalStars} {bugProgress}%｜🕊 {birdOwnedStars}/{birdTotalStars} {birdProgress}%
+                🐟 {safeFishOwnedStars}/{fishTotalStars} {fishProgress}%｜🐞 {safeBugOwnedStars}/{bugTotalStars} {bugProgress}%｜🕊 {safeBirdOwnedStars}/{birdTotalStars} {birdProgress}%
               </div>
             </div>
           </div>

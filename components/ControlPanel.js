@@ -56,6 +56,7 @@ export default function ControlPanel({
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showOlderLogs, setShowOlderLogs] = useState(false);
 
   useEffect(() => {
     function handleResize() {
@@ -68,6 +69,7 @@ export default function ControlPanel({
   }, []);
 
   const latestLog = CHANGELOG?.[0];
+  const olderLogs = CHANGELOG?.slice(1) ?? [];
   const collectionProgress = totalStars > 0 ? Math.round((ownedStars / totalStars) * 100) : 0;
   const fishTotalStars = fishCount * 5;
   const bugTotalStars = bugCount * 5;
@@ -162,6 +164,44 @@ export default function ControlPanel({
     );
 
     return rainbowScale[index];
+  }
+
+  function renderLog(log) {
+    return (
+      <div key={`${log.date}-${log.version || ""}`}>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#888",
+            marginBottom: "8px",
+          }}
+        >
+          {log.version ? `${log.date} · ${log.version}` : log.date}
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gap: "4px",
+            fontSize: "13px",
+            color: "#555",
+            lineHeight: 1.5,
+          }}
+        >
+          {log.items.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                whiteSpace: "normal",
+                overflow: "visible",
+                textOverflow: "unset",
+              }}
+              dangerouslySetInnerHTML={{ __html: `• ${item}` }}
+            />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -273,13 +313,11 @@ export default function ControlPanel({
                 onChange={(e) => setAreaFilter(e.target.value)}
                 style={compactSelectStyle}
               >
-                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map(
-                  (item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  )
-                )}
+                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -537,37 +575,39 @@ export default function ControlPanel({
 
             {latestLog ? (
               <>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#888",
-                    marginBottom: "8px",
-                  }}
-                >
-                  {latestLog.version ? `${latestLog.date} · ${latestLog.version}` : latestLog.date}
-                </div>
+                {renderLog(latestLog)}
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: "4px",
-                    fontSize: "13px",
-                    color: "#555",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {latestLog.items.map((item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        whiteSpace: "normal",
-                        overflow: "visible",
-                        textOverflow: "unset",
-                      }}
-                      dangerouslySetInnerHTML={{ __html: `• ${item}` }}
-                    />
-                  ))}
-                </div>
+                {showOlderLogs && olderLogs.length > 0 && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: "12px",
+                      marginTop: "12px",
+                      paddingTop: "12px",
+                      borderTop: "1px solid #eee",
+                    }}
+                  >
+                    {olderLogs.map(renderLog)}
+                  </div>
+                )}
+
+                {olderLogs.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowOlderLogs((value) => !value)}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      padding: "8px 0 0",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#555",
+                      cursor: "pointer",
+                    }}
+                  >
+                    More {showOlderLogs ? "-" : "+"}
+                  </button>
+                )}
               </>
             ) : (
               <div style={{ fontSize: "13px", color: "#888" }}>

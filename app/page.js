@@ -48,6 +48,7 @@ const FILTER_SETTINGS_STORAGE_KEY = "heartTownFilterSettings";
 
 const DEFAULT_FILTER_SETTINGS = {
   weatherFilter: "全部",
+  seasonFilter: "全部",
   fishLevel: "全部",
   bugLevel: "全部",
   birdLevel: "全部",
@@ -68,7 +69,6 @@ function getPlaceFilterTargets(placeFilter) {
   if (!placeFilter) return null;
 
   const normalizedPlaceFilter = normalizePlaceName(placeFilter);
-
   const groupEntry = Object.entries(PLACE_GROUPS).find(
     ([basePlace, subPlaces]) =>
       basePlace === normalizedPlaceFilter || subPlaces.includes(normalizedPlaceFilter)
@@ -77,7 +77,6 @@ function getPlaceFilterTargets(placeFilter) {
   if (!groupEntry) return [normalizedPlaceFilter];
 
   const [basePlace, subPlaces] = groupEntry;
-
   return basePlace === normalizedPlaceFilter
     ? [basePlace, ...subPlaces]
     : [basePlace, normalizedPlaceFilter];
@@ -94,6 +93,7 @@ export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [debouncedKeyword, setDebouncedKeyword] = useState("");
   const [weatherFilter, setWeatherFilter] = useState("全部");
+  const [seasonFilter, setSeasonFilter] = useState("全部");
   const [areaFilter, setAreaFilter] = useState("全部");
   const [placeFilter, setPlaceFilter] = useState("");
 
@@ -105,11 +105,9 @@ export default function Home() {
 
   const [tab, setTab] = useState("全部");
   const [levelSort, setLevelSort] = useState("none");
-
   const [now, setNow] = useState(new Date());
   const [autoPeriod, setAutoPeriod] = useState(true);
   const [manualPeriod, setManualPeriod] = useState("全部");
-
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -125,12 +123,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!starRecordsReady) return;
-
     try {
-      window.localStorage.setItem(
-        "heartTownStarRecords",
-        JSON.stringify(starRecords)
-      );
+      window.localStorage.setItem("heartTownStarRecords", JSON.stringify(starRecords));
     } catch (error) {
       console.error("儲存星數紀錄失敗:", error);
     }
@@ -139,12 +133,13 @@ export default function Home() {
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(FILTER_SETTINGS_STORAGE_KEY);
-
       if (saved) {
         const parsed = JSON.parse(saved);
-
         setWeatherFilter(
           getValidStoredValue(parsed.weatherFilter, DEFAULT_FILTER_SETTINGS.weatherFilter)
+        );
+        setSeasonFilter(
+          getValidStoredValue(parsed.seasonFilter, DEFAULT_FILTER_SETTINGS.seasonFilter)
         );
         setFishLevel(
           getValidStoredValue(parsed.fishLevel, DEFAULT_FILTER_SETTINGS.fishLevel)
@@ -168,12 +163,12 @@ export default function Home() {
 
   useEffect(() => {
     if (!filterSettingsReady) return;
-
     try {
       window.localStorage.setItem(
         FILTER_SETTINGS_STORAGE_KEY,
         JSON.stringify({
           weatherFilter,
+          seasonFilter,
           fishLevel,
           bugLevel,
           birdLevel,
@@ -185,6 +180,7 @@ export default function Home() {
     }
   }, [
     weatherFilter,
+    seasonFilter,
     fishLevel,
     bugLevel,
     birdLevel,
@@ -213,6 +209,7 @@ export default function Home() {
             const area = getField(row, ["地區"]);
             const place = getField(row, ["地點"]);
             const note = getField(row, ["Note", "備註"]);
+            const season = getField(row, ["季節"]);
 
             return {
               ...row,
@@ -226,6 +223,7 @@ export default function Home() {
               _place: place,
               _normalizedPlace: normalizePlaceName(place),
               _note: note,
+              _season: season,
             };
           });
 
@@ -254,7 +252,6 @@ export default function Home() {
     function handleResize() {
       setIsMobile(window.innerWidth <= 768);
     }
-
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -271,22 +268,10 @@ export default function Home() {
   const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
   const shellLevels = useMemo(() => getUniqueSortedLevels(rows, "貝"), [rows]);
 
-  const fishCount = useMemo(
-    () => rows.filter((row) => row._type === "魚").length,
-    [rows]
-  );
-  const bugCount = useMemo(
-    () => rows.filter((row) => row._type === "蟲").length,
-    [rows]
-  );
-  const birdCount = useMemo(
-    () => rows.filter((row) => row._type === "鳥").length,
-    [rows]
-  );
-  const shellCount = useMemo(
-    () => rows.filter((row) => row._type === "貝").length,
-    [rows]
-  );
+  const fishCount = useMemo(() => rows.filter((row) => row._type === "魚").length, [rows]);
+  const bugCount = useMemo(() => rows.filter((row) => row._type === "蟲").length, [rows]);
+  const birdCount = useMemo(() => rows.filter((row) => row._type === "鳥").length, [rows]);
+  const shellCount = useMemo(() => rows.filter((row) => row._type === "貝").length, [rows]);
 
   function setStarRecord(name, star) {
     if (!name) return;
@@ -304,19 +289,15 @@ export default function Home() {
       const rowPlace = row._place;
       const rowNormalizedPlace = row._normalizedPlace;
       const rowNote = row._note;
+      const rowSeason = row._season;
 
       const matchKeyword = debouncedKeyword.trim()
         ? row._nameLower.includes(debouncedKeyword.trim().toLowerCase())
         : true;
-
       const matchTab =
-        tab === "全部"
-          ? true
-          : tab === "貓" || tab === "狗"
-          ? false
-          : rowType === tab;
-
+        tab === "全部" ? true : tab === "貓" || tab === "狗" ? false : rowType === tab;
       const matchWeather = matchesWeather(rowWeather, weatherFilter);
+      const matchSeason = seasonFilter === "全部" ? true : rowSeason === seasonFilter;
       const matchArea = matchesArea(rowArea, areaFilter);
       const matchPeriod = matchesPeriod(rowPeriod, effectivePeriod);
       const placeFilterTargets = getPlaceFilterTargets(placeFilter);
@@ -344,6 +325,7 @@ export default function Home() {
         matchKeyword &&
         matchTab &&
         matchWeather &&
+        matchSeason &&
         matchArea &&
         matchPeriod &&
         matchPlace &&
@@ -359,6 +341,7 @@ export default function Home() {
     rows,
     debouncedKeyword,
     weatherFilter,
+    seasonFilter,
     areaFilter,
     placeFilter,
     fishLevel,
@@ -407,7 +390,6 @@ export default function Home() {
               · {latestVersion}
             </span>
           </h1>
-
           <p
             style={{
               margin: 0,
@@ -432,15 +414,10 @@ export default function Home() {
             {TOP_TABS.map((type, index) => {
               const active = tab === type;
               const showDivider = !isMobile && TOP_TABS[index] === "貝";
-
               return (
                 <div
                   key={type}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
                 >
                   <button
                     onClick={() => setTab(type)}
@@ -453,7 +430,6 @@ export default function Home() {
                   >
                     {TAB_LABELS[type]}
                   </button>
-
                   {showDivider && (
                     <span style={{ color: "#bbb", fontSize: "18px", fontWeight: 600 }}>
                       ｜
@@ -480,6 +456,8 @@ export default function Home() {
               setManualPeriod={setManualPeriod}
               weatherFilter={weatherFilter}
               setWeatherFilter={setWeatherFilter}
+              seasonFilter={seasonFilter}
+              setSeasonFilter={setSeasonFilter}
               areaFilter={areaFilter}
               setAreaFilter={setAreaFilter}
               keyword={keyword}
@@ -555,11 +533,7 @@ export default function Home() {
             href="https://XNy.tw"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              color: "#111",
-              fontWeight: 700,
-              textDecoration: "none",
-            }}
+            style={{ color: "#111", fontWeight: 700, textDecoration: "none" }}
           >
             X.Ny
           </a>

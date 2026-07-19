@@ -172,7 +172,7 @@ export default function ControlPanel({
           display: "grid",
           gridTemplateColumns: isMobile
             ? "1fr"
-            : "minmax(360px, 0.95fr) minmax(240px, 0.62fr) minmax(260px, 0.72fr)",
+            : "minmax(320px, 0.82fr) minmax(280px, 0.75fr) minmax(260px, 0.72fr)",
           gap: "16px",
           alignItems: "start",
         }}

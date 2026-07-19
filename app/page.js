@@ -51,6 +51,7 @@ const DEFAULT_FILTER_SETTINGS = {
   fishLevel: "全部",
   bugLevel: "全部",
   birdLevel: "全部",
+  shellLevel: "全部",
 };
 
 function getValidStoredValue(value, fallback) {
@@ -99,6 +100,7 @@ export default function Home() {
   const [fishLevel, setFishLevel] = useState("全部");
   const [bugLevel, setBugLevel] = useState("全部");
   const [birdLevel, setBirdLevel] = useState("全部");
+  const [shellLevel, setShellLevel] = useState("全部");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [tab, setTab] = useState("全部");
@@ -113,10 +115,7 @@ export default function Home() {
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem("heartTownStarRecords");
-
-      if (saved) {
-        setStarRecords(JSON.parse(saved));
-      }
+      if (saved) setStarRecords(JSON.parse(saved));
     } catch (error) {
       console.error("讀取星數紀錄失敗:", error);
     } finally {
@@ -156,6 +155,9 @@ export default function Home() {
         setBirdLevel(
           getValidStoredValue(parsed.birdLevel, DEFAULT_FILTER_SETTINGS.birdLevel)
         );
+        setShellLevel(
+          getValidStoredValue(parsed.shellLevel, DEFAULT_FILTER_SETTINGS.shellLevel)
+        );
       }
     } catch (error) {
       console.error("讀取篩選設定失敗:", error);
@@ -175,22 +177,28 @@ export default function Home() {
           fishLevel,
           bugLevel,
           birdLevel,
+          shellLevel,
         })
       );
     } catch (error) {
       console.error("儲存篩選設定失敗:", error);
     }
-  }, [weatherFilter, fishLevel, bugLevel, birdLevel, filterSettingsReady]);
+  }, [
+    weatherFilter,
+    fishLevel,
+    bugLevel,
+    birdLevel,
+    shellLevel,
+    filterSettingsReady,
+  ]);
 
   useEffect(() => {
     async function loadData() {
       try {
         const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
-
         if (!res.ok) throw new Error("無法讀取 Google Sheet 資料");
 
         const csvText = await res.text();
-
         const parsedRows = parseCSV(csvText)
           .filter((row) => {
             const name = getField(row, ["名稱"]);
@@ -238,10 +246,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedKeyword(keyword);
-    }, 250);
-
+    const timer = setTimeout(() => setDebouncedKeyword(keyword), 250);
     return () => clearTimeout(timer);
   }, [keyword]);
 
@@ -251,39 +256,33 @@ export default function Home() {
     }
 
     handleResize();
-
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const latestVersion = CHANGELOG?.[0]?.version ?? "v0.0.0";
   const currentTimeInfo = useMemo(() => getCurrentTimeInfo(now), [now]);
-
   const effectivePeriod = autoPeriod ? currentTimeInfo.period : manualPeriod;
-
   const effectivePeriodName =
     effectivePeriod === "全部" ? "全部" : getPeriodName(effectivePeriod);
 
   const fishLevels = useMemo(() => getUniqueSortedLevels(rows, "魚"), [rows]);
   const bugLevels = useMemo(() => getUniqueSortedLevels(rows, "蟲"), [rows]);
   const birdLevels = useMemo(() => getUniqueSortedLevels(rows, "鳥"), [rows]);
+  const shellLevels = useMemo(() => getUniqueSortedLevels(rows, "貝"), [rows]);
 
   const fishCount = useMemo(
     () => rows.filter((row) => row._type === "魚").length,
     [rows]
   );
-
   const bugCount = useMemo(
     () => rows.filter((row) => row._type === "蟲").length,
     [rows]
   );
-
   const birdCount = useMemo(
     () => rows.filter((row) => row._type === "鳥").length,
     [rows]
   );
-
   const shellCount = useMemo(
     () => rows.filter((row) => row._type === "貝").length,
     [rows]
@@ -291,11 +290,7 @@ export default function Home() {
 
   function setStarRecord(name, star) {
     if (!name) return;
-
-    setStarRecords((prev) => ({
-      ...prev,
-      [name]: Number(star),
-    }));
+    setStarRecords((prev) => ({ ...prev, [name]: Number(star) }));
   }
 
   const filteredRows = useMemo(() => {
@@ -328,19 +323,19 @@ export default function Home() {
       const matchPlace = placeFilterTargets
         ? placeFilterTargets.includes(rowNormalizedPlace)
         : true;
-
       const matchFullStar = hideFullStars
         ? Number(starRecords[rowName] ?? 0) !== 5
         : true;
 
       let matchLevel = true;
-
       if (rowType === "魚" && fishLevel !== "全部") {
         matchLevel = rowLevel <= Number(fishLevel);
       } else if (rowType === "蟲" && bugLevel !== "全部") {
         matchLevel = rowLevel <= Number(bugLevel);
       } else if (rowType === "鳥" && birdLevel !== "全部") {
         matchLevel = rowLevel <= Number(birdLevel);
+      } else if (rowType === "貝" && shellLevel !== "全部") {
+        matchLevel = rowLevel <= Number(shellLevel);
       }
 
       return (
@@ -368,6 +363,7 @@ export default function Home() {
     fishLevel,
     bugLevel,
     birdLevel,
+    shellLevel,
     effectivePeriod,
     tab,
     levelSort,
@@ -385,13 +381,7 @@ export default function Home() {
           '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
       }}
     >
-      <div
-        style={{
-          maxWidth: "1000px",
-          width: "100%",
-          margin: "0 auto",
-        }}
-      >
+      <div style={{ maxWidth: "1000px", width: "100%", margin: "0 auto" }}>
         <header style={{ marginBottom: "20px" }}>
           <h1
             style={{
@@ -457,22 +447,14 @@ export default function Home() {
                       ...chipStyle,
                       background: active ? "#111" : "#f1f1f1",
                       color: active ? "#fff" : "#333",
-                      border: active
-                        ? "1px solid #111"
-                        : "1px solid #e5e5e5",
+                      border: active ? "1px solid #111" : "1px solid #e5e5e5",
                     }}
                   >
                     {TAB_LABELS[type]}
                   </button>
 
                   {showDivider && (
-                    <span
-                      style={{
-                        color: "#bbb",
-                        fontSize: "18px",
-                        fontWeight: 600,
-                      }}
-                    >
+                    <span style={{ color: "#bbb", fontSize: "18px", fontWeight: 600 }}>
                       ｜
                     </span>
                   )}
@@ -534,9 +516,12 @@ export default function Home() {
               setBugLevel={setBugLevel}
               birdLevel={birdLevel}
               setBirdLevel={setBirdLevel}
+              shellLevel={shellLevel}
+              setShellLevel={setShellLevel}
               fishLevels={fishLevels}
               bugLevels={bugLevels}
               birdLevels={birdLevels}
+              shellLevels={shellLevels}
             />
 
             <BioTable

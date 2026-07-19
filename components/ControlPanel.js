@@ -313,7 +313,7 @@ export default function ControlPanel({
                 onChange={(e) => setAreaFilter(e.target.value)}
                 style={compactSelectStyle}
               >
-                {["全部", "中心城區", "北部", "東部", "西部", "南部"].map((item) => (
+                {["全部", "中心城區", "北部", "東部", "西部", "南部", "鯨落峽谷"].map((item) => (
                   <option key={item} value={item}>
                     {item}
                   </option>
@@ -401,7 +401,7 @@ export default function ControlPanel({
                     style={levelSelectStyle}
                   >
                     <option value="全部">全部</option>
-                    {shellLevels.map((level) => (
+                    {Array.from({ length: 10 }, (_, index) => index + 1).map((level) => (
                       <option key={level} value={level}>
                         {level}
                       </option>
@@ -585,6 +585,9 @@ export default function ControlPanel({
                       marginTop: "12px",
                       paddingTop: "12px",
                       borderTop: "1px solid #eee",
+                      maxHeight: "180px",
+                      overflowY: "auto",
+                      paddingRight: "4px",
                     }}
                   >
                     {olderLogs.map(renderLog)}

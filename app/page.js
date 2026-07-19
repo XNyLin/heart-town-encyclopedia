@@ -323,8 +323,9 @@ export default function Home() {
       const matchPlace = placeFilterTargets
         ? placeFilterTargets.includes(rowNormalizedPlace)
         : true;
+      const maxStars = rowName === "破損的海貝" ? 1 : 5;
       const matchFullStar = hideFullStars
-        ? Number(starRecords[rowName] ?? 0) !== 5
+        ? Number(starRecords[rowName] ?? 0) !== maxStars
         : true;
 
       let matchLevel = true;

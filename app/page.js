@@ -432,7 +432,7 @@ export default function Home() {
           >
             {TOP_TABS.map((type, index) => {
               const active = tab === type;
-              const showDivider = !isMobile && TOP_TABS[index] === "鳥";
+              const showDivider = !isMobile && TOP_TABS[index] === "貝";
 
               return (
                 <div

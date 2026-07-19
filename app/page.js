@@ -192,7 +192,10 @@ export default function Home() {
         const csvText = await res.text();
 
         const parsedRows = parseCSV(csvText)
-          .filter((row) => getField(row, ["名稱"]) !== "")
+          .filter((row) => {
+            const name = getField(row, ["名稱"]);
+            return name !== "" && name !== "???";
+          })
           .map((row) => {
             const name = getField(row, ["名稱"]);
             const type = getField(row, ["類型"]);
@@ -278,6 +281,11 @@ export default function Home() {
 
   const birdCount = useMemo(
     () => rows.filter((row) => row._type === "鳥").length,
+    [rows]
+  );
+
+  const shellCount = useMemo(
+    () => rows.filter((row) => row._type === "貝").length,
     [rows]
   );
 
@@ -496,6 +504,7 @@ export default function Home() {
               fishCount={fishCount}
               bugCount={bugCount}
               birdCount={birdCount}
+              shellCount={shellCount}
               fishOwnedStars={rows
                 .filter((row) => row._type === "魚")
                 .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
@@ -504,6 +513,9 @@ export default function Home() {
                 .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
               birdOwnedStars={rows
                 .filter((row) => row._type === "鳥")
+                .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
+              shellOwnedStars={rows
+                .filter((row) => row._type === "貝")
                 .reduce((sum, row) => sum + Number(starRecords[row._name] ?? 0), 0)}
               ownedStars={rows.reduce(
                 (sum, row) => sum + Number(starRecords[row._name] ?? 0),

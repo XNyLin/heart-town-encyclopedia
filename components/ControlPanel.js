@@ -117,8 +117,10 @@ export default function ControlPanel({
 
   const levelGridStyle = {
     ...filterGridStyle,
-    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, max-content)",
-    columnGap: "18px",
+    width: "100%",
+    maxWidth: "100%",
+    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+    columnGap: "8px",
   };
 
   const rightColumnCardStyle = {
@@ -231,7 +233,7 @@ export default function ControlPanel({
                 }}
               >
                 <ToggleSwitch checked={autoPeriod} onChange={setAutoPeriod} />
-                自動判斷
+                自動
               </div>
             </InfoPill>
 
@@ -282,7 +284,7 @@ export default function ControlPanel({
             </div>
           </div>
 
-          <div>
+          <div style={{ minWidth: 0 }}>
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
               style={{

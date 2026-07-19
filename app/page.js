@@ -26,13 +26,14 @@ import { chipStyle } from "@/styles/bioStyles";
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/1dCQmBErMhSXriigbgKQma1dQ2q7qNAo2AUTWiFv_AsQ/export?format=csv&gid=1514414564";
 
-const TOP_TABS = ["全部", "魚", "蟲", "鳥", "貓", "狗"];
+const TOP_TABS = ["全部", "魚", "蟲", "鳥", "貝", "貓", "狗"];
 
 const TAB_LABELS = {
   全部: "全部",
   魚: "🐟 魚",
   蟲: "🐞 蟲",
   鳥: "🕊 鳥",
+  貝: "🐚 貝",
   貓: "🐱 貓",
   狗: "🐶 狗",
 };

@@ -74,7 +74,6 @@ function formatPlaceDisplay(value) {
   return <span style={{ color, fontWeight: 600 }}>{text}</span>;
 }
 
-
 function getTypeEmoji(type) {
   return (
     {
@@ -86,8 +85,9 @@ function getTypeEmoji(type) {
   );
 }
 
-function StarSelector({ name, value, onChange }) {
-  const currentValue = Number(value ?? 0);
+function StarSelector({ name, value, onChange, maxStars = 5 }) {
+  const safeMaxStars = Math.max(1, Number(maxStars) || 5);
+  const currentValue = Math.min(Number(value ?? 0), safeMaxStars);
 
   return (
     <div
@@ -99,7 +99,7 @@ function StarSelector({ name, value, onChange }) {
       }}
       aria-label={`${name} 星數 ${currentValue}`}
     >
-      {[1, 2, 3, 4, 5].map((star) => {
+      {Array.from({ length: safeMaxStars }, (_, index) => index + 1).map((star) => {
         const active = star <= currentValue;
 
         return (
@@ -427,6 +427,7 @@ export default function BioTable({
                         name={name}
                         value={starValue}
                         onChange={setStarRecord}
+                        maxStars={name === "破損的海貝" ? 1 : 5}
                       />
                     </div>
                   </div>
@@ -626,6 +627,7 @@ export default function BioTable({
                         name={name}
                         value={starValue}
                         onChange={setStarRecord}
+                        maxStars={name === "破損的海貝" ? 1 : 5}
                       />
                     </td>
 

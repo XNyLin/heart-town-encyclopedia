@@ -81,6 +81,7 @@ function getTypeEmoji(type) {
       魚: "🐟",
       蟲: "🐞",
       鳥: "🕊",
+      貝: "🐚",
     }[type] || ""
   );
 }

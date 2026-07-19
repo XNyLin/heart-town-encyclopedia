@@ -46,14 +46,16 @@ export default function ControlPanel({
   setBugLevel,
   birdLevel,
   setBirdLevel,
+  shellLevel,
+  setShellLevel,
   fishLevels,
   bugLevels,
   birdLevels,
+  shellLevels,
   filteredCount,
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [oceanCleanupLevel, setOceanCleanupLevel] = useState("全部");
 
   useEffect(() => {
     function handleResize() {
@@ -356,12 +358,12 @@ export default function ControlPanel({
                 >
                   <span style={filterLabelStyle}>海洋清潔</span>
                   <select
-                    value={oceanCleanupLevel}
-                    onChange={(e) => setOceanCleanupLevel(e.target.value)}
+                    value={shellLevel}
+                    onChange={(e) => setShellLevel(e.target.value)}
                     style={levelSelectStyle}
                   >
                     <option value="全部">全部</option>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                    {shellLevels.map((level) => (
                       <option key={level} value={level}>
                         {level}
                       </option>

@@ -28,9 +28,11 @@ export default function ControlPanel({
   fishCount,
   bugCount,
   birdCount,
+  shellCount,
   fishOwnedStars,
   bugOwnedStars,
   birdOwnedStars,
+  shellOwnedStars,
   ownedStars,
   totalStars,
   tab,
@@ -67,12 +69,15 @@ export default function ControlPanel({
   const fishTotalStars = fishCount * 5;
   const bugTotalStars = bugCount * 5;
   const birdTotalStars = birdCount * 5;
+  const shellTotalStars = shellCount * 5;
   const safeFishOwnedStars = Number(fishOwnedStars || 0);
   const safeBugOwnedStars = Number(bugOwnedStars || 0);
   const safeBirdOwnedStars = Number(birdOwnedStars || 0);
+  const safeShellOwnedStars = Number(shellOwnedStars || 0);
   const fishProgress = fishTotalStars > 0 ? Math.round((safeFishOwnedStars / fishTotalStars) * 100) : 0;
   const bugProgress = bugTotalStars > 0 ? Math.round((safeBugOwnedStars / bugTotalStars) * 100) : 0;
   const birdProgress = birdTotalStars > 0 ? Math.round((safeBirdOwnedStars / birdTotalStars) * 100) : 0;
+  const shellProgress = shellTotalStars > 0 ? Math.round((safeShellOwnedStars / shellTotalStars) * 100) : 0;
 
   const filterItemStyle = {
     display: "flex",
@@ -130,19 +135,19 @@ export default function ControlPanel({
 
   function getProgressColor(progress) {
     const rainbowScale = [
-      "#7f00ff", // 0–7.6 紫
-      "#5f27ff", // 7.7–15.3 紫藍
-      "#2e86ff", // 15.4–23 藍
-      "#00b8ff", // 23.1–30.7 淺藍
-      "#00c9a7", // 30.8–38.4 青綠
-      "#00d26a", // 38.5–46.1 綠
-      "#7bdc00", // 46.2–53.8 黃綠
-      "#c7e000", // 53.9–61.5 萊姆黃
-      "#ffd600", // 61.6–69.2 黃
-      "#ffb300", // 69.3–76.9 金橘
-      "#ff8c00", // 77–84.6 橘
-      "#ff5e57", // 84.7–92.3 橘紅
-      "#ff2d55", // 92.4–100 紅
+      "#7f00ff",
+      "#5f27ff",
+      "#2e86ff",
+      "#00b8ff",
+      "#00c9a7",
+      "#00d26a",
+      "#7bdc00",
+      "#c7e000",
+      "#ffd600",
+      "#ffb300",
+      "#ff8c00",
+      "#ff5e57",
+      "#ff2d55",
     ];
 
     const normalizedProgress = Math.max(0, Math.min(Number(progress) || 0, 100));
@@ -275,7 +280,6 @@ export default function ControlPanel({
                 )}
               </select>
             </div>
-
           </div>
 
           <div>
@@ -409,10 +413,10 @@ export default function ControlPanel({
               }}
             >
               <div>
-                🐟 {fishCount} 筆｜🐞 {bugCount} 筆｜🕊 {birdCount} 筆
+                🐟 {fishCount} 筆｜🐞 {bugCount} 筆｜🕊 {birdCount} 筆｜🐚 {shellCount} 筆
               </div>
               <div>
-                總圖鑑 {fishCount + bugCount + birdCount} 筆｜
+                總圖鑑 {fishCount + bugCount + birdCount + shellCount} 筆｜
                 <strong>篩選後 {filteredCount} 筆</strong>
               </div>
             </div>
@@ -482,6 +486,17 @@ export default function ControlPanel({
                     }}
                   >
                     完成度 {birdProgress}%
+                  </span>
+                </div>
+                <div>
+                  🐚 {safeShellOwnedStars} / {shellTotalStars}｜
+                  <span
+                    style={{
+                      ...progressPercentStyle,
+                      color: getProgressColor(shellProgress),
+                    }}
+                  >
+                    完成度 {shellProgress}%
                   </span>
                 </div>
               </div>

@@ -53,6 +53,7 @@ export default function ControlPanel({
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [oceanCleanupLevel, setOceanCleanupLevel] = useState("全部");
 
   useEffect(() => {
     function handleResize() {
@@ -240,10 +241,7 @@ export default function ControlPanel({
             {placeFilter && (
               <>
                 <InfoPill label="📍現在查看的位置" value={placeFilter} />
-                <button
-                  onClick={() => setPlaceFilter("")}
-                  style={miniChipStyle}
-                >
+                <button onClick={() => setPlaceFilter("")} style={miniChipStyle}>
                   返回全部位置
                 </button>
               </>
@@ -343,6 +341,27 @@ export default function ControlPanel({
                   >
                     <option value="全部">全部</option>
                     {birdLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div
+                  style={{
+                    ...filterItemStyle,
+                    gridColumn: isMobile ? "auto" : "1 / -1",
+                  }}
+                >
+                  <span style={filterLabelStyle}>海洋清潔</span>
+                  <select
+                    value={oceanCleanupLevel}
+                    onChange={(e) => setOceanCleanupLevel(e.target.value)}
+                    style={levelSelectStyle}
+                  >
+                    <option value="全部">全部</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
                       <option key={level} value={level}>
                         {level}
                       </option>
@@ -451,12 +470,7 @@ export default function ControlPanel({
                   完成度 {collectionProgress}%
                 </strong>
               </div>
-              <div
-                style={{
-                  display: "grid",
-                  gap: "3px",
-                }}
-              >
+              <div style={{ display: "grid", gap: "3px" }}>
                 <div>
                   🐟 {safeFishOwnedStars} / {fishTotalStars}｜
                   <span
@@ -506,12 +520,7 @@ export default function ControlPanel({
           </div>
         </div>
 
-        <div
-          style={{
-            minWidth: 0,
-            width: "100%",
-          }}
-        >
+        <div style={{ minWidth: 0, width: "100%" }}>
           <div style={rightColumnCardStyle}>
             <div
               style={{
@@ -559,12 +568,7 @@ export default function ControlPanel({
                 </div>
               </>
             ) : (
-              <div
-                style={{
-                  fontSize: "13px",
-                  color: "#888",
-                }}
-              >
+              <div style={{ fontSize: "13px", color: "#888" }}>
                 尚無更新紀錄
               </div>
             )}

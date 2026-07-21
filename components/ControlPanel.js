@@ -53,6 +53,8 @@ export default function ControlPanel({
   bugLevels,
   birdLevels,
   filteredCount,
+  hideFullStars,
+  setHideFullStars,
 }) {
   const [isMobile, setIsMobile] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -252,6 +254,16 @@ export default function ControlPanel({
                 <option value="尋鯨季">尋鯨季</option>
               </select>
             </div>
+
+            <label style={{ ...filterItemStyle, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={hideFullStars}
+                onChange={(event) => setHideFullStars(event.target.checked)}
+                style={{ margin: 0 }}
+              />
+              <span style={filterLabelStyle}>隱藏滿星</span>
+            </label>
           </div>
 
           <div style={{ minWidth: 0 }}>

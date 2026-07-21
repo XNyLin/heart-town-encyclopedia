@@ -107,6 +107,18 @@ export default function ControlPanel({
     minWidth: "72px",
     flex: "0 0 72px",
   };
+  const mobileLevelItemStyle = {
+    ...filterItemStyle,
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: "4px",
+  };
+  const mobileLevelSelectStyle = {
+    ...levelSelectStyle,
+    width: "100%",
+    minWidth: 0,
+    flex: "1 1 auto",
+  };
   const filterGridStyle = {
     display: "grid",
     gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
@@ -117,7 +129,7 @@ export default function ControlPanel({
     ...filterGridStyle,
     width: "100%",
     maxWidth: "100%",
-    gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))",
     columnGap: "8px",
   };
   const rightColumnCardStyle = {
@@ -162,9 +174,9 @@ export default function ControlPanel({
   }
 
   const levelSelect = (label, value, setter, levels) => (
-    <div style={filterItemStyle}>
+    <div style={isMobile ? mobileLevelItemStyle : filterItemStyle}>
       <span style={filterLabelStyle}>{label}</span>
-      <select value={value} onChange={(e) => setter(e.target.value)} style={levelSelectStyle}>
+      <select value={value} onChange={(e) => setter(e.target.value)} style={isMobile ? mobileLevelSelectStyle : levelSelectStyle}>
         <option value="全部">全部</option>
         {levels.map((level) => (
           <option key={level} value={level}>{level}</option>
@@ -278,9 +290,9 @@ export default function ControlPanel({
                 {levelSelect("釣魚", fishLevel, setFishLevel, fishLevels)}
                 {levelSelect("捕蟲", bugLevel, setBugLevel, bugLevels)}
                 {levelSelect("觀鳥", birdLevel, setBirdLevel, birdLevels)}
-                <div style={{ ...filterItemStyle, gridColumn: isMobile ? "auto" : "1 / -1" }}>
+                <div style={{ ...(isMobile ? mobileLevelItemStyle : filterItemStyle), gridColumn: isMobile ? "auto" : "1 / -1" }}>
                   <span style={filterLabelStyle}>海洋清潔</span>
-                  <select value={shellLevel} onChange={(e) => setShellLevel(e.target.value)} style={levelSelectStyle}>
+                  <select value={shellLevel} onChange={(e) => setShellLevel(e.target.value)} style={isMobile ? mobileLevelSelectStyle : levelSelectStyle}>
                     <option value="全部">全部</option>
                     {Array.from({ length: 10 }, (_, index) => index + 1).map((level) => (
                       <option key={level} value={level}>{level}</option>

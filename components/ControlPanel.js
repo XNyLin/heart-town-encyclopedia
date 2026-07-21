@@ -129,7 +129,7 @@ export default function ControlPanel({
     ...filterGridStyle,
     width: "100%",
     maxWidth: "100%",
-    gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: isMobile ? "repeat(3, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))",
     columnGap: "8px",
   };
   const rightColumnCardStyle = {
@@ -290,7 +290,7 @@ export default function ControlPanel({
                 {levelSelect("釣魚", fishLevel, setFishLevel, fishLevels)}
                 {levelSelect("捕蟲", bugLevel, setBugLevel, bugLevels)}
                 {levelSelect("觀鳥", birdLevel, setBirdLevel, birdLevels)}
-                <div style={{ ...(isMobile ? mobileLevelItemStyle : filterItemStyle), gridColumn: isMobile ? "auto" : "1 / -1" }}>
+                <div style={{ ...(isMobile ? mobileLevelItemStyle : filterItemStyle), gridColumn: "1 / -1" }}>
                   <span style={filterLabelStyle}>海洋清潔</span>
                   <select value={shellLevel} onChange={(e) => setShellLevel(e.target.value)} style={isMobile ? mobileLevelSelectStyle : levelSelectStyle}>
                     <option value="全部">全部</option>

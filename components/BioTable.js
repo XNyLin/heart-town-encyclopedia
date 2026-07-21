@@ -183,52 +183,52 @@ export default function BioTable({
               const isActivePlace = placeFilter === place;
 
               const infoRow = (label, content) => (
-                <div style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: "8px", alignItems: "start" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr)", gap: "8px", alignItems: "start" }}>
                   <span style={{ color: "#888" }}>{label}</span>
-                  <span>{content}</span>
+                  <span style={{ minWidth: 0 }}>{content}</span>
                 </div>
               );
 
               return (
                 <div key={`${name}-${index}`} style={{ border: "1px solid #ececec", borderRadius: "14px", padding: "12px", background: "#fff" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "8px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
-                      <span style={{ fontSize: "18px", flexShrink: 0 }}>{getTypeEmoji(type)}</span>
-                      <span style={{ fontSize: "16px", fontWeight: 800, color: "#111", minWidth: 0 }}>{name}</span>
-                    </div>
-                    <div style={{ flexShrink: 0, fontSize: "13px", fontWeight: 700, color: "#444" }}>Lv.{level}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px", minWidth: 0 }}>
+                    <span style={{ fontSize: "18px", flexShrink: 0 }}>{getTypeEmoji(type)}</span>
+                    <span style={{ flexShrink: 0, fontSize: "13px", fontWeight: 700, color: "#444" }}>Lv.{level}</span>
+                    <span style={{ fontSize: "16px", fontWeight: 800, color: "#111", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+                    <span style={{ flexShrink: 0 }}>
+                      <StarSelector name={name} value={starValue} onChange={setStarRecord} maxStars={name === "破損的海貝" ? 1 : 5} />
+                    </span>
                   </div>
 
-                  <div style={{ display: "grid", gap: "6px", fontSize: "13px", color: "#444", lineHeight: 1.45 }}>
-                    {infoRow("天氣", formatWeatherDisplay(weather))}
-                    {infoRow("時段", formatPeriodDisplay(period))}
-                    <div style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: "8px", alignItems: "start" }}>
-                      <span style={{ color: "#888" }}>地點</span>
-                      <button
-                        onClick={() => setPlaceFilter(place)}
-                        style={{
-                          background: isActivePlace ? "#eef2ff" : "transparent",
-                          border: isActivePlace ? "1px solid #c7d2fe" : "1px solid transparent",
-                          borderRadius: "8px",
-                          padding: 0,
-                          cursor: "pointer",
-                          fontSize: "13px",
-                          textAlign: "left",
-                          lineHeight: 1.4,
-                          justifySelf: "start",
-                        }}
-                        title="點擊查看該地點所有生物"
-                      >
-                        {formatPlaceDisplay(place)}
-                      </button>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "12px", fontSize: "13px", color: "#444", lineHeight: 1.45 }}>
+                    <div style={{ display: "grid", gap: "6px", minWidth: 0 }}>
+                      {infoRow("天氣", formatWeatherDisplay(weather))}
+                      {infoRow("時段", formatPeriodDisplay(period))}
+                      <div style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr)", gap: "8px", alignItems: "start" }}>
+                        <span style={{ color: "#888" }}>地點</span>
+                        <button
+                          onClick={() => setPlaceFilter(place)}
+                          style={{
+                            background: isActivePlace ? "#eef2ff" : "transparent",
+                            border: isActivePlace ? "1px solid #c7d2fe" : "1px solid transparent",
+                            borderRadius: "8px",
+                            padding: 0,
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            textAlign: "left",
+                            lineHeight: 1.4,
+                            justifySelf: "start",
+                            minWidth: 0,
+                          }}
+                          title="點擊查看該地點所有生物"
+                        >
+                          {formatPlaceDisplay(place)}
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: "8px", alignItems: "start" }}>
-                      <span style={{ color: "#888" }}>Note</span>
-                      <span style={{ whiteSpace: "pre-line", lineHeight: 1.5 }}>{formatFishShadowDisplay(note)}</span>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: "8px", alignItems: "start" }}>
-                      <span style={{ color: "#888" }}>星數</span>
-                      <StarSelector name={name} value={starValue} onChange={setStarRecord} maxStars={name === "破損的海貝" ? 1 : 5} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: "#888", marginBottom: "6px" }}>Note.</div>
+                      <div style={{ whiteSpace: "pre-line", lineHeight: 1.5, overflowWrap: "break-word" }}>{formatFishShadowDisplay(note)}</div>
                     </div>
                   </div>
                 </div>

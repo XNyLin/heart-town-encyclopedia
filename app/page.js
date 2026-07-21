@@ -355,6 +355,27 @@ export default function Home() {
     hideFullStars,
   ]);
 
+  const seasonGroups = useMemo(() => {
+    const groupedRows = filteredRows.reduce((groups, row) => {
+      const season = row._season || "其他季節";
+      if (!groups[season]) groups[season] = [];
+      groups[season].push(row);
+      return groups;
+    }, {});
+
+    const orderedSeasons = [
+      "常駐",
+      "尋鯨季",
+      ...Object.keys(groupedRows).filter(
+        (season) => season !== "常駐" && season !== "尋鯨季"
+      ),
+    ];
+
+    return orderedSeasons
+      .filter((season) => groupedRows[season]?.length)
+      .map((season) => ({ season, rows: groupedRows[season] }));
+  }, [filteredRows]);
+
   return (
     <main
       style={{
@@ -505,20 +526,33 @@ export default function Home() {
               setHideFullStars={setHideFullStars}
             />
 
-            <BioTable
-              loading={loading}
-              filteredRows={filteredRows}
-              levelSort={levelSort}
-              setLevelSort={setLevelSort}
-              placeFilter={placeFilter}
-              setPlaceFilter={setPlaceFilter}
-              starRecords={starRecords}
-              setStarRecord={setStarRecord}
-              hideFullStars={hideFullStars}
-              setHideFullStars={setHideFullStars}
-            />
+            {seasonGroups.map(({ season, rows: seasonRows }) => (
+              <div key={season}>
+                <h2
+                  style={{
+                    margin: "20px 0 10px",
+                    fontSize: "20px",
+                    color: "#111",
+                  }}
+                >
+                  {season}圖鑑
+                </h2>
+                <BioTable
+                  loading={loading}
+                  filteredRows={seasonRows}
+                  levelSort={levelSort}
+                  setLevelSort={setLevelSort}
+                  placeFilter={placeFilter}
+                  setPlaceFilter={setPlaceFilter}
+                  starRecords={starRecords}
+                  setStarRecord={setStarRecord}
+                  hideFullStars={hideFullStars}
+                  setHideFullStars={setHideFullStars}
+                />
+              </div>
+            ))}
 
-            {["魚", "蟲", "鳥"].includes(tab) && <SourceBlock tab={tab} />}
+            {!["魚", "蟲", "鳥"].includes(tab) ? null : <SourceBlock tab={tab} />}
           </>
         )}
 

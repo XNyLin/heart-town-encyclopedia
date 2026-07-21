@@ -123,8 +123,6 @@ export default function BioTable({
   setPlaceFilter,
   starRecords = {},
   setStarRecord,
-  hideFullStars = false,
-  setHideFullStars,
 }) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -162,10 +160,6 @@ export default function BioTable({
       <section style={{ ...panelStyle, padding: "12px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px" }}>
           <div style={{ fontSize: "14px", fontWeight: 700, color: "#333" }}>圖鑑資料</div>
-          <label style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#555", whiteSpace: "nowrap", cursor: "pointer" }}>
-            <input type="checkbox" checked={hideFullStars} onChange={(event) => setHideFullStars?.(event.target.checked)} style={{ margin: 0 }} />
-            隱藏滿星
-          </label>
           <button onClick={() => setLevelSort(getNextLevelSort(levelSort))} style={{ ...miniChipStyle, height: "32px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
             等級 {getLevelSortIcon(levelSort)}
           </button>
@@ -270,12 +264,7 @@ export default function BioTable({
               <th style={{ ...mobileThStyle, width: "108px" }}>時段</th>
               <th style={{ ...mobileThStyle, width: "106px" }}>地點</th>
               <th style={{ ...mobileThStyle, width: "72px" }}>季節</th>
-              <th style={{ ...mobileThStyle, width: "118px" }}>
-                <label style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "4px", whiteSpace: "nowrap", cursor: "pointer" }}>
-                  <input type="checkbox" checked={hideFullStars} onChange={(event) => setHideFullStars?.(event.target.checked)} style={{ margin: 0 }} />
-                  隱藏滿星
-                </label>
-              </th>
+              <th style={{ ...mobileThStyle, width: "118px" }}>星數</th>
               <th style={{ ...mobileThStyle }}>Note</th>
             </tr>
           </thead>

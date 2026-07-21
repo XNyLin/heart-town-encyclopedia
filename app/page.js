@@ -501,6 +501,8 @@ export default function Home() {
               bugLevels={bugLevels}
               birdLevels={birdLevels}
               shellLevels={shellLevels}
+              hideFullStars={hideFullStars}
+              setHideFullStars={setHideFullStars}
             />
 
             <BioTable

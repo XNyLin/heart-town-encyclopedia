@@ -252,6 +252,9 @@ export default function ControlPanel({
                 <option value="全部">全部</option>
                 <option value="常駐">常駐</option>
                 <option value="尋鯨季">尋鯨季</option>
+                <option value="冰雪季">冰雪季</option>
+                <option value="夢光影">夢光影</option>
+                <option value="拼合街市">拼合街市</option>
               </select>
             </div>
 

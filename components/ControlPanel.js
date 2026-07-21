@@ -199,7 +199,7 @@ export default function ControlPanel({
       >
         <div style={{ display: "grid", gap: "12px", minWidth: 0 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-            <InfoPill label="目前時段" value={autoPeriod ? effectivePeriodName : ""}>
+            <InfoPill label="時段" value={autoPeriod ? effectivePeriodName : ""}>
               {!autoPeriod && (
                 <select
                   value={manualPeriod}

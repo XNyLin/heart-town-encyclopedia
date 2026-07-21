@@ -121,7 +121,7 @@ export default function ControlPanel({
   };
   const filterGridStyle = {
     display: "grid",
-    gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: "12px",
     alignItems: "center",
   };
@@ -129,7 +129,7 @@ export default function ControlPanel({
     ...filterGridStyle,
     width: "100%",
     maxWidth: "100%",
-    gridTemplateColumns: isMobile ? "repeat(3, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
     columnGap: "8px",
   };
   const rightColumnCardStyle = {
@@ -199,7 +199,6 @@ export default function ControlPanel({
       >
         <div style={{ display: "grid", gap: "12px", minWidth: 0 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
-            <InfoPill label="目前時間" value={currentTimeInfo.timeText} />
             <InfoPill label="目前時段" value={autoPeriod ? effectivePeriodName : ""}>
               {!autoPeriod && (
                 <select
@@ -229,6 +228,10 @@ export default function ControlPanel({
                 自動
               </div>
             </InfoPill>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", whiteSpace: "nowrap", fontSize: "12px", color: "#444" }}>
+              <ToggleSwitch checked={hideFullStars} onChange={setHideFullStars} />
+              隱藏滿星
+            </div>
             {placeFilter && (
               <>
                 <InfoPill label="📍現在查看的位置" value={placeFilter} />
@@ -269,16 +272,6 @@ export default function ControlPanel({
                 <option value="拼合街市">拼合街市</option>
               </select>
             </div>
-
-            <label style={{ ...filterItemStyle, cursor: "pointer" }}>
-              <input
-                type="checkbox"
-                checked={hideFullStars}
-                onChange={(event) => setHideFullStars(event.target.checked)}
-                style={{ margin: 0 }}
-              />
-              <span style={filterLabelStyle}>隱藏滿星</span>
-            </label>
           </div>
 
           <div style={{ minWidth: 0 }}>

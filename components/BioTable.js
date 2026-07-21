@@ -178,7 +178,6 @@ export default function BioTable({
               const weather = getField(row, ["天氣"]);
               const period = getField(row, ["時段", "時間"]);
               const place = getField(row, ["地點"]);
-              const season = getField(row, ["季節"]);
               const note = getField(row, ["Note", "備註"]);
               const starValue = Number(starRecords[name] ?? 0);
               const isActivePlace = placeFilter === place;
@@ -223,7 +222,6 @@ export default function BioTable({
                         {formatPlaceDisplay(place)}
                       </button>
                     </div>
-                    {infoRow("季節", season)}
                     <div style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: "8px", alignItems: "start" }}>
                       <span style={{ color: "#888" }}>Note</span>
                       <span style={{ whiteSpace: "pre-line", lineHeight: 1.5 }}>{formatFishShadowDisplay(note)}</span>
@@ -263,7 +261,6 @@ export default function BioTable({
               <th style={{ ...mobileThStyle, width: "68px" }}>天氣</th>
               <th style={{ ...mobileThStyle, width: "108px" }}>時段</th>
               <th style={{ ...mobileThStyle, width: "106px" }}>地點</th>
-              <th style={{ ...mobileThStyle, width: "72px" }}>季節</th>
               <th style={{ ...mobileThStyle, width: "118px" }}>星數</th>
               <th style={{ ...mobileThStyle }}>Note</th>
             </tr>
@@ -271,7 +268,7 @@ export default function BioTable({
           <tbody>
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ padding: "20px", textAlign: "center", color: "#777", fontSize: "13px" }}>沒有符合條件的資料</td>
+                <td colSpan={8} style={{ padding: "20px", textAlign: "center", color: "#777", fontSize: "13px" }}>沒有符合條件的資料</td>
               </tr>
             ) : (
               filteredRows.map((row, index) => {
@@ -299,7 +296,6 @@ export default function BioTable({
                         {formatPlaceDisplay(place)}
                       </button>
                     )}
-                    {cell(getField(row, ["季節"]))}
                     {cell(
                       <StarSelector name={name} value={starValue} onChange={setStarRecord} maxStars={name === "破損的海貝" ? 1 : 5} />,
                       { overflow: "visible", textOverflow: "unset", textAlign: "center" }

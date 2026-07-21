@@ -53,6 +53,7 @@ const DEFAULT_FILTER_SETTINGS = {
   bugLevel: "全部",
   birdLevel: "全部",
   shellLevel: "全部",
+  hideFullStars: false,
 };
 
 function getValidStoredValue(value, fallback) {
@@ -153,6 +154,11 @@ export default function Home() {
         setShellLevel(
           getValidStoredValue(parsed.shellLevel, DEFAULT_FILTER_SETTINGS.shellLevel)
         );
+        setHideFullStars(
+          typeof parsed.hideFullStars === "boolean"
+            ? parsed.hideFullStars
+            : DEFAULT_FILTER_SETTINGS.hideFullStars
+        );
       }
     } catch (error) {
       console.error("讀取篩選設定失敗:", error);
@@ -173,6 +179,7 @@ export default function Home() {
           bugLevel,
           birdLevel,
           shellLevel,
+          hideFullStars,
         })
       );
     } catch (error) {
@@ -185,6 +192,7 @@ export default function Home() {
     bugLevel,
     birdLevel,
     shellLevel,
+    hideFullStars,
     filterSettingsReady,
   ]);
 

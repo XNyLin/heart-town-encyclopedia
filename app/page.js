@@ -7,6 +7,7 @@ import DogGallery from "@/components/DogGallery";
 import ControlPanel from "@/components/ControlPanel";
 import BioTable from "@/components/BioTable";
 import SourceBlock from "@/components/SourceBlock";
+import ReportFeature from "@/components/ReportFeature";
 import { CHANGELOG } from "@/lib/changelog";
 
 import {
@@ -389,7 +390,7 @@ export default function Home() {
       style={{
         minHeight: "100vh",
         background: "#f7f7f7",
-        padding: "28px 16px",
+        padding: "28px 16px 92px",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif',
       }}
@@ -583,6 +584,7 @@ export default function Home() {
           </a>
         </footer>
       </div>
+      <ReportFeature />
     </main>
   );
 }
